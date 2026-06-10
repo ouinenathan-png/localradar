@@ -71,8 +71,8 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 }
 .nav-sep{height:1px;background:var(--gray-200);margin:6px 0}
 .sidebar-footer{
-  height:56px;display:flex;align-items:center;gap:9px;
-  padding:0 12px;border-top:1px solid var(--gray-200);flex-shrink:0;
+  min-height:64px;display:flex;align-items:center;gap:9px;
+  padding:10px 12px;border-top:1px solid var(--gray-200);flex-shrink:0;
 }
 .avatar{
   width:28px;height:28px;border-radius:50%;flex-shrink:0;
@@ -242,7 +242,7 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 .plan-growth  {background:var(--cobalt-100);color:var(--cobalt-600)}
 .plan-scale   {background:#FEF3C7;color:#B45309}
 .plan-admin   {background:var(--red-100);color:var(--red-600)}
-.sidebar-credits{font-size:10px;color:var(--gray-400);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-credits{font-size:10px;color:var(--gray-400);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
 .admin-banner{
   background:var(--red-100);border-bottom:1px solid #FECACA;
   padding:5px 12px;font-size:11px;font-weight:700;
@@ -383,8 +383,9 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 .th-statut{width:120px;flex-shrink:0}
 .th-action{width:105px;flex-shrink:0;justify-content:flex-end}
 .lead-row{
-  display:flex;align-items:center;height:50px;padding:0 14px;
+  display:flex;align-items:center;min-height:54px;padding:6px 14px;
   border-bottom:1px solid var(--gray-100);cursor:pointer;transition:background .1s;
+  gap:0;box-sizing:border-box;
 }
 .lead-row:last-child{border-bottom:none}
 .lead-row:hover{background:#F0F5FF}
@@ -396,7 +397,7 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 .cell-gerant{width:125px;flex-shrink:0;font-size:12.5px;color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cell-tech{width:175px;flex-shrink:0;display:flex;gap:3px;overflow:hidden;align-items:center}
 .cell-statut{width:120px;flex-shrink:0}
-.cell-action{width:105px;flex-shrink:0;display:flex;justify-content:flex-end}
+.cell-action{width:190px;flex-shrink:0;display:flex;justify-content:flex-end;gap:6px;align-items:center}
 
 /* Score badges */
 .score-badge{
@@ -1915,7 +1916,7 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 
             <div class="settings-section">
               <div class="settings-section-title">✉️ Paramètres du pitch IA</div>
-              <div class="settings-section-sub">L'IA adapte chaque message selon ces préférences avant de l'envoyer à Make</div>
+              <div class="settings-section-sub">L'IA adapte chaque message selon ces préférences pour générer des pitchs personnalisés</div>
 
               <div class="form-row">
                 <div class="form-group">
@@ -1965,7 +1966,7 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
               <div class="score-preview-card">
                 <div class="spc-title">
                   <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                  Aperçu du profil envoyé à Make
+                  Aperçu du profil de scoring IA
                 </div>
                 <div class="spc-grid" id="profile-preview-grid">
                   <div class="spc-item"><div class="spc-lbl">Secteur</div><div class="spc-val" id="prev-secteur">—</div></div>
@@ -1980,7 +1981,7 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
               <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
                 <button class="btn-make" onclick="saveIAProfile()">
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                  Sauvegarder & Synchroniser avec Make
+                  Sauvegarder & Activer le scoring IA
                 </button>
                 <button class="btn-ghost" onclick="previewProfile()">
                   <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1994,7 +1995,7 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
           <!-- API KEYS -->
           <div id="stab-api" style="display:none">
             <div class="settings-section">
-              <div class="settings-section-title">Automatisations Make</div>
+              <div class="settings-section-title">Automatisations LocalRadar</div>
               <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--cobalt-50);border-radius:var(--radius-md);margin-top:4px">
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <p style="font-size:13px;color:var(--cobalt-700);line-height:1.6;margin:0">
@@ -2646,14 +2647,14 @@ async function lancerRadar(){
     nb_leads: nb,
     user_id:  currentUser?.id,
   };
-  console.log('[LocalRadar → Make] Payload Radar:', JSON.stringify(payload,null,2));
+  console.log('[LocalRadar] Payload Radar:', JSON.stringify(payload,null,2));
 
   try{
     await fetch(window._radarWebhook||RADAR_WEBHOOK,{
       method:'POST',
       body:new URLSearchParams(payload)
     });
-    showToast(`🚀 Radar lancé — Make analyse ${a} à ${v} (${nb} leads)`);
+    showToast(`🚀 Radar lancé — LocalRadar analyse ${a} à ${v} (${nb} leads)`);
     document.getElementById('result-query').textContent=`"${a} · ${v}"`;
     // Recharger les leads depuis Supabase après un délai (Make insère les résultats)
     setTimeout(async()=>{
@@ -2665,7 +2666,7 @@ async function lancerRadar(){
       showToast(`✓ ${leadsData.length} leads chargés`);
     },5000);
   }catch(e){
-    console.error('[LocalRadar → Make] Radar error:',e);
+    console.error('[LocalRadar] Radar error:',e);
     showToast('⚠️ Erreur lors du lancement — vérifiez la connexion');
   }finally{
     btn.classList.remove('loading');
@@ -2680,7 +2681,7 @@ async function lancerRadarMobile(){
   document.getElementById('m-nb-leads').value=nb;
 
   const payload={activite:a, ville:v, nb_leads:nb, user_id:currentUser?.id};
-  console.log('[LocalRadar → Make] Payload Radar Mobile:', JSON.stringify(payload,null,2));
+  console.log('[LocalRadar] Payload Radar Mobile:', JSON.stringify(payload,null,2));
 
   try{
     await fetch(window._radarWebhook||RADAR_WEBHOOK,{
@@ -2697,7 +2698,7 @@ async function lancerRadarMobile(){
     },5000);
   }catch(e){
     showToast('⚠️ Erreur lors du lancement — vérifiez la connexion');
-    console.error('[LocalRadar → Make] Radar Mobile error:',e);
+    console.error('[LocalRadar] Radar Mobile error:',e);
   }
 }
 
@@ -2824,9 +2825,9 @@ function saveIAProfile(){
     timestamp:new Date().toISOString(),
     profile:p
   };
-  console.log('[LocalRadar → Make] Payload envoyé:', JSON.stringify(payload,null,2));
+  console.log('[LocalRadar] Payload envoyé:', JSON.stringify(payload,null,2));
 
-  showToast('✓ Profil synchronisé avec Make — scoring personnalisé activé');
+  showToast('✓ Profil sauvegardé — scoring IA personnalisé activé');
 }
 
 // ════════════════════════════════════════
@@ -3673,8 +3674,8 @@ async function enrichirLead(id, rowBtn){
     if(btn){ btn.className='btn-row btn-enrich'; btn.innerHTML=`<svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Enrichir`; }
     const pBtn=document.getElementById('btn-enrich-panel');
     if(pBtn){ pBtn.className='btn-enrich-panel'; document.getElementById('btn-enrich-panel-label').textContent='Enrichir l\'email'; }
-    showToast('⚠️ Erreur webhook Make — vérifiez la connexion');
-    console.error('[LocalRadar → Make] Enrich error:',e);
+    showToast('⚠️ Erreur LocalRadar — vérifiez la connexion');
+    console.error('[LocalRadar] Enrich error:',e);
   }
 }
 
@@ -4086,7 +4087,7 @@ function initRealtimeLeads(){
         renderTable(leadsData, 'leads-table-body', 'leads-count');
         updateDashboardStats();
 
-        showToast('✓ ' + updated.nom + ' enrichi par Make');
+        showToast('✓ ' + updated.nom + ' enrichi par LocalRadar');
         console.log('[Realtime] Lead remplacé:', updated.nom, updated);
       }
     )

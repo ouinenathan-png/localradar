@@ -85,6 +85,53 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 .user-plan{font-size:10px;color:var(--gray-400)}
 
 /* ═══════════════════════════════════════
+   AUTH PAGE
+═══════════════════════════════════════ */
+#auth-screen{
+  position:fixed;inset:0;background:var(--gray-50);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;
+}
+.auth-card{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);
+  padding:40px;width:100%;max-width:400px;
+}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.auth-logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--cobalt-500),#7C3AED);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.auth-title{font-size:20px;font-weight:800;color:var(--gray-900);margin-bottom:4px;letter-spacing:-.4px}
+.auth-sub{font-size:13px;color:var(--gray-400);margin-bottom:24px}
+.auth-tabs{display:flex;gap:0;background:var(--gray-100);border-radius:var(--radius-md);padding:3px;margin-bottom:24px}
+.auth-tab{
+  flex:1;padding:7px;border:none;background:transparent;
+  font-size:13px;font-weight:600;color:var(--gray-400);
+  border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;
+}
+.auth-tab.active{background:var(--white);color:var(--gray-900);box-shadow:var(--shadow-sm)}
+.auth-error{
+  background:var(--red-100);color:var(--red-600);
+  border-radius:var(--radius-md);padding:10px 14px;
+  font-size:12.5px;margin-bottom:16px;display:none;
+}
+.auth-error.show{display:block}
+.auth-success{
+  background:var(--green-100);color:var(--green-600);
+  border-radius:var(--radius-md);padding:10px 14px;
+  font-size:12.5px;margin-bottom:16px;display:none;
+}
+.auth-success.show{display:block}
+.btn-logout{
+  background:none;border:none;cursor:pointer;padding:4px;
+  color:var(--gray-400);transition:color .12s;flex-shrink:0;
+  display:flex;align-items:center;
+}
+.btn-logout:hover{color:var(--red-500)}
+
+/* ═══════════════════════════════════════
    MAIN CONTENT
 ═══════════════════════════════════════ */
 .main-content{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh}
@@ -892,7 +939,41 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
-<div class="app" id="app">
+
+<!-- ══ AUTH SCREEN ══ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
+          <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2" opacity=".75"/>
+        </svg>
+      </div>
+      <span style="font-size:16px;font-weight:800;color:var(--gray-900);letter-spacing:-.4px">LocalRadar</span>
+    </div>
+    <div class="auth-title">Bienvenue</div>
+    <div class="auth-sub">Connectez-vous pour accéder à votre espace de travail</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Connexion</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Créer un compte</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <div id="auth-success" class="auth-success"></div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="auth-email" type="email" placeholder="vous@exemple.fr" autocomplete="email">
+    </div>
+    <div class="form-group" style="margin-bottom:20px">
+      <label class="form-label">Mot de passe</label>
+      <input class="form-input" id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
+    </div>
+    <button class="btn-primary" id="auth-submit-btn" onclick="submitAuth()" style="width:100%;justify-content:center;height:40px;font-size:14px">
+      Se connecter
+    </button>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
 
   <!-- ══ SIDEBAR ══ -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
@@ -934,13 +1015,13 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="avatar"><span>JD</span></div>
+      <div class="avatar"><span id="sidebar-avatar-initials">?</span></div>
       <div class="user-info">
-        <div class="user-name">Jean Dupont</div>
-        <div class="user-plan">Plan Pro · 240 crédits</div>
+        <div class="user-name" id="sidebar-user-email">—</div>
+        <div class="user-plan">LocalRadar Beta</div>
       </div>
-      <button class="icon-btn" style="border:none;width:auto;height:auto;flex-shrink:0">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--gray-400)" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      <button class="btn-logout" onclick="logOut()" title="Se déconnecter">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </aside>
@@ -2182,7 +2263,7 @@ async function lancerRadar(){
     activite: a,
     ville:    v,
     nb_leads: nb,
-    user_id:  DEMO_USER_ID,
+    user_id:  currentUser?.id,
   };
   console.log('[LocalRadar → Make] Payload Radar:', JSON.stringify(payload,null,2));
 
@@ -2217,7 +2298,7 @@ async function lancerRadarMobile(){
   const nb=clampLeads(document.getElementById('m-nb-leads').value);
   document.getElementById('m-nb-leads').value=nb;
 
-  const payload={activite:a, ville:v, nb_leads:nb, user_id:DEMO_USER_ID};
+  const payload={activite:a, ville:v, nb_leads:nb, user_id:currentUser?.id};
   console.log('[LocalRadar → Make] Payload Radar Mobile:', JSON.stringify(payload,null,2));
 
   try{
@@ -2414,12 +2495,115 @@ function loadSavedProfile(){
 // ════════════════════════════════════════
 const SUPABASE_URL='https://qhfoiiwxlvhtlieseggs.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoZm9paXd4bHZodGxpZXNlZ2dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDg5MTUsImV4cCI6MjA5NjU4NDkxNX0.OfmyoMnxrlXDDIpES8U7NECNtZUv4q4-jWeQXEX4GC8';
-const DEMO_USER_ID='a0000000-0000-0000-0000-000000000001';
 let sbClient=null;
+let currentUser=null;
 function getSB(){
   if(!sbClient) sbClient=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
   return sbClient;
 }
+
+// ════════════════════════════════════════
+// AUTH — login / signup / logout
+// ════════════════════════════════════════
+let _authTab='login';
+function switchAuthTab(tab){
+  _authTab=tab;
+  document.getElementById('tab-login').classList.toggle('active',tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active',tab==='signup');
+  document.getElementById('auth-submit-btn').textContent=tab==='login'?'Se connecter':'Créer mon compte';
+  document.getElementById('auth-error').classList.remove('show');
+  document.getElementById('auth-success').classList.remove('show');
+}
+
+async function submitAuth(){
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  const errEl=document.getElementById('auth-error');
+  const okEl=document.getElementById('auth-success');
+  errEl.classList.remove('show'); okEl.classList.remove('show');
+  if(!email||!password){errEl.textContent='Email et mot de passe requis.';errEl.classList.add('show');return;}
+  const btn=document.getElementById('auth-submit-btn');
+  btn.disabled=true; btn.textContent='…';
+  const sb=getSB();
+  let error,user;
+  if(_authTab==='login'){
+    const res=await sb.auth.signInWithPassword({email,password});
+    error=res.error; user=res.data?.user;
+  } else {
+    const res=await sb.auth.signUp({email,password});
+    error=res.error; user=res.data?.user;
+    if(!error&&res.data?.session===null){
+      okEl.textContent='Vérifiez votre email pour confirmer votre compte.';
+      okEl.classList.add('show');
+      btn.disabled=false; btn.textContent='Créer mon compte';
+      return;
+    }
+  }
+  btn.disabled=false;
+  btn.textContent=_authTab==='login'?'Se connecter':'Créer mon compte';
+  if(error){errEl.textContent=translateAuthError(error.message);errEl.classList.add('show');return;}
+  if(user) await onAuthSuccess(user);
+}
+
+function translateAuthError(msg){
+  if(msg.includes('Invalid login')) return 'Email ou mot de passe incorrect.';
+  if(msg.includes('Email not confirmed')) return 'Confirmez votre email avant de vous connecter.';
+  if(msg.includes('already registered')) return 'Cet email est déjà utilisé. Connectez-vous.';
+  if(msg.includes('Password should')) return 'Le mot de passe doit faire au moins 6 caractères.';
+  return msg;
+}
+
+async function onAuthSuccess(user){
+  currentUser=user;
+  // Mettre à jour la sidebar
+  const email=user.email||'';
+  const initials=email.slice(0,2).toUpperCase();
+  document.getElementById('sidebar-avatar-initials').textContent=initials;
+  document.getElementById('sidebar-user-email').textContent=email;
+  // Créer le profil si absent
+  await ensureProfile(user);
+  // Masquer auth, afficher app
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  await init();
+}
+
+async function ensureProfile(user){
+  const sb=getSB();
+  const {data}=await sb.from('profiles').select('id').eq('id',user.id).single();
+  if(!data){
+    await sb.from('profiles').insert({
+      id: user.id,
+      email: user.email,
+      plan: 'free',
+      credits: 50,
+    });
+  }
+}
+
+async function logOut(){
+  await getSB().auth.signOut();
+  currentUser=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('auth-email').value='';
+  document.getElementById('auth-password').value='';
+  leadsData.length=0; filteredLeads.length=0;
+  showToast('À bientôt !');
+}
+
+// Démarrage — vérifie session existante
+(async()=>{
+  const sb=getSB();
+  const {data:{session}}=await sb.auth.getSession();
+  if(session?.user){
+    await onAuthSuccess(session.user);
+  }
+  // Écoute les changements de session (expiration token etc.)
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_OUT'){ logOut(); }
+  });
+})();
 
 // Mapping statut Supabase → libellé UI
 function normalizeStatut(s, email) {
@@ -2484,7 +2668,7 @@ async function saveLead(lead){
   if(lead.supabase_id) return lead.supabase_id;
   const sb=getSB();
   const {data,error}=await sb.from('leads').insert({
-    user_id: DEMO_USER_ID,
+    user_id: currentUser?.id,
     nom: lead.nom,
     ville: lead.ville,
     secteur: lead.secteur,
@@ -2589,7 +2773,7 @@ async function enrichirLead(id, rowBtn){
   const raw = lead._raw || {};
   const payload = {
     lead_id:  supabaseId,
-    user_id:  raw.user_id  || DEMO_USER_ID,
+    user_id:  raw.user_id || currentUser?.id,
     nom:      lead.nom,
     ville:    lead.ville,
     secteur:  lead.secteur,
@@ -2850,7 +3034,7 @@ async function submitAddLead(){
       statut: 'nouveau',
       source: 'manuel',
       score: 0,
-      user_id: DEMO_USER_ID
+      user_id: currentUser?.id
     })
     .select()
     .single();
@@ -2883,14 +3067,13 @@ async function submitAddLead(){
 // ════════════════════════════════════════
 async function fetchLeads(){
   const sb = getSB();
-  const { data, error } = await sb
-    .from('leads')
-    .select('*')
-    .order('score', { ascending: false });
+  let query = sb.from('leads').select('*').order('score', { ascending: false });
+  if(currentUser?.id) query = query.eq('user_id', currentUser.id);
+  const { data, error } = await query;
   if(error){
     console.error('[Supabase] fetchLeads error:', error);
     showToast('⚠️ Impossible de charger les leads — vérifiez la connexion');
-    return null; // null = erreur, différent de [] = succès vide
+    return null;
   }
   return (data || []).map(normalizeLeadFromDB);
 }
@@ -2976,8 +3159,7 @@ async function init(){
   // Démarrer la subscription Realtime
   initRealtimeLeads();
 }
-
-init();
+// init() est appelé depuis onAuthSuccess() après vérification de session
 
 // ════════════════════════════════════════
 // SUPABASE REALTIME — leads updates

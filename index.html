@@ -147,6 +147,85 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 .confirm-mismatch.show{display:block}
 /* signup-only fields hidden on login */
 .signup-only{display:none}
+
+/* ═══════════════════════════════════════
+   ONBOARDING MODAL
+═══════════════════════════════════════ */
+#onboarding-screen{
+  position:fixed;inset:0;background:var(--gray-50);
+  display:none;align-items:center;justify-content:center;
+  z-index:1100;overflow-y:auto;
+}
+#onboarding-screen.show{display:flex}
+.ob-card{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);
+  width:100%;max-width:520px;margin:24px auto;
+  display:flex;flex-direction:column;
+}
+.ob-header{
+  padding:28px 32px 0;
+}
+.ob-progress-track{
+  height:4px;background:var(--gray-100);border-radius:99px;
+  overflow:hidden;margin-bottom:18px;
+}
+.ob-progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--cobalt-500),#7C3AED);
+  border-radius:99px;transition:width .35s cubic-bezier(.4,0,.2,1);
+}
+.ob-step-label{
+  font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--cobalt-500);margin-bottom:6px;
+}
+.ob-title{
+  font-size:20px;font-weight:800;color:var(--gray-900);
+  letter-spacing:-.4px;margin-bottom:4px;
+}
+.ob-sub{
+  font-size:13px;color:var(--gray-400);margin-bottom:0;
+}
+.ob-body{
+  padding:24px 32px;flex:1;
+}
+.ob-footer{
+  padding:16px 32px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--gray-100);gap:12px;
+}
+.ob-step{display:none}
+.ob-step.active{display:block}
+/* Chips multi-select */
+.chips-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{
+  padding:6px 13px;border-radius:99px;font-size:12px;font-weight:600;
+  border:1.5px solid var(--gray-200);background:var(--white);
+  color:var(--gray-500);cursor:pointer;transition:all .12s;user-select:none;
+}
+.chip:hover{border-color:var(--cobalt-300);color:var(--cobalt-600)}
+.chip.selected{
+  border-color:var(--cobalt-500);background:var(--cobalt-50);
+  color:var(--cobalt-700);
+}
+/* Slider */
+.ob-slider{width:100%;accent-color:var(--cobalt-500);margin-top:6px}
+.ob-slider-labels{
+  display:flex;justify-content:space-between;
+  font-size:11px;color:var(--gray-400);margin-top:4px;
+}
+.ob-slider-value{
+  display:inline-block;background:var(--cobalt-50);color:var(--cobalt-700);
+  font-size:12px;font-weight:700;padding:2px 10px;border-radius:99px;
+  margin-top:6px;
+}
+.btn-skip{
+  background:none;border:none;font-size:13px;color:var(--gray-400);
+  cursor:pointer;padding:0;font-family:inherit;
+}
+.btn-skip:hover{color:var(--gray-600);text-decoration:underline}
+.ob-webhook-hint{
+  font-size:11.5px;color:var(--gray-400);margin-top:4px;line-height:1.5;
+}
 .btn-logout{
   background:none;border:none;cursor:pointer;padding:4px;
   color:var(--gray-400);transition:color .12s;flex-shrink:0;
@@ -1038,6 +1117,161 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
     <button class="btn-primary" id="auth-submit-btn" onclick="submitAuth()" style="width:100%;justify-content:center;height:40px;font-size:14px">
       Se connecter
     </button>
+  </div>
+</div>
+
+<!-- ══ ONBOARDING ══ -->
+<div id="onboarding-screen">
+  <div class="ob-card">
+    <!-- Header fixe -->
+    <div class="ob-header">
+      <div class="ob-progress-track">
+        <div class="ob-progress-fill" id="ob-progress-fill" style="width:25%"></div>
+      </div>
+      <div class="ob-step-label" id="ob-step-label">Étape 1 sur 4</div>
+      <div class="ob-title" id="ob-title">Parlez-nous de vous</div>
+      <div class="ob-sub" id="ob-sub">Quelques infos pour personnaliser votre expérience</div>
+    </div>
+
+    <!-- Body — étapes -->
+    <div class="ob-body">
+
+      <!-- ÉTAPE 1 : Profil entreprise -->
+      <div class="ob-step active" id="ob-step-1">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Prénom *</label>
+            <input class="form-input" id="ob-prenom" type="text" placeholder="Jean">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Nom *</label>
+            <input class="form-input" id="ob-nom" type="text" placeholder="Dupont">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Nom de l'agence / entreprise *</label>
+          <input class="form-input" id="ob-agence" type="text" placeholder="Digital Studio">
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Téléphone <span style="color:var(--gray-400)">(optionnel)</span></label>
+          <input class="form-input" id="ob-tel" type="tel" placeholder="+33 6 00 00 00 00">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Secteur d'activité *</label>
+          <select class="form-input" id="ob-secteur">
+            <option value="">— Choisir —</option>
+            <option>Agence web</option>
+            <option>Agence SEO</option>
+            <option>Agence Ads</option>
+            <option>Agence marketing</option>
+            <option>Freelance dev</option>
+            <option>Freelance marketing</option>
+            <option>Conseil digital</option>
+            <option>Autre</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 2 : Activité -->
+      <div class="ob-step" id="ob-step-2">
+        <div class="form-group" style="margin-bottom:18px">
+          <label class="form-label">Ticket moyen client</label>
+          <select class="form-input" id="ob-ticket">
+            <option value="">— Choisir —</option>
+            <option>< 500€</option>
+            <option>500–1 500€</option>
+            <option>1 500–5 000€</option>
+            <option>5 000–15 000€</option>
+            <option>> 15 000€</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:18px">
+          <label class="form-label">Services proposés</label>
+          <div class="chips-wrap" id="chips-services">
+            <div class="chip" data-val="Site web">Site web</div>
+            <div class="chip" data-val="SEO">SEO</div>
+            <div class="chip" data-val="Google Ads">Google Ads</div>
+            <div class="chip" data-val="Meta Ads">Meta Ads</div>
+            <div class="chip" data-val="Social media">Social media</div>
+            <div class="chip" data-val="Email marketing">Email marketing</div>
+            <div class="chip" data-val="CRM">CRM</div>
+            <div class="chip" data-val="Conseil">Conseil</div>
+            <div class="chip" data-val="Formation">Formation</div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Type de clients ciblés</label>
+          <div class="chips-wrap" id="chips-cibles">
+            <div class="chip" data-val="Artisans">Artisans</div>
+            <div class="chip" data-val="Restauration">Restauration</div>
+            <div class="chip" data-val="Commerce">Commerce</div>
+            <div class="chip" data-val="Santé">Santé</div>
+            <div class="chip" data-val="Immobilier">Immobilier</div>
+            <div class="chip" data-val="Services">Services</div>
+            <div class="chip" data-val="TPE">TPE</div>
+            <div class="chip" data-val="PME">PME</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 3 : Zone de prospection -->
+      <div class="ob-step" id="ob-step-3">
+        <div class="form-group" style="margin-bottom:16px">
+          <label class="form-label">Ville principale de prospection</label>
+          <input class="form-input" id="ob-ville" type="text" placeholder="Paris, Lyon, Bordeaux…">
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label class="form-label">Rayon géographique</label>
+          <input class="ob-slider" id="ob-rayon" type="range" min="0" max="3" step="1" value="0"
+            oninput="updateRayonLabel()">
+          <div class="ob-slider-labels">
+            <span>Ma ville</span><span>Département</span><span>Région</span><span>France entière</span>
+          </div>
+          <span class="ob-slider-value" id="ob-rayon-val">Ma ville</span>
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label class="form-label">Activité cible principale</label>
+          <input class="form-input" id="ob-activite" type="text" placeholder="Plombier, Boulanger, Dentiste…">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Leads souhaités par recherche : <span class="ob-slider-value" id="ob-nb-leads-val" style="margin-left:4px">10</span></label>
+          <input class="ob-slider" id="ob-nb-leads" type="range" min="5" max="50" step="5" value="10"
+            oninput="document.getElementById('ob-nb-leads-val').textContent=this.value">
+          <div class="ob-slider-labels"><span>5</span><span>50</span></div>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 4 : Make webhooks -->
+      <div class="ob-step" id="ob-step-4">
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">URL Webhook Radar <span style="color:var(--gray-400)">(optionnel)</span></label>
+          <input class="form-input" id="ob-webhook-radar" type="text" placeholder="https://hook.eu1.make.com/…">
+          <div class="ob-webhook-hint">L'URL de votre scénario Make <em>"LocalRadar Starter – Scrap Leads"</em></div>
+        </div>
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">URL Webhook Enrichissement <span style="color:var(--gray-400)">(optionnel)</span></label>
+          <input class="form-input" id="ob-webhook-enrich" type="text" placeholder="https://hook.eu1.make.com/…">
+          <div class="ob-webhook-hint">L'URL de votre scénario Make <em>"LocalRadar Growth – Enrich Leads"</em></div>
+        </div>
+        <div style="padding:16px;background:var(--cobalt-50);border-radius:var(--radius-md);font-size:12.5px;color:var(--cobalt-700);line-height:1.6">
+          💡 Ces URLs sont accessibles dans Make → votre scénario → cliquer sur le module Webhook → copier l'URL. Vous pourrez les modifier plus tard dans Paramètres → API.
+        </div>
+      </div>
+
+    </div><!-- /ob-body -->
+
+    <!-- Footer nav -->
+    <div class="ob-footer">
+      <button class="btn-ghost" id="ob-btn-prev" onclick="obPrev()" style="display:none">← Précédent</button>
+      <div id="ob-skip-wrap" style="display:none">
+        <button class="btn-skip" onclick="obFinish()">Je configure ça plus tard</button>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+        <button class="btn-primary" id="ob-btn-next" onclick="obNext()">
+          Suivant →
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2773,6 +3007,139 @@ function translateAuthError(msg){
   return msg;
 }
 
+// ════════════════════════════════════════
+// ONBOARDING
+// ════════════════════════════════════════
+const OB_TITLES=[
+  {title:'Parlez-nous de vous',        sub:'Quelques infos pour personnaliser votre expérience'},
+  {title:'Votre proposition de valeur',sub:'Définissez votre offre et vos clients idéaux'},
+  {title:'Où prospectez-vous ?',        sub:'Configurez votre zone de recherche par défaut'},
+  {title:'Connectez vos automatisations',sub:'Branchez Make pour automatiser la prospection'},
+];
+const RAYON_LABELS=['Ma ville','Département','Région','France entière'];
+let _obStep=1; // 1-indexed
+
+function initChips(){
+  document.querySelectorAll('.chips-wrap .chip').forEach(chip=>{
+    chip.addEventListener('click',()=>chip.classList.toggle('selected'));
+  });
+}
+function getChips(containerId){
+  return Array.from(document.querySelectorAll(`#${containerId} .chip.selected`)).map(c=>c.dataset.val);
+}
+function updateRayonLabel(){
+  const v=parseInt(document.getElementById('ob-rayon').value)||0;
+  document.getElementById('ob-rayon-val').textContent=RAYON_LABELS[v];
+}
+
+function obUpdateUI(){
+  const s=_obStep;
+  // Progress bar
+  document.getElementById('ob-progress-fill').style.width=(s/4*100)+'%';
+  // Labels
+  document.getElementById('ob-step-label').textContent=`Étape ${s} sur 4`;
+  document.getElementById('ob-title').textContent=OB_TITLES[s-1].title;
+  document.getElementById('ob-sub').textContent=OB_TITLES[s-1].sub;
+  // Steps visibility
+  document.querySelectorAll('.ob-step').forEach((el,i)=>el.classList.toggle('active',i+1===s));
+  // Prev button
+  document.getElementById('ob-btn-prev').style.display=s>1?'':'none';
+  // Skip (étape 4 only)
+  document.getElementById('ob-skip-wrap').style.display=s===4?'block':'none';
+  // Next / Finish button
+  const btn=document.getElementById('ob-btn-next');
+  if(s===4){ btn.textContent='Accéder à LocalRadar →'; }
+  else { btn.textContent='Suivant →'; }
+}
+
+function obValidateStep(){
+  if(_obStep===1){
+    const prenom=document.getElementById('ob-prenom').value.trim();
+    const nom=document.getElementById('ob-nom').value.trim();
+    const agence=document.getElementById('ob-agence').value.trim();
+    const secteur=document.getElementById('ob-secteur').value;
+    if(!prenom||!nom||!agence||!secteur){
+      showToast('Merci de remplir les champs obligatoires *');
+      return false;
+    }
+  }
+  return true;
+}
+
+function obNext(){
+  if(!obValidateStep()) return;
+  if(_obStep<4){ _obStep++; obUpdateUI(); }
+  else { obFinish(); }
+}
+function obPrev(){
+  if(_obStep>1){ _obStep--; obUpdateUI(); }
+}
+
+async function obFinish(){
+  const sb=getSB();
+  if(!currentUser) return;
+  const btn=document.getElementById('ob-btn-next');
+  btn.disabled=true; btn.textContent='Enregistrement…';
+
+  const rayonIdx=parseInt(document.getElementById('ob-rayon').value)||0;
+  const services=getChips('chips-services');
+  const cibles=getChips('chips-cibles');
+  const ia_profile={
+    services, cibles,
+    ticket_moyen: document.getElementById('ob-ticket').value||null,
+    zone: RAYON_LABELS[rayonIdx],
+    activite: document.getElementById('ob-activite').value.trim()||null,
+    nb_leads: parseInt(document.getElementById('ob-nb-leads').value)||10,
+  };
+  const radarUrl=document.getElementById('ob-webhook-radar').value.trim()||null;
+  const enrichUrl=document.getElementById('ob-webhook-enrich').value.trim()||null;
+
+  const updates={
+    onboarding_complete: true,
+    prenom: document.getElementById('ob-prenom').value.trim()||null,
+    nom: document.getElementById('ob-nom').value.trim()||null,
+    agence_nom: document.getElementById('ob-agence').value.trim()||null,
+    telephone: document.getElementById('ob-tel').value.trim()||null,
+    secteur: document.getElementById('ob-secteur').value||null,
+    ticket_moyen: document.getElementById('ob-ticket').value||null,
+    services: services.length?services:null,
+    cibles: cibles.length?cibles:null,
+    default_ville: document.getElementById('ob-ville').value.trim()||null,
+    rayon: RAYON_LABELS[rayonIdx],
+    default_activite: document.getElementById('ob-activite').value.trim()||null,
+    default_nb_leads: parseInt(document.getElementById('ob-nb-leads').value)||10,
+    ia_profile,
+    make_webhook_url_radar: radarUrl,
+    make_webhook_url: enrichUrl,
+  };
+  await sb.from('profiles').update(updates).eq('id',currentUser.id);
+
+  // Mettre à jour les webhooks en mémoire
+  if(radarUrl) window._radarWebhook=radarUrl;
+  if(enrichUrl) window._enrichWebhook=enrichUrl;
+
+  // Pré-remplir les champs par défaut du radar
+  const cityInput=document.getElementById('radar-city');
+  const actInput=document.getElementById('radar-activite');
+  const nbInput=document.getElementById('radar-nb');
+  if(cityInput&&updates.default_ville) cityInput.value=updates.default_ville;
+  if(actInput&&updates.default_activite) actInput.value=updates.default_activite;
+  if(nbInput&&updates.default_nb_leads) nbInput.value=updates.default_nb_leads;
+
+  // Fermer l'onboarding et ouvrir l'app
+  document.getElementById('onboarding-screen').classList.remove('show');
+  document.getElementById('app').style.display='flex';
+  showToast('🎉 Bienvenue sur LocalRadar !');
+  await init();
+}
+
+function showOnboarding(){
+  _obStep=1;
+  obUpdateUI();
+  initChips();
+  document.getElementById('onboarding-screen').classList.add('show');
+}
+
 async function onAuthSuccess(user){
   currentUser=user;
   // Mettre à jour la sidebar
@@ -2782,8 +3149,13 @@ async function onAuthSuccess(user){
   document.getElementById('sidebar-user-email').textContent=email;
   // Charger / créer le profil et appliquer les permissions
   await loadUserProfile(user);
-  // Masquer auth, afficher app
+  // Masquer auth screen
   document.getElementById('auth-screen').style.display='none';
+  // Onboarding si pas encore complété
+  if(!currentProfile?.onboarding_complete){
+    showOnboarding();
+    return; // init() sera appelé depuis obFinish()
+  }
   document.getElementById('app').style.display='flex';
   await init();
 }

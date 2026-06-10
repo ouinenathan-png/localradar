@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>LocalRadar — MVP</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -18,6 +19,21 @@
   --red-500:#EF4444;--red-100:#FEE2E2;--red-600:#DC2626;
   --purple-500:#8B5CF6;--purple-100:#EDE9FE;--purple-600:#7C3AED;
   --white:#FFFFFF;
+  /* ── Design system tokens ── */
+  --font-display:'Plus Jakarta Sans',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --cobalt:#2563EB;
+  --cobalt-dark:#1D4ED8;
+  --cobalt-deep:#1E3A8A;
+  --cobalt-light:#DBEAFE;
+  --cobalt-pale:#EFF6FF;
+  --orange:#F97316;
+  --orange-light:#FFF7ED;
+  --ink:#0F172A;
+  --slate:#334155;
+  --muted:#64748B;
+  --border:#E2E8F0;
+  --surface:#F8FAFC;
   --sidebar-w:220px;--topbar-h:60px;--panel-w:440px;--bottom-nav-h:60px;
   --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
   --radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;
@@ -1088,6 +1104,132 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 @media(max-width:768px){
   .page#page-dashboard .mobile-search-bar{display:flex}
 }
+
+/* ═══════════════════════════════════════════════════════════
+   LOCALRADAR DESIGN SYSTEM — additive layer (no overrides)
+═══════════════════════════════════════════════════════════ */
+
+/* ── Boutons DS ── */
+.ds-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--font-display);font-size:13.5px;font-weight:600;
+  border-radius:9px;padding:11px 22px;border:none;cursor:pointer;
+  transition:background .16s ease, transform .16s ease, box-shadow .16s ease;
+  white-space:nowrap;text-decoration:none;
+}
+.ds-btn-primary{
+  background:var(--cobalt);color:#fff;
+  box-shadow:0 1px 3px rgba(37,99,235,.25),0 4px 14px rgba(37,99,235,.18);
+}
+.ds-btn-primary:hover{background:var(--cobalt-dark);transform:translateY(-1px)}
+.ds-btn-ghost{
+  background:transparent;color:var(--slate);
+  border:1.5px solid var(--border);
+}
+.ds-btn-ghost:hover{border-color:var(--cobalt-light);background:var(--cobalt-pale);color:var(--cobalt)}
+.ds-btn-orange{
+  background:var(--orange);color:#fff;
+  box-shadow:0 4px 14px rgba(249,115,22,.25);
+}
+.ds-btn-orange:hover{background:#EA6C0A;transform:translateY(-1px)}
+.ds-btn.sm{padding:7px 15px;font-size:12.5px}
+
+/* ── Badges / Tags DS ── */
+.ds-tag{
+  display:inline-flex;align-items:center;
+  font-size:11.5px;font-weight:600;
+  padding:3px 11px;border-radius:100px;border:1.5px solid;
+  font-family:var(--font-display);
+}
+.ds-tag-cobalt{color:var(--cobalt);border-color:var(--cobalt-light);background:var(--cobalt-pale)}
+.ds-tag-orange{color:var(--orange);border-color:#FED7AA;background:var(--orange-light)}
+.ds-tag-slate{color:var(--slate);border-color:var(--border);background:var(--surface)}
+.ds-tag-success{color:#16A34A;border-color:#BBF7D0;background:#F0FDF4}
+.ds-tag-warning{color:#CA8A04;border-color:#FEF08A;background:#FEFCE8}
+
+/* ── Card lead DS ── */
+.ds-card-lead{
+  border:1px solid var(--border);border-radius:12px;padding:18px;
+  background:#fff;transition:box-shadow .18s ease,transform .18s ease;cursor:pointer;
+}
+.ds-card-lead:hover{
+  box-shadow:0 8px 28px rgba(15,23,42,.07);transform:translateY(-2px);
+}
+.ds-card-avatar{
+  width:40px;height:40px;border-radius:9px;
+  background:var(--cobalt-pale);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:var(--font-display);font-size:13px;font-weight:800;color:var(--cobalt);
+}
+.ds-card-name{font-size:14px;font-weight:700;color:var(--ink);font-family:var(--font-display)}
+.ds-card-meta{font-size:11.5px;color:var(--muted)}
+.ds-score-bar{
+  height:4px;border-radius:100px;background:var(--border);overflow:hidden;margin-top:10px;
+}
+.ds-score-bar-fill{
+  height:100%;border-radius:100px;
+  background:linear-gradient(90deg,var(--cobalt),var(--cobalt-deep));
+  transition:width .4s ease;
+}
+
+/* ── Inputs DS ── */
+.ds-input{
+  border:1.5px solid var(--border);border-radius:9px;
+  padding:10px 13px;font-size:13.5px;font-family:var(--font-display);
+  width:100%;background:#fff;color:var(--ink);
+  transition:border-color .16s ease,box-shadow .16s ease;
+  outline:none;
+}
+.ds-input:focus{
+  border-color:var(--cobalt);
+  box-shadow:0 0 0 3px rgba(37,99,235,.10);
+}
+.ds-input::placeholder{color:var(--muted)}
+
+/* ── Alerts DS ── */
+.ds-alert{
+  display:flex;align-items:flex-start;gap:10px;
+  border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.55;
+  border:1.5px solid;
+}
+.ds-alert-info{background:var(--cobalt-pale);border-color:var(--cobalt-light);color:var(--cobalt-deep)}
+.ds-alert-warning{background:var(--orange-light);border-color:#FED7AA;color:#9A3412}
+
+/* ── Logo DS ── */
+.ds-logo-lockup{display:flex;align-items:center;gap:9px;text-decoration:none}
+.ds-logo-name{
+  font-family:var(--font-display);font-size:20px;font-weight:800;
+  color:var(--ink);letter-spacing:-0.01em;
+}
+.ds-logo-name span{color:var(--cobalt)}
+
+/* ── Animations ── */
+@keyframes ping-out{
+  0%  {transform:scale(.4);opacity:.8}
+  100%{transform:scale(2.2);opacity:0}
+}
+.ping-ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:2px solid var(--cobalt);
+  animation:ping-out 1.8s ease-out infinite;
+}
+.ping-ring:nth-child(2){animation-delay:.6s}
+.ping-ring:nth-child(3){animation-delay:1.2s}
+
+@keyframes loading-scan{
+  0%  {transform:translateX(-100%)}
+  100%{transform:translateX(350%)}
+}
+.loading-bar{
+  height:3px;width:40%;background:var(--cobalt);
+  border-radius:100px;animation:loading-scan 1.8s ease-in-out infinite;
+}
+
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:.3}
+}
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
@@ -1097,12 +1239,16 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">
-      <div class="auth-logo-icon">
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
-          <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2" opacity=".75"/>
+      <div class="ds-logo-lockup">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="flex-shrink:0">
+          <circle cx="18" cy="18" r="17" stroke="#2563EB" stroke-width="1.5" opacity="0.25"/>
+          <circle cx="18" cy="18" r="11" stroke="#2563EB" stroke-width="1.5" opacity="0.45"/>
+          <circle cx="18" cy="18" r="5" stroke="#2563EB" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="2" fill="#2563EB"/>
+          <circle cx="26" cy="11" r="2.5" fill="#F97316"/>
         </svg>
+        <span class="ds-logo-name">Local<span>Radar</span></span>
       </div>
-      <span style="font-size:16px;font-weight:800;color:var(--gray-900);letter-spacing:-.4px">LocalRadar</span>
     </div>
     <div class="auth-title">Bienvenue</div>
     <div class="auth-sub">Connectez-vous pour accéder à votre espace de travail</div>
@@ -1342,14 +1488,17 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
       Mode Admin — tous les leads visibles
     </div>
     <div class="sidebar-logo">
-      <div class="logo-icon">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
-          <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2" opacity=".75"/>
-          <circle cx="12" cy="12" r="11" stroke-dasharray="2 3" opacity=".4"/>
+      <a class="ds-logo-lockup" onclick="navigate('dashboard',document.querySelector('[data-page=dashboard]'))" style="cursor:pointer">
+        <svg width="30" height="30" viewBox="0 0 36 36" fill="none" style="flex-shrink:0">
+          <circle cx="18" cy="18" r="17" stroke="#2563EB" stroke-width="1.5" opacity="0.25"/>
+          <circle cx="18" cy="18" r="11" stroke="#2563EB" stroke-width="1.5" opacity="0.45"/>
+          <circle cx="18" cy="18" r="5" stroke="#2563EB" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="2" fill="#2563EB"/>
+          <circle cx="26" cy="11" r="2.5" fill="#F97316"/>
         </svg>
-      </div>
-      <span class="logo-text">LocalRadar</span>
-      <span class="logo-badge">Beta</span>
+        <span class="ds-logo-name" style="font-size:16px">Local<span>Radar</span></span>
+      </a>
+      <span class="logo-badge" style="margin-left:auto">Beta</span>
     </div>
     <nav class="nav-section">
       <div class="nav-label">Espace de travail</div>

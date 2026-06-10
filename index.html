@@ -1672,32 +1672,41 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
               <div class="settings-section-title">Informations personnelles</div>
               <div class="settings-section-sub">Votre profil visible dans l'application</div>
               <div class="form-row">
-                <div class="form-group"><label class="form-label">Prénom</label><input class="form-input" value="Jean" type="text"></div>
-                <div class="form-group"><label class="form-label">Nom</label><input class="form-input" value="Dupont" type="text"></div>
+                <div class="form-group"><label class="form-label">Prénom</label><input class="form-input" id="profil-prenom" type="text" placeholder="Jean"></div>
+                <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="profil-nom" type="text" placeholder="Dupont"></div>
               </div>
               <div class="form-row">
-                <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="jean.dupont@agence.fr" type="email"></div>
-                <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" value="+33 6 12 34 56 78" type="tel"></div>
+                <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="profil-email" type="email" placeholder="vous@agence.fr" readonly style="opacity:.65;cursor:default"></div>
+                <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="profil-tel" type="tel" placeholder="+33 6 00 00 00 00"></div>
               </div>
               <div class="form-group" style="margin-bottom:14px">
-                <label class="form-label">Secteur d'activité de votre agence</label>
-                <select class="form-select">
-                  <option selected>Agence marketing digital</option>
-                  <option>Agence web & SEO</option>
-                  <option>Équipe commerciale B2B</option>
-                  <option>Freelance</option>
+                <label class="form-label">Nom de l'agence / entreprise</label>
+                <input class="form-input" id="profil-agence" type="text" placeholder="Digital Studio">
+              </div>
+              <div class="form-group" style="margin-bottom:14px">
+                <label class="form-label">Secteur d'activité</label>
+                <select class="form-select" id="profil-secteur">
+                  <option value="">— Choisir —</option>
+                  <option value="Agence web">Agence web</option>
+                  <option value="Agence SEO">Agence SEO</option>
+                  <option value="Agence Ads">Agence Ads</option>
+                  <option value="Agence marketing">Agence marketing</option>
+                  <option value="Freelance dev">Freelance dev</option>
+                  <option value="Freelance marketing">Freelance marketing</option>
+                  <option value="Conseil digital">Conseil digital</option>
+                  <option value="Autre">Autre</option>
                 </select>
               </div>
-              <button class="btn-primary btn-sm" onclick="showToast('✓ Profil sauvegardé')">Sauvegarder</button>
+              <button class="btn-primary btn-sm" onclick="saveProfilPerso()">Sauvegarder</button>
             </div>
             <div class="settings-section">
               <div class="settings-section-title">Zone de prospection par défaut</div>
               <div class="settings-section-sub">Ces valeurs pré-remplissent le Radar à chaque connexion</div>
               <div class="form-row">
-                <div class="form-group"><label class="form-label">Activité favorite</label><input class="form-input" value="Plombier" type="text"></div>
-                <div class="form-group"><label class="form-label">Ville favorite</label><input class="form-input" value="Le Havre" type="text"></div>
+                <div class="form-group"><label class="form-label">Activité favorite</label><input class="form-input" id="profil-activite" type="text" placeholder="Plombier, Boulanger…"></div>
+                <div class="form-group"><label class="form-label">Ville favorite</label><input class="form-input" id="profil-ville" type="text" placeholder="Paris, Lyon…"></div>
               </div>
-              <button class="btn-primary btn-sm" onclick="showToast('✓ Zone sauvegardée')">Sauvegarder</button>
+              <button class="btn-primary btn-sm" onclick="saveProfilZone()">Sauvegarder</button>
             </div>
           </div>
 
@@ -2828,6 +2837,17 @@ function loadProfileFromSupabase(){
   const p=currentProfile;
   const ia=typeof p.ia_profile==='string'?JSON.parse(p.ia_profile):(p.ia_profile||{});
 
+  // ── Mon profil ──
+  const set=(id,val)=>{ const el=document.getElementById(id); if(el&&val!=null) el.value=val; };
+  set('profil-prenom', p.prenom);
+  set('profil-nom',    p.nom);
+  set('profil-email',  p.email || currentUser?.email);
+  set('profil-tel',    p.telephone);
+  set('profil-agence', p.agence_nom);
+  set('profil-secteur',p.secteur);
+  set('profil-activite',p.default_activite);
+  set('profil-ville',  p.default_ville);
+
   // ── Mappings onboarding text → settings codes ──
   const secteurMap={
     'Agence web':'agence-web','Agence SEO':'agence-seo','Agence Ads':'agence-ads',
@@ -3375,6 +3395,43 @@ function checkPlanPermissions(profile){
   const fEnrich=document.getElementById('settings-webhook-enrich');
   if(fRadar) fRadar.value=profile.make_webhook_url_radar||'';
   if(fEnrich) fEnrich.value=profile.make_webhook_url||'';
+}
+
+async function saveProfilPerso(){
+  const sb=getSB();
+  if(!currentUser) return;
+  const updates={
+    prenom:   document.getElementById('profil-prenom')?.value.trim()||null,
+    nom:      document.getElementById('profil-nom')?.value.trim()||null,
+    telephone:document.getElementById('profil-tel')?.value.trim()||null,
+    agence_nom:document.getElementById('profil-agence')?.value.trim()||null,
+    secteur:  document.getElementById('profil-secteur')?.value||null,
+  };
+  const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
+  if(error){showToast('❌ '+error.message);return;}
+  Object.assign(currentProfile,updates);
+  // Mettre à jour les initiales sidebar si prénom change
+  const initials=((updates.prenom||'')+' '+(updates.nom||'')).trim().slice(0,2).toUpperCase()||currentUser.email.slice(0,2).toUpperCase();
+  document.getElementById('sidebar-avatar-initials').textContent=initials;
+  showToast('✓ Profil sauvegardé');
+}
+
+async function saveProfilZone(){
+  const sb=getSB();
+  if(!currentUser) return;
+  const updates={
+    default_activite: document.getElementById('profil-activite')?.value.trim()||null,
+    default_ville:    document.getElementById('profil-ville')?.value.trim()||null,
+  };
+  const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
+  if(error){showToast('❌ '+error.message);return;}
+  Object.assign(currentProfile,updates);
+  // Pré-remplir aussi les champs du radar
+  const cityInput=document.getElementById('radar-city');
+  const actInput=document.getElementById('radar-activite');
+  if(cityInput&&updates.default_ville) cityInput.value=updates.default_ville;
+  if(actInput&&updates.default_activite) actInput.value=updates.default_activite;
+  showToast('✓ Zone de prospection sauvegardée');
 }
 
 async function saveWebhookSettings(){
@@ -3975,8 +4032,9 @@ async function init(){
   loadProfileFromSupabase();
   loadSavedProfile();
 
-  // Démarrer la subscription Realtime
+  // Démarrer les subscriptions Realtime
   initRealtimeLeads();
+  initRealtimeProfile();
 }
 // init() est appelé depuis onAuthSuccess() après vérification de session
 
@@ -4037,7 +4095,33 @@ function initRealtimeLeads(){
     });
 }
 
-// initRealtimeLeads() est appelé dans init() ci-dessus
+// ════════════════════════════════════════
+// SUPABASE REALTIME — profile updates
+// ════════════════════════════════════════
+function initRealtimeProfile(){
+  if(!currentUser) return;
+  const sb=getSB();
+  sb.channel('profile-realtime')
+    .on('postgres_changes',{
+      event:'UPDATE',
+      schema:'public',
+      table:'profiles',
+      filter:`id=eq.${currentUser.id}`,
+    }, payload=>{
+      const row=payload.new;
+      if(!row) return;
+      // Merge dans currentProfile
+      Object.assign(currentProfile, row);
+      // Recharger tous les champs settings
+      loadProfileFromSupabase();
+      // Mettre à jour sidebar crédits + badge plan si changé
+      checkPlanPermissions(currentProfile);
+      console.log('[Realtime] Profile mis à jour:', row);
+    })
+    .subscribe();
+}
+
+// initRealtimeLeads() / initRealtimeProfile() appelés dans init()
 </script>
 </body>
 </html>

@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LocalRadar — Trouvez vos clients locaux avant vos concurrents</title>
+<meta name="description" content="LocalRadar détecte et enrichit automatiquement les entreprises locales qui correspondent à votre ICP. Email, téléphone, LinkedIn — prêt à prospecter en 2 minutes.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cobalt:#2563EB; --cobalt-dark:#1D4ED8; --cobalt-deep:#1E3A8A;
+  --cobalt-light:#DBEAFE; --cobalt-pale:#EFF6FF;
+  --orange:#F97316; --orange-light:#FFF7ED;
+  --ink:#0F172A; --slate:#334155; --muted:#64748B;
+  --border:#E2E8F0; --surface:#F8FAFC; --white:#FFFFFF;
+  --font-display:'Plus Jakarta Sans',sans-serif;
+  --font-body:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);color:var(--slate);
+  background:var(--white);-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+img{max-width:100%}
+
+/* ═══════════════════════════════════════
+   UTILITAIRES
+═══════════════════════════════════════ */
+.container{max-width:1120px;margin:0 auto;padding:0 24px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* Boutons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font-family:var(--font-display);font-weight:600;border:none;cursor:pointer;
+  transition:all 0.18s ease;white-space:nowrap;text-decoration:none;
+}
+.btn-primary{
+  background:var(--cobalt);color:#fff;border-radius:10px;
+  padding:12px 24px;font-size:14px;
+  box-shadow:0 1px 3px rgba(37,99,235,.25),0 4px 14px rgba(37,99,235,.18);
+}
+.btn-primary:hover{background:var(--cobalt-dark);transform:translateY(-1px);box-shadow:0 2px 6px rgba(37,99,235,.3),0 6px 20px rgba(37,99,235,.22)}
+.btn-primary.lg{padding:15px 32px;font-size:15px;border-radius:12px}
+.btn-ghost{
+  background:transparent;color:var(--slate);border-radius:10px;
+  padding:11px 20px;font-size:14px;border:1.5px solid var(--border);
+}
+.btn-ghost:hover{border-color:var(--cobalt-light);background:var(--cobalt-pale);color:var(--cobalt)}
+.btn-orange{
+  background:var(--orange);color:#fff;border-radius:12px;
+  padding:15px 36px;font-size:15px;font-weight:700;
+  box-shadow:0 4px 14px rgba(249,115,22,.25);
+}
+.btn-orange:hover{background:#EA6C0A;transform:translateY(-1px);box-shadow:0 6px 20px rgba(249,115,22,.32)}
+
+/* ═══════════════════════════════════════
+   SECTION 1 — NAV
+═══════════════════════════════════════ */
+#nav{
+  position:sticky;top:0;z-index:100;height:60px;
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  height:60px;display:flex;align-items:center;
+  justify-content:space-between;gap:32px;
+}
+/* Logo */
+.logo-lockup{display:flex;align-items:center;gap:9px;text-decoration:none}
+.logo-name{
+  font-family:var(--font-display);font-size:18px;font-weight:800;
+  color:var(--ink);letter-spacing:-0.01em;
+}
+.logo-name .radar{color:var(--cobalt)}
+/* Nav links */
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+.nav-links a{
+  font-family:var(--font-body);font-weight:500;font-size:14px;
+  color:var(--slate);transition:color 0.18s ease;
+}
+.nav-links a:hover,.nav-links a.active{color:var(--cobalt)}
+/* Nav actions */
+.nav-actions{display:flex;align-items:center;gap:10px}
+/* Hamburger (mobile) */
+.nav-burger{
+  display:none;background:none;border:none;cursor:pointer;
+  flex-direction:column;gap:5px;padding:4px;
+}
+.nav-burger span{display:block;width:22px;height:2px;background:var(--slate);border-radius:2px;transition:all 0.18s ease}
+/* Drawer mobile */
+.nav-drawer{
+  display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);
+  z-index:200;opacity:0;transition:opacity 0.18s ease;
+}
+.nav-drawer.open{opacity:1}
+.nav-drawer-panel{
+  position:absolute;top:0;right:0;width:280px;height:100%;
+  background:#fff;padding:24px;display:flex;flex-direction:column;gap:16px;
+  transform:translateX(100%);transition:transform 0.25s ease;
+  box-shadow:-8px 0 32px rgba(0,0,0,.12);
+}
+.nav-drawer.open .nav-drawer-panel{transform:translateX(0)}
+.nav-drawer-close{
+  align-self:flex-end;background:none;border:none;cursor:pointer;
+  font-size:22px;color:var(--muted);padding:4px;
+}
+.nav-drawer-links{list-style:none;display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.nav-drawer-links a{
+  display:block;padding:11px 14px;border-radius:9px;
+  font-family:var(--font-body);font-weight:500;font-size:15px;color:var(--slate);
+  transition:background 0.15s ease,color 0.15s ease;
+}
+.nav-drawer-links a:hover{background:var(--surface);color:var(--cobalt)}
+.nav-drawer-actions{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.nav-drawer-actions .btn{width:100%;justify-content:center}
+
+/* ═══════════════════════════════════════
+   SECTION 2 — HERO
+═══════════════════════════════════════ */
+#hero{
+  min-height:100vh;display:flex;align-items:center;
+  background:var(--white);position:relative;overflow:hidden;
+  padding:80px 0 60px;
+}
+/* Dot grid background */
+#hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,#CBD5E1 1px,transparent 1px);
+  background-size:28px 28px;opacity:0.4;pointer-events:none;
+}
+.hero-grid{
+  display:grid;grid-template-columns:3fr 2fr;
+  align-items:center;gap:64px;position:relative;z-index:1;
+}
+/* Badge */
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--cobalt-pale);border:1.5px solid var(--cobalt-light);
+  color:var(--cobalt);border-radius:100px;padding:6px 14px;
+  font-family:var(--font-body);font-size:12.5px;font-weight:600;
+  margin-bottom:24px;
+}
+.hero-badge-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--cobalt);
+  animation:blink 1.6s ease-in-out infinite;
+}
+/* Headline */
+.hero-headline{
+  font-family:var(--font-display);font-size:46px;font-weight:800;
+  color:var(--ink);line-height:1.12;letter-spacing:-0.01em;
+  margin-bottom:22px;
+}
+/* Sous-titre */
+.hero-sub{
+  font-family:var(--font-body);font-size:15.5px;color:var(--muted);
+  line-height:1.65;max-width:420px;margin-bottom:32px;
+}
+/* CTA stack */
+.hero-cta-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.hero-cta-note{font-size:12px;color:#94A3B8;font-family:var(--font-body)}
+/* Progress bar */
+.hero-progress{margin-top:20px;max-width:340px}
+.hero-progress-label{font-size:12px;color:var(--muted);margin-bottom:7px;font-family:var(--font-body)}
+.progress-track{height:8px;background:var(--border);border-radius:100px;overflow:hidden}
+.progress-fill{
+  height:100%;background:var(--cobalt);border-radius:100px;width:0%;
+  transition:width 1s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Radar animation colonne droite ── */
+.hero-radar{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;width:340px;height:340px;margin:0 auto;
+}
+.radar-svg-wrap{position:relative;width:280px;height:280px}
+.radar-rings svg{width:100%;height:100%}
+/* Sweep */
+.radar-sweep{
+  position:absolute;inset:0;
+  animation:sweep 3s linear infinite;transform-origin:center;
+}
+@keyframes sweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* Blips */
+.blip{
+  position:absolute;width:10px;height:10px;border-radius:50%;
+  animation:blip-appear 3s ease-in-out infinite;
+}
+.blip::after{
+  content:'';position:absolute;inset:-3px;border-radius:50%;
+  border:1.5px solid currentColor;opacity:.5;
+  animation:blip-ring 3s ease-in-out infinite;
+}
+@keyframes blip-appear{
+  0%,20%{opacity:0;transform:scale(0.3)}
+  30%,70%{opacity:1;transform:scale(1)}
+  90%,100%{opacity:0;transform:scale(0.8)}
+}
+@keyframes blip-ring{
+  0%,20%{transform:scale(0.5);opacity:0}
+  30%{transform:scale(1);opacity:.5}
+  70%,100%{transform:scale(1.8);opacity:0}
+}
+
+/* ═══════════════════════════════════════
+   SECTION 3 — SOCIAL PROOF
+═══════════════════════════════════════ */
+#social-proof{
+  background:var(--surface);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:22px 0;overflow:hidden;
+}
+.sp-label{
+  text-align:center;font-size:11px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:#94A3B8;margin-bottom:14px;font-family:var(--font-body);
+}
+.sp-logos{
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;flex-wrap:wrap;
+}
+.sp-logo{font-family:var(--font-body);font-weight:600;font-size:14px;color:#CBD5E1}
+.sp-sep{color:#E2E8F0;font-size:18px;line-height:1}
+
+/* ═══════════════════════════════════════
+   SECTION 4 — COMMENT ÇA MARCHE
+═══════════════════════════════════════ */
+#how{padding:100px 0;background:var(--white)}
+.how-header{text-align:center;margin-bottom:80px}
+.section-label{
+  display:inline-block;font-family:var(--font-body);font-size:12px;
+  font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--cobalt);margin-bottom:14px;
+}
+.section-title{
+  font-family:var(--font-display);font-size:36px;font-weight:800;
+  color:var(--ink);letter-spacing:-0.01em;line-height:1.2;
+}
+/* Scrollytelling layout */
+.how-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.how-sticky{position:sticky;top:120px}
+/* Step number big */
+.step-num-bg{
+  font-family:var(--font-display);font-size:100px;font-weight:800;
+  color:var(--cobalt-pale);line-height:1;margin-bottom:-20px;
+  transition:all 0.3s ease;
+  user-select:none;
+}
+.step-num-active{color:var(--cobalt-light)}
+.step-title{
+  font-family:var(--font-display);font-size:26px;font-weight:800;
+  color:var(--ink);letter-spacing:-0.01em;margin-bottom:14px;
+  transition:all 0.3s ease;
+}
+.step-desc{
+  font-family:var(--font-body);font-size:15px;color:var(--muted);
+  line-height:1.7;max-width:340px;transition:all 0.3s ease;
+}
+/* Progress dots */
+.step-dots{display:flex;gap:8px;margin-top:32px}
+.step-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--border);
+  transition:all 0.3s ease;cursor:pointer;
+}
+.step-dot.active{background:var(--cobalt);transform:scale(1.25)}
+/* Right scroll column */
+.how-steps-col{display:flex;flex-direction:column}
+.how-step-block{
+  height:90vh;min-height:480px;
+  display:flex;align-items:center;justify-content:center;padding:40px 0;
+}
+/* Mockup cards */
+.mockup{
+  background:#fff;border:1px solid var(--border);border-radius:16px;
+  padding:24px;width:100%;max-width:360px;
+  box-shadow:0 8px 32px rgba(15,23,42,.06);
+}
+.mockup-title{
+  font-family:var(--font-display);font-size:13px;font-weight:700;
+  color:var(--ink);margin-bottom:16px;
+}
+/* Form mockup */
+.mock-input-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.mock-input{
+  border:1.5px solid var(--border);border-radius:9px;padding:10px 13px;
+  font-family:var(--font-body);font-size:13px;color:var(--slate);
+  background:#fff;
+}
+.mock-input.focus{border-color:var(--cobalt);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.mock-select{
+  border:1.5px solid var(--border);border-radius:9px;padding:10px 13px;
+  font-family:var(--font-body);font-size:13px;color:var(--muted);
+  background:#fff;display:flex;justify-content:space-between;align-items:center;
+}
+.mock-slider-wrap{margin-bottom:16px}
+.mock-slider-label{font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--font-body)}
+.mock-slider{
+  width:100%;height:4px;border-radius:100px;background:var(--border);
+  position:relative;
+}
+.mock-slider-fill{
+  height:100%;width:55%;background:var(--cobalt);
+  border-radius:100px;position:relative;
+}
+.mock-slider-thumb{
+  position:absolute;right:-6px;top:-4px;width:12px;height:12px;
+  border-radius:50%;background:var(--cobalt);
+  box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(37,99,235,.25);
+}
+/* Lead card mockup */
+.mock-card{
+  border:1px solid var(--border);border-radius:12px;padding:14px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.mock-avatar{
+  width:40px;height:40px;border-radius:9px;background:var(--cobalt-pale);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:var(--font-display);font-size:13px;font-weight:800;color:var(--cobalt);
+}
+.mock-card-body{flex:1;min-width:0}
+.mock-card-name{
+  font-family:var(--font-display);font-size:14px;font-weight:700;
+  color:var(--ink);margin-bottom:3px;
+}
+.mock-card-meta{font-size:11.5px;color:var(--muted);margin-bottom:8px}
+.mock-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.mock-badge{
+  font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:100px;
+  border:1.5px solid;font-family:var(--font-body);
+}
+.mb-cobalt{color:var(--cobalt);border-color:var(--cobalt-light);background:var(--cobalt-pale)}
+.mb-green{color:#16A34A;border-color:#BBF7D0;background:#F0FDF4}
+.mb-orange{color:var(--orange);border-color:#FED7AA;background:var(--orange-light)}
+.mock-score-bar{height:4px;background:var(--border);border-radius:100px;overflow:hidden}
+.mock-score-fill{height:100%;width:88%;background:linear-gradient(90deg,var(--cobalt),var(--cobalt-deep));border-radius:100px}
+.mock-score-label{font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--font-body)}
+/* Export mockup */
+.mock-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.mock-list-row{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--surface);border-radius:9px;border:1px solid var(--border);
+}
+.mock-checkbox{
+  width:16px;height:16px;border-radius:4px;border:2px solid var(--cobalt);
+  background:var(--cobalt);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.mock-row-name{font-size:12.5px;font-weight:600;color:var(--ink);font-family:var(--font-display);flex:1}
+.mock-row-score{font-size:11px;font-weight:700;color:var(--cobalt);font-family:var(--font-body)}
+
+/* ═══════════════════════════════════════
+   SECTION 5 — POUR QUI
+═══════════════════════════════════════ */
+#pour-qui{padding:100px 0;background:var(--white)}
+.pq-header{text-align:center;margin-bottom:60px}
+.pq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.pq-card{
+  border:1px solid var(--border);border-radius:16px;padding:28px;
+  background:#fff;transition:transform 0.18s ease,box-shadow 0.18s ease;
+  position:relative;
+}
+.pq-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(15,23,42,.08)}
+.pq-card-tag{
+  position:absolute;top:20px;right:20px;
+  font-size:10.5px;font-weight:600;padding:3px 10px;
+  border-radius:100px;border:1.5px solid var(--cobalt-light);
+  background:var(--cobalt-pale);color:var(--cobalt);
+  font-family:var(--font-body);
+}
+.pq-icon{
+  width:44px;height:44px;border-radius:12px;background:var(--cobalt-pale);
+  display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+}
+.pq-card-title{
+  font-family:var(--font-display);font-size:17px;font-weight:800;
+  color:var(--ink);margin-bottom:10px;letter-spacing:-0.01em;
+}
+.pq-card-desc{font-family:var(--font-body);font-size:14px;color:var(--muted);line-height:1.65}
+
+/* ═══════════════════════════════════════
+   SECTION 6 — BÊTA CTA
+═══════════════════════════════════════ */
+#beta-cta{padding:60px 24px}
+.beta-inner{
+  background:var(--ink);border-radius:24px;padding:72px 40px;
+  text-align:center;max-width:1120px;margin:0 auto;
+  position:relative;overflow:hidden;
+}
+/* Subtle radial glow */
+.beta-inner::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 60% at 50% 0%,rgba(37,99,235,.18),transparent);
+  pointer-events:none;
+}
+.beta-label{
+  display:inline-block;font-size:11.5px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cobalt);margin-bottom:20px;
+  font-family:var(--font-body);position:relative;
+}
+.beta-title{
+  font-family:var(--font-display);font-size:38px;font-weight:800;
+  color:#fff;letter-spacing:-0.01em;line-height:1.2;margin-bottom:18px;
+  position:relative;
+}
+.beta-sub{
+  font-family:var(--font-body);font-size:15px;color:#94A3B8;
+  line-height:1.65;max-width:560px;margin:0 auto 32px;position:relative;
+}
+/* Progress */
+.beta-progress{max-width:320px;margin:0 auto 32px;position:relative}
+.beta-progress-label{font-size:12px;color:#64748B;margin-bottom:8px;font-family:var(--font-body)}
+.beta-progress-track{
+  height:8px;border-radius:100px;
+  background:rgba(255,255,255,.1);overflow:hidden;
+}
+.beta-progress-fill{
+  height:100%;background:var(--cobalt);border-radius:100px;
+  width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.beta-cta-note{
+  font-size:12px;color:#64748B;margin-top:14px;
+  font-family:var(--font-body);position:relative;
+}
+
+/* ═══════════════════════════════════════
+   SECTION 7 — FOOTER
+═══════════════════════════════════════ */
+#footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:56px 0 32px}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-logo-name{
+  font-family:var(--font-display);font-size:17px;font-weight:800;
+  color:#fff;letter-spacing:-0.01em;margin-bottom:10px;
+}
+.footer-logo-name span{color:var(--cobalt)}
+.footer-tagline{font-size:13.5px;color:#64748B;line-height:1.6;max-width:220px;font-family:var(--font-body)}
+.footer-col-title{
+  font-family:var(--font-display);font-size:12.5px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:#475569;margin-bottom:16px;
+}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:9px}
+.footer-links a{
+  font-family:var(--font-body);font-size:14px;color:#64748B;
+  transition:color 0.18s ease;
+}
+.footer-links a:hover{color:#fff}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.06);padding-top:24px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12.5px;color:#475569;font-family:var(--font-body);
+}
+
+/* ═══════════════════════════════════════
+   MODAL BÊTA
+═══════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.6);
+  z-index:500;display:flex;align-items:center;justify-content:center;
+  padding:24px;opacity:0;pointer-events:none;
+  transition:opacity 0.2s ease;backdrop-filter:blur(4px);
+}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal-box{
+  background:#fff;border-radius:20px;padding:36px;
+  width:100%;max-width:480px;
+  transform:translateY(16px) scale(0.97);
+  transition:transform 0.25s ease;
+  box-shadow:0 24px 64px rgba(0,0,0,.2);
+}
+.modal-overlay.open .modal-box{transform:translateY(0) scale(1)}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+.modal-title{
+  font-family:var(--font-display);font-size:21px;font-weight:800;
+  color:var(--ink);letter-spacing:-0.01em;
+}
+.modal-sub{font-size:13.5px;color:var(--muted);margin-top:4px;font-family:var(--font-body)}
+.modal-close{
+  background:none;border:none;cursor:pointer;color:var(--muted);
+  font-size:22px;padding:2px;line-height:1;
+  transition:color 0.15s ease;
+}
+.modal-close:hover{color:var(--ink)}
+.modal-form{display:flex;flex-direction:column;gap:14px}
+.modal-field label{
+  display:block;font-size:12.5px;font-weight:600;color:var(--slate);
+  margin-bottom:6px;font-family:var(--font-body);
+}
+.modal-input{
+  width:100%;border:1.5px solid var(--border);border-radius:9px;
+  padding:10px 13px;font-size:13.5px;font-family:var(--font-body);
+  color:var(--ink);background:#fff;transition:border-color 0.16s ease,box-shadow 0.16s ease;
+  outline:none;
+}
+.modal-input:focus{border-color:var(--cobalt);box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+.modal-input::placeholder{color:#94A3B8}
+textarea.modal-input{resize:vertical;min-height:80px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-confirm{
+  text-align:center;padding:24px;display:none;
+}
+.modal-confirm-icon{font-size:42px;margin-bottom:12px}
+.modal-confirm-title{
+  font-family:var(--font-display);font-size:20px;font-weight:800;
+  color:var(--ink);margin-bottom:8px;
+}
+.modal-confirm-sub{font-size:13.5px;color:var(--muted);font-family:var(--font-body);line-height:1.6}
+
+/* ═══════════════════════════════════════
+   ANIMATIONS GLOBALES
+═══════════════════════════════════════ */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Reveal au scroll */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.55s ease,transform 0.55s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:900px){
+  .nav-links,.nav-actions{display:none}
+  .nav-burger{display:flex}
+  .nav-drawer{display:block}
+
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .hero-radar{display:none}
+  .hero-headline{font-size:30px}
+  .hero-cta-wrap{align-items:stretch}
+  .btn-primary.lg{justify-content:center}
+
+  .how-scroll-wrap{grid-template-columns:1fr;gap:32px}
+  .how-sticky{position:static}
+  .step-num-bg{font-size:56px}
+  .section-title{font-size:26px}
+  .how-step-block{height:auto;min-height:auto;padding:0 0 48px}
+  .how-steps-col{gap:48px}
+
+  .pq-grid{grid-template-columns:1fr}
+  .pq-card-tag{position:static;display:inline-block;margin-bottom:10px}
+
+  .beta-inner{padding:48px 24px;border-radius:16px}
+  .beta-title{font-size:26px}
+
+  .footer-grid{grid-template-columns:1fr;gap:32px}
+  .footer-bottom{flex-direction:column;gap:8px;text-align:center}
+
+  .modal-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SECTION 1 — NAV
+══════════════════════════════════ -->
+<header id="nav">
+  <div class="container">
+    <div class="nav-inner">
+      <!-- Logo -->
+      <a href="#" class="logo-lockup">
+        <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="17" stroke="#2563EB" stroke-width="1.5" opacity="0.25"/>
+          <circle cx="18" cy="18" r="11" stroke="#2563EB" stroke-width="1.5" opacity="0.45"/>
+          <circle cx="18" cy="18" r="5" stroke="#2563EB" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="2" fill="#2563EB"/>
+          <circle cx="26" cy="11" r="2.5" fill="#F97316"/>
+        </svg>
+        <span class="logo-name">Local<span class="radar">Radar</span></span>
+      </a>
+      <!-- Nav links (desktop) -->
+      <ul class="nav-links">
+        <li><a href="#how" data-section="how">Produit</a></li>
+        <li><a href="#beta-cta" data-section="beta-cta">Tarifs</a></li>
+        <li><a href="#pour-qui" data-section="pour-qui">Intégrations</a></li>
+      </ul>
+      <!-- Actions (desktop) -->
+      <div class="nav-actions">
+        <button class="btn btn-ghost" onclick="openModal()">Connexion</button>
+        <button class="btn btn-primary" onclick="openModal()">Rejoindre la bêta</button>
+      </div>
+      <!-- Hamburger (mobile) -->
+      <button class="nav-burger" id="nav-burger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile drawer -->
+<div class="nav-drawer" id="nav-drawer" onclick="closeDrawer(event)">
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" onclick="toggleDrawer()">✕</button>
+    <ul class="nav-drawer-links">
+      <li><a href="#how" onclick="toggleDrawer()">Produit</a></li>
+      <li><a href="#beta-cta" onclick="toggleDrawer()">Tarifs</a></li>
+      <li><a href="#pour-qui" onclick="toggleDrawer()">Intégrations</a></li>
+    </ul>
+    <div class="nav-drawer-actions">
+      <button class="btn btn-ghost" onclick="toggleDrawer();openModal()">Connexion</button>
+      <button class="btn btn-primary" onclick="toggleDrawer();openModal()">Rejoindre la bêta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SECTION 2 — HERO
+══════════════════════════════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <!-- Colonne gauche -->
+      <div>
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          Bêta privée — <span id="hero-places">10</span> places disponibles
+        </div>
+        <h1 class="hero-headline">
+          Trouvez vos clients<br>
+          locaux avant que<br>
+          vos concurrents<br>
+          ne le fassent.
+        </h1>
+        <p class="hero-sub">
+          LocalRadar détecte et enrichit automatiquement les entreprises locales qui correspondent à votre ICP. Email, téléphone, LinkedIn — prêt à prospecter en 2 minutes.
+        </p>
+        <div class="hero-cta-wrap">
+          <button class="btn btn-primary lg" onclick="openModal()">
+            Rejoindre la bêta — il reste <strong style="color:#F97316">7 places</strong>
+          </button>
+          <span class="hero-cta-note">Gratuit pendant la bêta · Aucune carte bancaire requise</span>
+        </div>
+        <div class="hero-progress">
+          <div class="hero-progress-label" id="progress-label">████████░░ 8/10 places prises</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="hero-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Colonne droite — Radar animé -->
+      <div class="hero-radar">
+        <div class="radar-svg-wrap">
+          <!-- Cercles statiques -->
+          <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0">
+            <circle cx="140" cy="140" r="130" stroke="#E2E8F0" stroke-width="1"/>
+            <circle cx="140" cy="140" r="96" stroke="#DBEAFE" stroke-width="1.5"/>
+            <circle cx="140" cy="140" r="62" stroke="#BFDBFE" stroke-width="1.5"/>
+            <circle cx="140" cy="140" r="28" stroke="#93C5FD" stroke-width="2"/>
+            <circle cx="140" cy="140" r="5" fill="#2563EB"/>
+          </svg>
+          <!-- Sweep -->
+          <div class="radar-sweep" style="position:absolute;inset:0">
+            <svg viewBox="0 0 280 280" fill="none">
+              <defs>
+                <radialGradient id="sweepGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#2563EB" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <path d="M140 140 L140 10 A130 130 0 0 1 258 195 Z" fill="url(#sweepGrad)"/>
+              <line x1="140" y1="140" x2="140" y2="10" stroke="#2563EB" stroke-width="1.5" opacity="0.5"/>
+            </svg>
+          </div>
+          <!-- Blips -->
+          <div class="blip" style="top:68px;left:185px;background:#2563EB;color:#2563EB;animation-delay:0s"></div>
+          <div class="blip" style="top:140px;left:210px;background:#2563EB;color:#2563EB;animation-delay:0.9s"></div>
+          <div class="blip" style="top:95px;left:95px;background:#2563EB;color:#2563EB;animation-delay:1.6s"></div>
+          <!-- Orange blip (hot lead) -->
+          <div class="blip" style="top:58px;left:155px;background:#F97316;color:#F97316;animation-delay:0.4s;width:13px;height:13px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 3 — SOCIAL PROOF
+══════════════════════════════════ -->
+<section id="social-proof">
+  <div class="container">
+    <div class="sp-label">Déjà utilisé par des agences et freelances</div>
+    <div class="sp-logos">
+      <span class="sp-logo">Growi</span>
+      <span class="sp-sep">·</span>
+      <span class="sp-logo">Pixflow</span>
+      <span class="sp-sep">·</span>
+      <span class="sp-logo">StudioKoda</span>
+      <span class="sp-sep">·</span>
+      <span class="sp-logo">Agence Nord</span>
+      <span class="sp-sep">·</span>
+      <span class="sp-logo">LeadFactory</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 4 — COMMENT ÇA MARCHE
+══════════════════════════════════ -->
+<section id="how">
+  <div class="container">
+    <div class="how-header reveal">
+      <div class="section-label">Comment ça marche</div>
+      <h2 class="section-title">De la recherche au premier contact<br>en 3 étapes</h2>
+    </div>
+    <div class="how-scroll-wrap">
+      <!-- Partie sticky gauche -->
+      <div class="how-sticky">
+        <div class="step-num-bg" id="step-num">01</div>
+        <h3 class="step-title" id="step-title">Définissez votre cible en 2 minutes</h3>
+        <p class="step-desc" id="step-desc">Choisissez une ville, un secteur, un rayon. LocalRadar scanne les annuaires, Google Maps et les réseaux sociaux pour trouver les entreprises qui matchent.</p>
+        <div class="step-dots">
+          <div class="step-dot active" id="dot-0" onclick="goToStep(0)"></div>
+          <div class="step-dot" id="dot-1" onclick="goToStep(1)"></div>
+          <div class="step-dot" id="dot-2" onclick="goToStep(2)"></div>
+        </div>
+      </div>
+      <!-- Colonne droite scrollable -->
+      <div class="how-steps-col">
+        <!-- Étape 1 -->
+        <div class="how-step-block" data-step="0">
+          <div class="mockup">
+            <div class="mockup-title">🎯 Configurez votre radar</div>
+            <div class="mock-input-wrap">
+              <div class="mock-input mock-focus" style="border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.1)">
+                📍 Le Havre, Seine-Maritime
+              </div>
+              <div class="mock-select">
+                <span>Plombier · Chauffagiste</span>
+                <span style="color:#94A3B8">▾</span>
+              </div>
+            </div>
+            <div class="mock-slider-wrap">
+              <div class="mock-slider-label">Rayon de recherche — <strong style="color:#2563EB">25 km</strong></div>
+              <div class="mock-slider">
+                <div class="mock-slider-fill"><div class="mock-slider-thumb"></div></div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;border-radius:9px;padding:11px">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2" opacity=".7"/></svg>
+              Lancer le radar
+            </button>
+          </div>
+        </div>
+        <!-- Étape 2 -->
+        <div class="how-step-block" data-step="1">
+          <div class="mockup">
+            <div class="mockup-title">✨ Lead enrichi automatiquement</div>
+            <div class="mock-card">
+              <div class="mock-avatar">LP</div>
+              <div class="mock-card-body">
+                <div class="mock-card-name">La Petite Pâtissière</div>
+                <div class="mock-card-meta">Boulangerie · Le Havre · 326 avis ⭐ 4.8</div>
+                <div class="mock-badges">
+                  <span class="mock-badge mb-cobalt">✉ Email</span>
+                  <span class="mock-badge mb-green">✓ LinkedIn</span>
+                  <span class="mock-badge mb-orange">📞 Tél</span>
+                </div>
+                <div class="mock-score-bar"><div class="mock-score-fill"></div></div>
+                <div class="mock-score-label">Score de pertinence — <strong style="color:#2563EB">88/100</strong></div>
+              </div>
+            </div>
+            <div style="margin-top:12px;padding:10px;background:#EFF6FF;border-radius:9px;font-size:12px;color:#2563EB;font-family:var(--font-body);line-height:1.5">
+              💡 <strong>Angle d'attaque IA :</strong> Site web absent — opportunité d'acquisition directe.
+            </div>
+          </div>
+        </div>
+        <!-- Étape 3 -->
+        <div class="how-step-block" data-step="2">
+          <div class="mockup">
+            <div class="mockup-title">🚀 Exportez vers votre stack</div>
+            <div class="mock-list">
+              <div class="mock-list-row">
+                <div class="mock-checkbox"><svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <span class="mock-row-name">Plomberie Dupont</span>
+                <span class="mock-row-score">92/100</span>
+              </div>
+              <div class="mock-list-row">
+                <div class="mock-checkbox"><svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <span class="mock-row-name">La Petite Pâtissière</span>
+                <span class="mock-row-score">88/100</span>
+              </div>
+              <div class="mock-list-row" style="opacity:.6">
+                <div class="mock-checkbox" style="background:transparent;border-color:#CBD5E1"></div>
+                <span class="mock-row-name" style="color:#94A3B8">Boulangerie Martin</span>
+                <span class="mock-row-score" style="color:#CBD5E1">71/100</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;border-radius:9px;padding:11px;font-size:13px">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+              Exporter vers HubSpot (2 leads)
+            </button>
+          </div>
+        </div>
+      </div><!-- /how-steps-col -->
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 5 — POUR QUI
+══════════════════════════════════ -->
+<section id="pour-qui">
+  <div class="container">
+    <div class="pq-header reveal">
+      <div class="section-label">Pour qui</div>
+      <h2 class="section-title">Fait pour les agences<br>et les indépendants</h2>
+    </div>
+    <div class="pq-grid">
+      <!-- Card 1 -->
+      <div class="pq-card reveal">
+        <span class="pq-card-tag">Agences</span>
+        <div class="pq-icon">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+            <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+          </svg>
+        </div>
+        <div class="pq-card-title">Agences web &amp; SEO</div>
+        <p class="pq-card-desc">Trouvez de nouveaux clients locaux qui ont besoin d'un site ou d'un référencement. Ciblez par ville, taille d'entreprise, secteur.</p>
+      </div>
+      <!-- Card 2 -->
+      <div class="pq-card reveal" style="transition-delay:.1s">
+        <span class="pq-card-tag">Freelances</span>
+        <div class="pq-icon">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </div>
+        <div class="pq-card-title">Freelances &amp; consultants</div>
+        <p class="pq-card-desc">Construisez votre pipeline sans LinkedIn Premium ni base de données coûteuse. LocalRadar fait la prospection pour vous.</p>
+      </div>
+      <!-- Card 3 -->
+      <div class="pq-card reveal" style="transition-delay:.2s">
+        <span class="pq-card-tag">Growth</span>
+        <div class="pq-icon">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+          </svg>
+        </div>
+        <div class="pq-card-title">Growth &amp; marketing</div>
+        <p class="pq-card-desc">Alimentez vos campagnes outbound avec des données fraîches et vérifiées. Fini les listes obsolètes et les bases périmées.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 6 — BÊTA CTA
+══════════════════════════════════ -->
+<section id="beta-cta">
+  <div class="beta-inner reveal">
+    <div class="beta-label">Accès bêta privée</div>
+    <h2 class="beta-title">10 agences. Accès gratuit.<br>Feedback bienvenu.</h2>
+    <p class="beta-sub">On cherche 10 agences ou freelances prêts à tester LocalRadar en avant-première et à nous donner leur retour. En échange : accès gratuit à vie au plan Growth.</p>
+    <div class="beta-progress">
+      <div class="beta-progress-label" id="beta-progress-label">████████░░ 8 places prises sur 10</div>
+      <div class="beta-progress-track">
+        <div class="beta-progress-fill" id="beta-progress-fill"></div>
+      </div>
+    </div>
+    <button class="btn btn-orange" onclick="openModal()" style="position:relative">
+      Je veux ma place →
+    </button>
+    <div class="beta-cta-note">Réponse sous 24h · On sélectionne sur dossier</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     SECTION 7 — FOOTER
+══════════════════════════════════ -->
+<footer id="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div>
+        <div class="footer-logo-name">Local<span>Radar</span></div>
+        <p class="footer-tagline">Détection et enrichissement automatique de leads locaux pour les agences et freelances.</p>
+      </div>
+      <!-- Produit -->
+      <div>
+        <div class="footer-col-title">Produit</div>
+        <ul class="footer-links">
+          <li><a href="#how">Comment ça marche</a></li>
+          <li><a href="#pour-qui">Pour qui</a></li>
+          <li><a href="#beta-cta">Accès bêta</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <!-- Ressources -->
+      <div>
+        <div class="footer-col-title">Ressources</div>
+        <ul class="footer-links">
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">Intégrations</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 LocalRadar · Fait avec ❤️ en France</span>
+      <span>Confidentialité · CGU</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════
+     MODAL BÊTA
+══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <!-- Form state -->
+    <div id="modal-form-state">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Rejoindre la bêta 🎯</div>
+          <div class="modal-sub">Il reste <strong id="modal-places">7</strong> places — on sélectionne sous 24h.</div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <form class="modal-form" onsubmit="submitModal(event)">
+        <div class="modal-grid">
+          <div class="modal-field">
+            <label>Prénom *</label>
+            <input class="modal-input" type="text" placeholder="Jean" required>
+          </div>
+          <div class="modal-field">
+            <label>Email *</label>
+            <input class="modal-input" type="email" placeholder="jean@agence.fr" required>
+          </div>
+        </div>
+        <div class="modal-field">
+          <label>Nom de votre agence / entreprise *</label>
+          <input class="modal-input" type="text" placeholder="Digital Studio" required>
+        </div>
+        <div class="modal-field">
+          <label>Pourquoi LocalRadar ?</label>
+          <textarea class="modal-input" placeholder="Je cherche à automatiser ma prospection locale..." rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary lg" style="justify-content:center;margin-top:4px">
+          Envoyer ma candidature →
+        </button>
+        <div style="text-align:center;font-size:11.5px;color:#94A3B8;font-family:var(--font-body)">
+          Aucun spam · Réponse sous 24h
+        </div>
+      </form>
+    </div>
+    <!-- Confirmation state -->
+    <div class="modal-confirm" id="modal-confirm">
+      <div class="modal-confirm-icon">🎯</div>
+      <div class="modal-confirm-title">Super, c'est noté !</div>
+      <p class="modal-confirm-sub">On revient vers vous sous 24h pour vous confirmer votre accès.<br><strong>Bienvenue dans la bêta LocalRadar.</strong></p>
+      <button class="btn btn-ghost" onclick="closeModal()" style="margin-top:20px">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+/* ─ Constantes ─ */
+const PLACES_TOTAL = 10;
+const PLACES_TAKEN = 8;
+const PLACES_LEFT  = PLACES_TOTAL - PLACES_TAKEN;
+
+/* ─ Données étapes ─ */
+const STEPS = [
+  {
+    num: '01',
+    title: 'Définissez votre cible en 2 minutes',
+    desc: 'Choisissez une ville, un secteur, un rayon. LocalRadar scanne les annuaires, Google Maps et les réseaux sociaux pour trouver les entreprises qui matchent.',
+  },
+  {
+    num: '02',
+    title: 'Chaque lead enrichi automatiquement',
+    desc: 'Email décisionnel, numéro direct, profil LinkedIn, chiffre d\'affaires estimé. Tout est récupéré sans action de votre part.',
+  },
+  {
+    num: '03',
+    title: 'Intégrez dans votre stack en un clic',
+    desc: 'Export CSV, connexion Make/Zapier, intégration HubSpot. Vos leads arrivent directement là où vous travaillez déjà.',
+  },
+];
+
+let currentStep = 0;
+let progressAnimated = false;
+
+/* ══ INIT ══ */
+document.addEventListener('DOMContentLoaded', () => {
+  initNav();
+  initScrollytelling();
+  initReveal();
+  initProgressOnScroll();
+  updatePlaces();
+});
+
+/* ── 1. NAV active + hamburger ── */
+function initNav() {
+  document.getElementById('nav-burger').addEventListener('click', toggleDrawer);
+
+  // Active state au scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.dataset.section === id);
+        });
+      }
+    });
+  }, { threshold: 0.35 });
+
+  sections.forEach(s => obs.observe(s));
+}
+
+function toggleDrawer() {
+  const d = document.getElementById('nav-drawer');
+  d.style.display = 'block';
+  requestAnimationFrame(() => d.classList.toggle('open'));
+}
+function closeDrawer(e) {
+  if (e.target === document.getElementById('nav-drawer')) toggleDrawer();
+}
+
+/* ── 2. Scrollytelling — étapes ── */
+function initScrollytelling() {
+  const blocks = document.querySelectorAll('.how-step-block');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const step = parseInt(e.target.dataset.step);
+        if (step !== currentStep) goToStep(step);
+      }
+    });
+  }, { threshold: 0.4 });
+
+  blocks.forEach(b => obs.observe(b));
+}
+
+function goToStep(step) {
+  currentStep = step;
+  const data = STEPS[step];
+
+  // Animate out
+  const numEl    = document.getElementById('step-num');
+  const titleEl  = document.getElementById('step-title');
+  const descEl   = document.getElementById('step-desc');
+
+  [numEl, titleEl, descEl].forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(12px)';
+  });
+
+  setTimeout(() => {
+    numEl.textContent   = data.num;
+    titleEl.textContent = data.title;
+    descEl.textContent  = data.desc;
+
+    [numEl, titleEl, descEl].forEach(el => {
+      el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      el.style.opacity    = '1';
+      el.style.transform  = 'translateY(0)';
+    });
+  }, 160);
+
+  // Dots
+  document.querySelectorAll('.step-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === step);
+  });
+}
+
+/* ── 3. Reveal au scroll ── */
+function initReveal() {
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+  els.forEach(el => obs.observe(el));
+}
+
+/* ── 4. Barre de progression animée au scroll ── */
+function initProgressOnScroll() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !progressAnimated) {
+        progressAnimated = true;
+        setTimeout(() => {
+          const pct = (PLACES_TAKEN / PLACES_TOTAL * 100).toFixed(0);
+          const heroFill  = document.getElementById('hero-progress-fill');
+          const betaFill  = document.getElementById('beta-progress-fill');
+          if (heroFill) heroFill.style.width = pct + '%';
+          if (betaFill) betaFill.style.width = pct + '%';
+        }, 200);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const heroEl = document.getElementById('hero');
+  if (heroEl) obs.observe(heroEl);
+
+  // Beta section progress separate observer
+  const betaEl = document.getElementById('beta-cta');
+  if (betaEl) {
+    const betaObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const pct = (PLACES_TAKEN / PLACES_TOTAL * 100).toFixed(0);
+          const betaFill = document.getElementById('beta-progress-fill');
+          if (betaFill) setTimeout(() => betaFill.style.width = pct + '%', 200);
+        }
+      });
+    }, { threshold: 0.3 });
+    betaObs.observe(betaEl);
+  }
+}
+
+/* ── 5. Mise à jour du compteur de places ── */
+function updatePlaces() {
+  document.getElementById('hero-places').textContent = PLACES_LEFT;
+  document.getElementById('modal-places').textContent = PLACES_LEFT;
+  document.getElementById('progress-label').textContent = `${'█'.repeat(PLACES_TAKEN)}${'░'.repeat(PLACES_LEFT)} ${PLACES_TAKEN}/${PLACES_TOTAL} places prises`;
+  document.getElementById('beta-progress-label').textContent = `${'█'.repeat(PLACES_TAKEN)}${'░'.repeat(PLACES_LEFT)} ${PLACES_TAKEN} places prises sur ${PLACES_TOTAL}`;
+}
+
+/* ── 6. Modal ── */
+function openModal() {
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-form-state').style.display = 'block';
+  document.getElementById('modal-confirm').style.display = 'none';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+function submitModal(e) {
+  e.preventDefault();
+  document.getElementById('modal-form-state').style.display = 'none';
+  document.getElementById('modal-confirm').style.display = 'block';
+}
+
+/* ── ESC pour fermer la modal ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+/* ── Smooth scroll nav links ── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>

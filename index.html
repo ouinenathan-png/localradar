@@ -1241,20 +1241,53 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
         </div>
       </div>
 
-      <!-- ÉTAPE 4 : Make webhooks -->
+      <!-- ÉTAPE 4 : Profil IA -->
       <div class="ob-step" id="ob-step-4">
-        <div class="form-group" style="margin-bottom:20px">
-          <label class="form-label">URL Webhook Radar <span style="color:var(--gray-400)">(optionnel)</span></label>
-          <input class="form-input" id="ob-webhook-radar" type="text" placeholder="https://hook.eu1.make.com/…">
-          <div class="ob-webhook-hint">L'URL de votre scénario Make <em>"LocalRadar Starter – Scrap Leads"</em></div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Proposition de valeur *</label>
+          <textarea class="form-input" id="ob-valeur" rows="3"
+            placeholder="Ex: J'aide les artisans locaux à obtenir plus de clients grâce à un site web professionnel et une stratégie Google My Business"
+            style="resize:vertical;min-height:80px;line-height:1.55"></textarea>
         </div>
-        <div class="form-group" style="margin-bottom:20px">
-          <label class="form-label">URL Webhook Enrichissement <span style="color:var(--gray-400)">(optionnel)</span></label>
-          <input class="form-input" id="ob-webhook-enrich" type="text" placeholder="https://hook.eu1.make.com/…">
-          <div class="ob-webhook-hint">L'URL de votre scénario Make <em>"LocalRadar Growth – Enrich Leads"</em></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Canal préféré</label>
+            <select class="form-input" id="ob-canal">
+              <option value="">— Choisir —</option>
+              <option>Email froid</option>
+              <option>LinkedIn DM</option>
+              <option>Appel téléphonique</option>
+              <option>WhatsApp</option>
+              <option>SMS</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Ton de communication</label>
+            <select class="form-input" id="ob-ton">
+              <option value="">— Choisir —</option>
+              <option>Direct &amp; Punchy</option>
+              <option>Professionnel</option>
+              <option>Amical</option>
+              <option>Expert</option>
+            </select>
+          </div>
         </div>
-        <div style="padding:16px;background:var(--cobalt-50);border-radius:var(--radius-md);font-size:12.5px;color:var(--cobalt-700);line-height:1.6">
-          💡 Ces URLs sont accessibles dans Make → votre scénario → cliquer sur le module Webhook → copier l'URL. Vous pourrez les modifier plus tard dans Paramètres → API.
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">CTA souhaité</label>
+            <select class="form-input" id="ob-cta">
+              <option value="">— Choisir —</option>
+              <option>Appel de 20 min</option>
+              <option>Démo</option>
+              <option>Audit gratuit</option>
+              <option>RDV Calendly</option>
+              <option>Devis gratuit</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Prénom pour signature</label>
+            <input class="form-input" id="ob-signature" type="text" placeholder="Ex: Nathan">
+          </div>
         </div>
       </div>
 
@@ -1263,9 +1296,7 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
     <!-- Footer nav -->
     <div class="ob-footer">
       <button class="btn-ghost" id="ob-btn-prev" onclick="obPrev()" style="display:none">← Précédent</button>
-      <div id="ob-skip-wrap" style="display:none">
-        <button class="btn-skip" onclick="obFinish()">Je configure ça plus tard</button>
-      </div>
+      <div id="ob-skip-wrap" style="display:none"></div>
       <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
         <button class="btn-primary" id="ob-btn-next" onclick="obNext()">
           Suivant →
@@ -1954,24 +1985,14 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
           <!-- API KEYS -->
           <div id="stab-api" style="display:none">
             <div class="settings-section">
-              <div class="settings-section-title">Webhooks Make</div>
-              <div class="settings-section-sub">URLs des scénarios Make connectés à LocalRadar</div>
-              <div class="form-group" style="margin-bottom:12px">
-                <label class="form-label">URL Webhook Radar (Scrap Leads)</label>
-                <div class="api-key-row">
-                  <input class="api-key-input" type="text" id="settings-webhook-radar" placeholder="https://hook.eu1.make.com/…">
-                </div>
+              <div class="settings-section-title">Automatisations Make</div>
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--cobalt-50);border-radius:var(--radius-md);margin-top:4px">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p style="font-size:13px;color:var(--cobalt-700);line-height:1.6;margin:0">
+                  Les scénarios d'automatisation sont gérés par l'équipe LocalRadar.<br>
+                  <strong>Aucune configuration requise de votre côté.</strong>
+                </p>
               </div>
-              <div class="form-group" style="margin-bottom:16px">
-                <label class="form-label">URL Webhook Enrichissement (Enrich Leads Mail)</label>
-                <div class="api-key-row">
-                  <input class="api-key-input" type="text" id="settings-webhook-enrich" placeholder="https://hook.eu1.make.com/…">
-                </div>
-              </div>
-              <button class="btn-primary btn-sm" onclick="saveWebhookSettings()">
-                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Sauvegarder les webhooks
-              </button>
             </div>
             <div class="settings-section">
               <div class="settings-section-title">Clés API</div>
@@ -3014,7 +3035,7 @@ const OB_TITLES=[
   {title:'Parlez-nous de vous',        sub:'Quelques infos pour personnaliser votre expérience'},
   {title:'Votre proposition de valeur',sub:'Définissez votre offre et vos clients idéaux'},
   {title:'Où prospectez-vous ?',        sub:'Configurez votre zone de recherche par défaut'},
-  {title:'Connectez vos automatisations',sub:'Branchez Make pour automatiser la prospection'},
+  {title:'Personnalisez votre scoring IA',sub:'Ces informations permettent à l\'IA de scorer les leads et de générer des pitchs adaptés à votre activité'},
 ];
 const RAYON_LABELS=['Ma ville','Département','Région','France entière'];
 let _obStep=1; // 1-indexed
@@ -3044,8 +3065,8 @@ function obUpdateUI(){
   document.querySelectorAll('.ob-step').forEach((el,i)=>el.classList.toggle('active',i+1===s));
   // Prev button
   document.getElementById('ob-btn-prev').style.display=s>1?'':'none';
-  // Skip (étape 4 only)
-  document.getElementById('ob-skip-wrap').style.display=s===4?'block':'none';
+  // Skip — plus utilisé
+  document.getElementById('ob-skip-wrap').style.display='none';
   // Next / Finish button
   const btn=document.getElementById('ob-btn-next');
   if(s===4){ btn.textContent='Accéder à LocalRadar →'; }
@@ -3060,6 +3081,13 @@ function obValidateStep(){
     const secteur=document.getElementById('ob-secteur').value;
     if(!prenom||!nom||!agence||!secteur){
       showToast('Merci de remplir les champs obligatoires *');
+      return false;
+    }
+  }
+  if(_obStep===4){
+    const valeur=document.getElementById('ob-valeur').value.trim();
+    if(!valeur){
+      showToast('Décrivez votre proposition de valeur pour continuer');
       return false;
     }
   }
@@ -3090,9 +3118,13 @@ async function obFinish(){
     zone: RAYON_LABELS[rayonIdx],
     activite: document.getElementById('ob-activite').value.trim()||null,
     nb_leads: parseInt(document.getElementById('ob-nb-leads').value)||10,
+    // Profil IA étape 4
+    valeur: document.getElementById('ob-valeur').value.trim()||null,
+    canal: document.getElementById('ob-canal').value||null,
+    ton: document.getElementById('ob-ton').value||null,
+    cta: document.getElementById('ob-cta').value||null,
+    signature: document.getElementById('ob-signature').value.trim()||null,
   };
-  const radarUrl=document.getElementById('ob-webhook-radar').value.trim()||null;
-  const enrichUrl=document.getElementById('ob-webhook-enrich').value.trim()||null;
 
   const updates={
     onboarding_complete: true,
@@ -3109,14 +3141,8 @@ async function obFinish(){
     default_activite: document.getElementById('ob-activite').value.trim()||null,
     default_nb_leads: parseInt(document.getElementById('ob-nb-leads').value)||10,
     ia_profile,
-    make_webhook_url_radar: radarUrl,
-    make_webhook_url: enrichUrl,
   };
   await sb.from('profiles').update(updates).eq('id',currentUser.id);
-
-  // Mettre à jour les webhooks en mémoire
-  if(radarUrl) window._radarWebhook=radarUrl;
-  if(enrichUrl) window._enrichWebhook=enrichUrl;
 
   // Pré-remplir les champs par défaut du radar
   const cityInput=document.getElementById('radar-city');

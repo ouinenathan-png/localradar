@@ -2821,7 +2821,125 @@ function saveIAProfile(){
 }
 
 // ════════════════════════════════════════
-// PROFIL IA — Load saved profile
+// PROFIL IA — Load from Supabase (currentProfile)
+// ════════════════════════════════════════
+function loadProfileFromSupabase(){
+  if(!currentProfile) return;
+  const p=currentProfile;
+  const ia=typeof p.ia_profile==='string'?JSON.parse(p.ia_profile):(p.ia_profile||{});
+
+  // ── Mappings onboarding text → settings codes ──
+  const secteurMap={
+    'Agence web':'agence-web','Agence SEO':'agence-seo','Agence Ads':'agence-ads',
+    'Agence marketing':'agence-marketing','Freelance dev':'freelance-dev',
+    'Freelance marketing':'freelance-marketing','Conseil digital':'conseil-digital','Autre':'autre',
+  };
+  const ticketMap={
+    '< 500€':'0-500','500–1 500€':'500-1500','1 500–5 000€':'1500-5000',
+    '5 000–15 000€':'5000-15000','> 15 000€':'15000+',
+  };
+  const tonMap={
+    'Direct & Punchy':'direct','Professionnel':'pro','Amical':'amical','Expert':'expert',
+  };
+  const canalMap={
+    'Email froid':'email','LinkedIn DM':'linkedin','Appel téléphonique':'appel',
+    'WhatsApp':'whatsapp','SMS':'sms',
+  };
+  const ctaMap={
+    'Appel de 20 min':'appel','Démo':'demo','Audit gratuit':'audit',
+    'RDV Calendly':'rdv','Devis gratuit':'devis',
+  };
+  const servicesMap={
+    'Site web':'site-web','SEO':'seo','Google Ads':'google-ads','Meta Ads':'meta-ads',
+    'Social media':'social','Email marketing':'email-marketing',
+    'CRM':'maintenance','Conseil':'conseil-digital','Formation':'expert',
+  };
+  const ciblesMap={
+    'Artisans':'artisans','Restauration':'restauration','Commerce':'commerce',
+    'Santé':'sante','Immobilier':'immobilier','Services':'liberal',
+    'TPE':'btob','PME':'btob',
+  };
+
+  // Secteur
+  const secteurCode=secteurMap[p.secteur]||p.secteur||'';
+  const secteurEl=document.getElementById('ia-secteur');
+  if(secteurEl&&secteurCode){
+    // Essaie la valeur code d'abord, sinon le texte brut
+    if([...secteurEl.options].some(o=>o.value===secteurCode)) secteurEl.value=secteurCode;
+    else secteurEl.value=p.secteur||'';
+  }
+
+  // Ticket
+  const ticketCode=ticketMap[p.ticket_moyen]||ia.ticket_moyen||'';
+  const ticketEl=document.getElementById('ia-ticket');
+  if(ticketEl&&ticketCode) ticketEl.value=ticketCode;
+
+  // Proposition de valeur
+  const valeurEl=document.getElementById('ia-valeur');
+  if(valeurEl&&ia.valeur) valeurEl.value=ia.valeur;
+
+  // Ton
+  const tonEl=document.getElementById('ia-ton');
+  if(tonEl&&ia.ton){
+    const tonCode=tonMap[ia.ton]||ia.ton;
+    if([...tonEl.options].some(o=>o.value===tonCode)) tonEl.value=tonCode;
+  }
+
+  // Canal
+  const canalEl=document.getElementById('ia-canal');
+  if(canalEl&&ia.canal){
+    const canalCode=canalMap[ia.canal]||ia.canal;
+    if([...canalEl.options].some(o=>o.value===canalCode)) canalEl.value=canalCode;
+  }
+
+  // CTA
+  const ctaEl=document.getElementById('ia-cta');
+  if(ctaEl&&ia.cta){
+    const ctaCode=ctaMap[ia.cta]||ia.cta;
+    if([...ctaEl.options].some(o=>o.value===ctaCode)) ctaEl.value=ctaCode;
+  }
+
+  // Prénom (ia-prenom) + signature
+  const prenomEl=document.getElementById('ia-prenom');
+  const sigEl=document.getElementById('ia-signature');
+  const prenomVal=ia.signature||p.prenom||'';
+  if(prenomEl&&prenomVal) prenomEl.value=prenomVal;
+  if(sigEl&&ia.signature) sigEl.value=ia.signature;
+
+  // Services — tag chips
+  const services=ia.services||[];
+  if(services.length){
+    const settingsCodes=services.map(s=>servicesMap[s]||s.toLowerCase().replace(/\s+/g,'-'));
+    document.querySelectorAll('#ia-services-tags .tag-chip').forEach(c=>{
+      if(settingsCodes.includes(c.dataset.val)) c.classList.add('selected');
+    });
+  }
+
+  // Cibles — tag chips
+  const cibles=ia.cibles||[];
+  if(cibles.length){
+    const ciblesCodes=cibles.map(s=>ciblesMap[s]||s.toLowerCase());
+    document.querySelectorAll('#ia-cibles-tags .tag-chip').forEach(c=>{
+      if(ciblesCodes.includes(c.dataset.val)) c.classList.add('selected');
+    });
+  }
+
+  // Mettre à jour le statut "configuré" si des données existent
+  const isConfigured=!!(secteurCode||ia.valeur||services.length);
+  if(isConfigured){
+    const statusEl=document.getElementById('ia-profile-status');
+    if(statusEl){
+      statusEl.className='profile-status ps-ok';
+      statusEl.innerHTML=`<svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Profil IA configuré — scoring personnalisé actif`;
+    }
+    const chip=document.getElementById('profile-chip');
+    if(chip) chip.classList.add('visible');
+    updateProfilePreview();
+  }
+}
+
+// ════════════════════════════════════════
+// PROFIL IA — Load saved profile (localStorage fallback)
 // ════════════════════════════════════════
 function loadSavedProfile(){
   try{
@@ -3853,7 +3971,8 @@ async function init(){
     if(el) el.addEventListener('change',updateProfilePreview);
   });
 
-  // Load saved profile from localStorage
+  // Load saved profile — Supabase en priorité, localStorage en fallback
+  loadProfileFromSupabase();
   loadSavedProfile();
 
   // Démarrer la subscription Realtime

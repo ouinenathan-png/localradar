@@ -124,6 +124,29 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
   font-size:12.5px;margin-bottom:16px;display:none;
 }
 .auth-success.show{display:block}
+/* Password strength */
+.pwd-strength-wrap{margin-top:8px;display:none}
+.pwd-strength-wrap.show{display:block}
+.pwd-strength-bar-track{
+  height:4px;border-radius:99px;
+  background:var(--gray-100);overflow:hidden;margin-bottom:5px;
+}
+.pwd-strength-bar-fill{
+  height:100%;border-radius:99px;
+  width:0;transition:width .25s,background .25s;
+}
+.pwd-strength-label{font-size:11px;font-weight:600}
+/* confirm field */
+.confirm-wrap{position:relative}
+.confirm-check{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  color:var(--green-500);display:none;pointer-events:none;
+}
+.confirm-check.show{display:block}
+.confirm-mismatch{font-size:11px;color:var(--red-500);margin-top:5px;display:none}
+.confirm-mismatch.show{display:block}
+/* signup-only fields hidden on login */
+.signup-only{display:none}
 .btn-logout{
   background:none;border:none;cursor:pointer;padding:4px;
   color:var(--gray-400);transition:color .12s;flex-shrink:0;
@@ -988,9 +1011,29 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
       <label class="form-label">Email</label>
       <input class="form-input" id="auth-email" type="email" placeholder="vous@exemple.fr" autocomplete="email">
     </div>
-    <div class="form-group" style="margin-bottom:20px">
+    <div class="form-group" style="margin-bottom:16px">
       <label class="form-label">Mot de passe</label>
-      <input class="form-input" id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
+      <input class="form-input" id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password"
+        oninput="onPasswordInput()"
+        onkeydown="if(event.key==='Enter')submitAuth()">
+      <!-- Strength indicator — visible only on signup -->
+      <div class="pwd-strength-wrap" id="pwd-strength-wrap">
+        <div class="pwd-strength-bar-track">
+          <div class="pwd-strength-bar-fill" id="pwd-strength-bar"></div>
+        </div>
+        <span class="pwd-strength-label" id="pwd-strength-label"></span>
+      </div>
+    </div>
+    <!-- Confirm password — signup only -->
+    <div class="form-group signup-only" id="confirm-group" style="margin-bottom:20px">
+      <label class="form-label">Confirmer le mot de passe</label>
+      <div class="confirm-wrap">
+        <input class="form-input" id="auth-confirm" type="password" placeholder="••••••••" autocomplete="new-password"
+          oninput="onConfirmInput()"
+          onkeydown="if(event.key==='Enter')submitAuth()">
+        <svg class="confirm-check" id="confirm-check" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="confirm-mismatch" id="confirm-mismatch">Les mots de passe ne correspondent pas</div>
     </div>
     <button class="btn-primary" id="auth-submit-btn" onclick="submitAuth()" style="width:100%;justify-content:center;height:40px;font-size:14px">
       Se connecter
@@ -2595,6 +2638,96 @@ function switchAuthTab(tab){
   document.getElementById('auth-submit-btn').textContent=tab==='login'?'Se connecter':'Créer mon compte';
   document.getElementById('auth-error').classList.remove('show');
   document.getElementById('auth-success').classList.remove('show');
+  // Show/hide signup-only fields
+  const isSignup=(tab==='signup');
+  document.querySelectorAll('.signup-only').forEach(el=>el.style.display=isSignup?'block':'none');
+  document.getElementById('pwd-strength-wrap').classList.toggle('show',isSignup&&!!document.getElementById('auth-password').value);
+  // Reset confirm
+  document.getElementById('auth-confirm').value='';
+  document.getElementById('confirm-check').classList.remove('show');
+  document.getElementById('confirm-mismatch').classList.remove('show');
+  document.getElementById('auth-confirm').style.borderColor='';
+  // Reset password field autocomplete
+  document.getElementById('auth-password').autocomplete=isSignup?'new-password':'current-password';
+  updateSignupBtn();
+}
+
+function checkPasswordStrength(pwd){
+  let score=0;
+  if(pwd.length>=8) score++;
+  if(pwd.length>=10) score++;
+  if(/[A-Z]/.test(pwd)) score++;
+  if(/[0-9]/.test(pwd)) score++;
+  if(/[^A-Za-z0-9]/.test(pwd)) score++;
+  if(score<=1) return 'faible';
+  if(score===2) return 'moyen';
+  if(score===3) return 'fort';
+  return 'tres_fort';
+}
+
+const PWD_LEVELS={
+  faible:  {label:'Faible',   color:'#EF4444', width:'25%'},
+  moyen:   {label:'Moyen',    color:'#F97316', width:'50%'},
+  fort:    {label:'Fort',     color:'#3B82F6', width:'75%'},
+  tres_fort:{label:'Très fort',color:'#22C55E', width:'100%'},
+};
+
+function onPasswordInput(){
+  const pwd=document.getElementById('auth-password').value;
+  const wrap=document.getElementById('pwd-strength-wrap');
+  const bar=document.getElementById('pwd-strength-bar');
+  const lbl=document.getElementById('pwd-strength-label');
+  if(_authTab!=='signup'){wrap.classList.remove('show');updateSignupBtn();return;}
+  if(!pwd){wrap.classList.remove('show');updateSignupBtn();return;}
+  wrap.classList.add('show');
+  const lvl=checkPasswordStrength(pwd);
+  const cfg=PWD_LEVELS[lvl];
+  bar.style.width=cfg.width;
+  bar.style.background=cfg.color;
+  lbl.textContent=cfg.label;
+  lbl.style.color=cfg.color;
+  // re-validate confirm
+  onConfirmInput();
+  updateSignupBtn();
+}
+
+function onConfirmInput(){
+  if(_authTab!=='signup') return;
+  const pwd=document.getElementById('auth-password').value;
+  const conf=document.getElementById('auth-confirm').value;
+  const input=document.getElementById('auth-confirm');
+  const check=document.getElementById('confirm-check');
+  const mismatch=document.getElementById('confirm-mismatch');
+  if(!conf){
+    input.style.borderColor='';
+    check.classList.remove('show');
+    mismatch.classList.remove('show');
+    updateSignupBtn(); return;
+  }
+  const ok=(pwd===conf);
+  input.style.borderColor=ok?'var(--green-500)':'var(--red-400)';
+  check.classList.toggle('show',ok);
+  mismatch.classList.toggle('show',!ok);
+  updateSignupBtn();
+}
+
+function updateSignupBtn(){
+  if(_authTab!=='login'){
+    const pwd=document.getElementById('auth-password').value;
+    const conf=document.getElementById('auth-confirm').value;
+    const lvl=pwd?checkPasswordStrength(pwd):'faible';
+    const pwdOk=(lvl!=='faible');
+    const confirmOk=(pwd===conf&&conf.length>0);
+    const btn=document.getElementById('auth-submit-btn');
+    btn.disabled=!(pwdOk&&confirmOk);
+    btn.style.opacity=btn.disabled?'.45':'';
+    btn.style.cursor=btn.disabled?'not-allowed':'';
+  } else {
+    const btn=document.getElementById('auth-submit-btn');
+    btn.disabled=false;
+    btn.style.opacity='';
+    btn.style.cursor='';
+  }
 }
 
 async function submitAuth(){
@@ -2604,6 +2737,11 @@ async function submitAuth(){
   const okEl=document.getElementById('auth-success');
   errEl.classList.remove('show'); okEl.classList.remove('show');
   if(!email||!password){errEl.textContent='Email et mot de passe requis.';errEl.classList.add('show');return;}
+  if(_authTab==='signup'){
+    const conf=document.getElementById('auth-confirm').value;
+    if(password!==conf){errEl.textContent='Les mots de passe ne correspondent pas.';errEl.classList.add('show');return;}
+    if(checkPasswordStrength(password)==='faible'){errEl.textContent='Choisissez un mot de passe plus fort.';errEl.classList.add('show');return;}
+  }
   const btn=document.getElementById('auth-submit-btn');
   btn.disabled=true; btn.textContent='…';
   const sb=getSB();
@@ -2745,6 +2883,12 @@ async function logOut(){
   document.getElementById('auth-screen').style.display='flex';
   document.getElementById('auth-email').value='';
   document.getElementById('auth-password').value='';
+  document.getElementById('auth-confirm').value='';
+  document.getElementById('pwd-strength-wrap').classList.remove('show');
+  document.getElementById('confirm-check').classList.remove('show');
+  document.getElementById('confirm-mismatch').classList.remove('show');
+  document.getElementById('auth-confirm').style.borderColor='';
+  switchAuthTab('login');
   leadsData.length=0; filteredLeads.length=0;
   showToast('À bientôt !');
 }

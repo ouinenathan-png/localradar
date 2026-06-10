@@ -130,6 +130,31 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
   display:flex;align-items:center;
 }
 .btn-logout:hover{color:var(--red-500)}
+.plan-badge{
+  display:inline-block;font-size:9px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border-radius:20px;
+}
+.plan-free    {background:var(--gray-100);color:var(--gray-500)}
+.plan-starter {background:var(--cobalt-50);color:var(--cobalt-400)}
+.plan-growth  {background:var(--cobalt-100);color:var(--cobalt-600)}
+.plan-scale   {background:#FEF3C7;color:#B45309}
+.plan-admin   {background:var(--red-100);color:var(--red-600)}
+.sidebar-credits{font-size:10px;color:var(--gray-400);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-banner{
+  background:var(--red-100);border-bottom:1px solid #FECACA;
+  padding:5px 12px;font-size:11px;font-weight:700;
+  color:var(--red-600);letter-spacing:.04em;text-transform:uppercase;
+  display:none;align-items:center;gap:6px;flex-shrink:0;
+}
+.admin-banner.show{display:flex}
+.btn-row-locked{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:0 9px;height:26px;border-radius:var(--radius-md);
+  background:var(--cobalt-50);color:var(--cobalt-500);
+  font-size:11px;font-weight:600;border:1.5px solid var(--cobalt-100);
+  cursor:pointer;white-space:nowrap;
+}
 
 /* ═══════════════════════════════════════
    MAIN CONTENT
@@ -978,6 +1003,10 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
   <!-- ══ SIDEBAR ══ -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
   <aside class="sidebar" id="sidebar">
+    <div class="admin-banner" id="admin-banner">
+      <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Mode Admin — tous les leads visibles
+    </div>
     <div class="sidebar-logo">
       <div class="logo-icon">
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
@@ -1018,7 +1047,10 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
       <div class="avatar"><span id="sidebar-avatar-initials">?</span></div>
       <div class="user-info">
         <div class="user-name" id="sidebar-user-email">—</div>
-        <div class="user-plan">LocalRadar Beta</div>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:2px">
+          <span class="plan-badge plan-free" id="sidebar-plan-badge">free</span>
+        </div>
+        <div class="sidebar-credits" id="sidebar-credits">— crédits</div>
       </div>
       <button class="btn-logout" onclick="logOut()" title="Se déconnecter">
         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -1645,6 +1677,26 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
           <!-- API KEYS -->
           <div id="stab-api" style="display:none">
             <div class="settings-section">
+              <div class="settings-section-title">Webhooks Make</div>
+              <div class="settings-section-sub">URLs des scénarios Make connectés à LocalRadar</div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">URL Webhook Radar (Scrap Leads)</label>
+                <div class="api-key-row">
+                  <input class="api-key-input" type="text" id="settings-webhook-radar" placeholder="https://hook.eu1.make.com/…">
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:16px">
+                <label class="form-label">URL Webhook Enrichissement (Enrich Leads Mail)</label>
+                <div class="api-key-row">
+                  <input class="api-key-input" type="text" id="settings-webhook-enrich" placeholder="https://hook.eu1.make.com/…">
+                </div>
+              </div>
+              <button class="btn-primary btn-sm" onclick="saveWebhookSettings()">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Sauvegarder les webhooks
+              </button>
+            </div>
+            <div class="settings-section">
               <div class="settings-section-title">Clés API</div>
               <div class="settings-section-sub">Connectez vos services IA et d'enrichissement</div>
               <div class="form-group" style="margin-bottom:12px">
@@ -2012,6 +2064,31 @@ const techBadges=tech=>{
   if(tech.length>2) h+=`<span class="tech-badge tech-more">+${tech.length-2}</span>`;
   return h;
 };
+function enrichBtnHTML(lead, lid){
+  const canEnrich=window._planCanEnrich||false;
+  const creditsEnrich=window._planCreditsEnrich??0;
+  const isAdmin=window._planIsAdmin||false;
+  // Plan insuffisant
+  if(!canEnrich){
+    return`<button class="btn-row-locked" onclick="event.stopPropagation();showToast('L\\'enrichissement IA est disponible dès le plan Growth')">
+      <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Growth requis
+    </button>`;
+  }
+  // Crédits épuisés (growth/scale)
+  if(!isAdmin&&creditsEnrich<=0){
+    return`<button class="btn-row btn-enrich" disabled style="opacity:.5;cursor:not-allowed" onclick="event.stopPropagation();showToast('Crédits d\\'enrichissement épuisés')">
+      <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Épuisé
+    </button>`;
+  }
+  // Bouton normal
+  return`<button class="btn-row btn-enrich" id="enrich-row-${lead.id}" onclick="event.stopPropagation();enrichirLead(${lid},this)" title="Enrichir avec l'email via IA">
+    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    ${lead.email&&lead.email!=='—'?'✓ Mail':'Enrichir'}
+  </button>`;
+}
+
 const rowHTML=lead=>{
   const lid=`'${String(lead.id)}'`;
   const urlDisplay=lead.url&&lead.url!=='—'?lead.url:'';
@@ -2030,10 +2107,7 @@ const rowHTML=lead=>{
     <div class="cell-tech">${techBadges(lead.tech)}</div>
     <div class="cell-statut">${statusHTML(lead.statut)}</div>
     <div class="cell-action" style="gap:6px">
-      ${lead.statut!=='Terminé'?`<button class="btn-row btn-enrich" id="enrich-row-${lead.id}" onclick="event.stopPropagation();enrichirLead(${lid},this)" title="Enrichir avec l'email via IA">
-        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        ${lead.email&&lead.email!=='—'?'✓ Mail':'Enrichir'}
-      </button>`:''}
+      ${lead.statut!=='Terminé'?enrichBtnHTML(lead,lid):''}
       <button class="btn-row" onclick="event.stopPropagation();openPanel(${lid})">
         <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         Rapport
@@ -2268,7 +2342,7 @@ async function lancerRadar(){
   console.log('[LocalRadar → Make] Payload Radar:', JSON.stringify(payload,null,2));
 
   try{
-    await fetch(RADAR_WEBHOOK,{
+    await fetch(window._radarWebhook||RADAR_WEBHOOK,{
       method:'POST',
       body:new URLSearchParams(payload)
     });
@@ -2302,7 +2376,7 @@ async function lancerRadarMobile(){
   console.log('[LocalRadar → Make] Payload Radar Mobile:', JSON.stringify(payload,null,2));
 
   try{
-    await fetch(RADAR_WEBHOOK,{
+    await fetch(window._radarWebhook||RADAR_WEBHOOK,{
       method:'POST',
       body:new URLSearchParams(payload)
     });
@@ -2497,6 +2571,14 @@ const SUPABASE_URL='https://qhfoiiwxlvhtlieseggs.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoZm9paXd4bHZodGxpZXNlZ2dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDg5MTUsImV4cCI6MjA5NjU4NDkxNX0.OfmyoMnxrlXDDIpES8U7NECNtZUv4q4-jWeQXEX4GC8';
 let sbClient=null;
 let currentUser=null;
+let currentProfile=null;
+
+const PLANS={
+  free:    {credits_radar:50,    credits_enrichissement:0},
+  starter: {credits_radar:2000,  credits_enrichissement:0},
+  growth:  {credits_radar:5000,  credits_enrichissement:500},
+  scale:   {credits_radar:15000, credits_enrichissement:2000},
+};
 function getSB(){
   if(!sbClient) sbClient=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
   return sbClient;
@@ -2560,25 +2642,100 @@ async function onAuthSuccess(user){
   const initials=email.slice(0,2).toUpperCase();
   document.getElementById('sidebar-avatar-initials').textContent=initials;
   document.getElementById('sidebar-user-email').textContent=email;
-  // Créer le profil si absent
-  await ensureProfile(user);
+  // Charger / créer le profil et appliquer les permissions
+  await loadUserProfile(user);
   // Masquer auth, afficher app
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('app').style.display='flex';
   await init();
 }
 
-async function ensureProfile(user){
+async function loadUserProfile(user){
   const sb=getSB();
-  const {data}=await sb.from('profiles').select('id').eq('id',user.id).single();
+  let {data}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!data){
-    await sb.from('profiles').insert({
+    // Créer profil par défaut
+    const {data:created}=await sb.from('profiles').insert({
       id: user.id,
       email: user.email,
       plan: 'free',
-      credits: 50,
-    });
+      role: 'user',
+      credits_radar: 50,
+      credits_enrichissement: 0,
+    }).select().single();
+    data=created;
   }
+  currentProfile=data||{plan:'free',role:'user',credits_radar:50,credits_enrichissement:0};
+  checkPlanPermissions(currentProfile);
+  return currentProfile;
+}
+
+function checkPlanPermissions(profile){
+  const plan=profile.plan||'free';
+  const role=profile.role||'user';
+  const isAdmin=(role==='admin');
+  const creditsRadar=profile.credits_radar??PLANS[plan]?.credits_radar??0;
+  const creditsEnrich=profile.credits_enrichissement??PLANS[plan]?.credits_enrichissement??0;
+  const canEnrich=isAdmin||(plan==='growth'||plan==='scale');
+
+  // Admin banner
+  document.getElementById('admin-banner').classList.toggle('show',isAdmin);
+
+  // Badge plan sidebar
+  const badge=document.getElementById('sidebar-plan-badge');
+  badge.className='plan-badge '+(isAdmin?'plan-admin':`plan-${plan}`);
+  badge.textContent=isAdmin?'Admin':plan;
+
+  // Crédits sidebar
+  const credEl=document.getElementById('sidebar-credits');
+  if(credEl) credEl.textContent=`${creditsRadar} crédits radar · ${creditsEnrich} enrichissements`;
+
+  // Bouton Lancer le Radar
+  const btnRadar=document.getElementById('btn-radar');
+  if(btnRadar&&!isAdmin&&creditsRadar<=0){
+    btnRadar.disabled=true;
+    btnRadar.title='Crédits épuisés — contactez-nous pour recharger';
+    btnRadar.style.opacity='.5';
+    btnRadar.style.cursor='not-allowed';
+  } else if(btnRadar){
+    btnRadar.disabled=false;
+    btnRadar.title='';
+    btnRadar.style.opacity='';
+    btnRadar.style.cursor='';
+  }
+
+  // Stocker les permissions dans window pour rowHTML
+  window._planCanEnrich=canEnrich;
+  window._planCreditsEnrich=creditsEnrich;
+  window._planIsAdmin=isAdmin;
+
+  // Recharger les webhooks sauvegardés si présents
+  if(profile.make_webhook_url_radar){
+    window._radarWebhook=profile.make_webhook_url_radar;
+  }
+  if(profile.make_webhook_url){
+    window._enrichWebhook=profile.make_webhook_url;
+  }
+  // Pré-remplir les champs Settings si visibles
+  const fRadar=document.getElementById('settings-webhook-radar');
+  const fEnrich=document.getElementById('settings-webhook-enrich');
+  if(fRadar) fRadar.value=profile.make_webhook_url_radar||'';
+  if(fEnrich) fEnrich.value=profile.make_webhook_url||'';
+}
+
+async function saveWebhookSettings(){
+  const sb=getSB();
+  if(!currentUser) return;
+  const radarUrl=document.getElementById('settings-webhook-radar')?.value?.trim()||null;
+  const enrichUrl=document.getElementById('settings-webhook-enrich')?.value?.trim()||null;
+  const {error}=await sb.from('profiles').update({
+    make_webhook_url_radar: radarUrl,
+    make_webhook_url: enrichUrl,
+  }).eq('id',currentUser.id);
+  if(error){ showToast('❌ Erreur : '+error.message); return; }
+  if(radarUrl) window._radarWebhook=radarUrl;
+  if(enrichUrl) window._enrichWebhook=enrichUrl;
+  showToast('✓ Webhooks sauvegardés');
 }
 
 async function logOut(){
@@ -2781,7 +2938,7 @@ async function enrichirLead(id, rowBtn){
   };
 
   try{
-    const res=await fetch(ENRICH_WEBHOOK,{
+    const res=await fetch(window._enrichWebhook||ENRICH_WEBHOOK,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload)
@@ -3068,7 +3225,8 @@ async function submitAddLead(){
 async function fetchLeads(){
   const sb = getSB();
   let query = sb.from('leads').select('*').order('score', { ascending: false });
-  if(currentUser?.id) query = query.eq('user_id', currentUser.id);
+  // Admin voit tous les leads, sinon filtrage par user
+  if(currentUser?.id && !window._planIsAdmin) query = query.eq('user_id', currentUser.id);
   const { data, error } = await query;
   if(error){
     console.error('[Supabase] fetchLeads error:', error);

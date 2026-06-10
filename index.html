@@ -1,0 +1,3042 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>LocalRadar — MVP</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cobalt-500:#2563EB;--cobalt-600:#1D4ED8;--cobalt-400:#3B82F6;
+  --cobalt-100:#DBEAFE;--cobalt-50:#EFF6FF;
+  --gray-50:#F8FAFC;--gray-100:#F1F5F9;--gray-200:#E2E8F0;
+  --gray-300:#CBD5E1;--gray-400:#94A3B8;--gray-500:#64748B;
+  --gray-600:#475569;--gray-700:#334155;--gray-800:#1E293B;--gray-900:#0F172A;
+  --green-500:#22C55E;--green-100:#DCFCE7;--green-600:#16A34A;--green-50:#F0FDF4;
+  --orange-500:#F97316;--orange-100:#FFEDD5;--orange-600:#EA580C;
+  --red-500:#EF4444;--red-100:#FEE2E2;--red-600:#DC2626;
+  --purple-500:#8B5CF6;--purple-100:#EDE9FE;--purple-600:#7C3AED;
+  --white:#FFFFFF;
+  --sidebar-w:220px;--topbar-h:60px;--panel-w:440px;--bottom-nav-h:60px;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
+}
+html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(--font);color:var(--gray-700);-webkit-font-smoothing:antialiased}
+
+/* ═══════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════ */
+.app{display:flex;height:100vh;overflow:hidden;position:relative}
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+.sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);height:100vh;
+  background:var(--white);border-right:1px solid var(--gray-200);
+  display:flex;flex-direction:column;z-index:30;flex-shrink:0;
+  transition:transform 0.28s cubic-bezier(0.22,1,0.36,1);
+}
+.sidebar-logo{
+  height:var(--topbar-h);display:flex;align-items:center;gap:10px;
+  padding:0 16px;border-bottom:1px solid var(--gray-200);flex-shrink:0;
+}
+.logo-icon{
+  width:28px;height:28px;background:var(--cobalt-500);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.logo-text{font-size:14px;font-weight:700;color:var(--gray-900);letter-spacing:-0.3px}
+.logo-badge{font-size:9px;font-weight:600;background:var(--cobalt-100);color:var(--cobalt-500);padding:2px 5px;border-radius:4px;margin-left:2px}
+.nav-section{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:600;color:var(--gray-400);letter-spacing:.06em;text-transform:uppercase;padding:10px 10px 4px}
+.nav-item{
+  display:flex;align-items:center;gap:9px;height:36px;padding:0 10px;
+  border-radius:var(--radius-md);cursor:pointer;transition:background .12s;
+  user-select:none;text-decoration:none;position:relative;
+}
+.nav-item:hover{background:var(--gray-100)}
+.nav-item.active{background:var(--cobalt-50)}
+.nav-item .ni-icon{flex-shrink:0;color:var(--gray-400);transition:color .12s}
+.nav-item.active .ni-icon{color:var(--cobalt-500)}
+.nav-item .ni-label{font-size:13px;font-weight:500;color:var(--gray-500);transition:color .12s}
+.nav-item.active .ni-label{color:var(--cobalt-500);font-weight:600}
+.nav-item .nav-badge{
+  margin-left:auto;font-size:10px;font-weight:700;
+  background:var(--cobalt-100);color:var(--cobalt-500);
+  padding:1px 6px;border-radius:10px;
+}
+.nav-sep{height:1px;background:var(--gray-200);margin:6px 0}
+.sidebar-footer{
+  height:56px;display:flex;align-items:center;gap:9px;
+  padding:0 12px;border-top:1px solid var(--gray-200);flex-shrink:0;
+}
+.avatar{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--cobalt-500),#7C3AED);
+  display:flex;align-items:center;justify-content:center;
+}
+.avatar span{font-size:10px;font-weight:700;color:white}
+.user-info{flex:1;overflow:hidden}
+.user-name{font-size:12px;font-weight:600;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-plan{font-size:10px;color:var(--gray-400)}
+
+/* ═══════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════ */
+.main-content{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh}
+
+/* ═══════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════ */
+.topbar{
+  height:var(--topbar-h);display:flex;align-items:center;gap:10px;
+  padding:0 20px;background:var(--white);border-bottom:1px solid var(--gray-200);
+  flex-shrink:0;
+}
+.mobile-menu-btn{
+  display:none;width:34px;height:34px;border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-md);background:none;cursor:pointer;
+  align-items:center;justify-content:center;color:var(--gray-600);flex-shrink:0;
+}
+.topbar-titles{flex:1;min-width:0}
+.topbar-titles h1{font-size:16px;font-weight:700;color:var(--gray-900);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-titles p{font-size:11px;color:var(--gray-400);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-search{display:flex;align-items:center;gap:7px}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-wrap svg{position:absolute;left:9px;color:var(--gray-400);pointer-events:none;flex-shrink:0}
+.tb-input{
+  height:34px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);
+  background:var(--white);font-family:var(--font);font-size:12.5px;
+  color:var(--gray-900);outline:none;padding:0 10px 0 30px;
+  transition:border-color .15s,box-shadow .15s;width:175px;
+}
+.tb-input:focus{border-color:var(--cobalt-500);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.tb-input::placeholder{color:var(--gray-400)}
+#input-ville{width:155px}
+.btn-primary{
+  height:34px;padding:0 14px;background:var(--cobalt-500);color:white;
+  border:none;border-radius:var(--radius-md);font-family:var(--font);
+  font-size:12.5px;font-weight:600;cursor:pointer;display:flex;
+  align-items:center;gap:5px;white-space:nowrap;
+  transition:background .12s,transform .1s,box-shadow .12s;
+  box-shadow:0 1px 4px rgba(37,99,235,.3);
+}
+.btn-primary:hover{background:var(--cobalt-600);box-shadow:0 3px 10px rgba(37,99,235,.35)}
+.btn-primary:active{transform:translateY(1px)}
+.btn-primary.loading{opacity:.7;pointer-events:none}
+.btn-sm{height:30px;padding:0 12px;font-size:12px}
+.btn-ghost{
+  height:34px;padding:0 12px;background:transparent;color:var(--gray-700);
+  border:1.5px solid var(--gray-200);border-radius:var(--radius-md);
+  font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;
+  display:flex;align-items:center;gap:5px;transition:background .12s,border-color .12s;
+}
+.btn-ghost:hover{background:var(--gray-100);border-color:var(--gray-300)}
+.btn-danger{background:var(--red-600);color:white;border:none;height:34px;padding:0 14px;border-radius:var(--radius-md);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .12s}
+.btn-danger:hover{background:#B91C1C}
+.topbar-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.icon-btn{
+  width:34px;height:34px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);
+  background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--gray-500);transition:background .12s;position:relative;
+}
+.icon-btn:hover{background:var(--gray-100)}
+.notif-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--cobalt-500);border-radius:50%;border:1.5px solid white}
+
+/* ═══════════════════════════════════════
+   PAGES
+═══════════════════════════════════════ */
+.page{display:none;flex:1;flex-direction:column;min-height:0}
+.page.active{display:flex}
+.workspace{flex:1;overflow-y:auto;padding:18px 20px 24px;display:flex;flex-direction:column;gap:14px}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{
+  background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);
+  padding:16px;box-shadow:var(--shadow-sm);
+}
+.stat-label{font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.stat-value{font-size:26px;font-weight:800;color:var(--gray-900);letter-spacing:-.5px;font-family:var(--mono)}
+.stat-sub{font-size:11px;color:var(--gray-400);margin-top:4px}
+.stat-icon{float:right;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-top:-2px}
+
+/* Section headers */
+.section-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.section-title{font-size:14px;font-weight:700;color:var(--gray-900)}
+.section-sub{font-size:12px;color:var(--gray-400);flex:1}
+
+/* ═══════════════════════════════════════
+   TABLE
+═══════════════════════════════════════ */
+.table-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.result-count{flex:1;font-size:12px;color:var(--gray-400);white-space:nowrap}
+.result-count strong{color:var(--gray-700);font-weight:600}
+.filter-wrap{position:relative;display:flex;align-items:center}
+.filter-wrap svg{position:absolute;left:8px;color:var(--gray-400)}
+.filter-input{
+  height:31px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);
+  background:var(--white);font-family:var(--font);font-size:12px;
+  color:var(--gray-900);outline:none;padding:0 9px 0 28px;width:170px;
+}
+.filter-input:focus{border-color:var(--cobalt-500)}
+.filter-input::placeholder{color:var(--gray-400)}
+.filter-select{
+  height:31px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);
+  background:var(--white);font-family:var(--font);font-size:12px;
+  color:var(--gray-700);outline:none;padding:0 8px;cursor:pointer;
+}
+.table-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-header{
+  display:flex;align-items:center;height:36px;background:var(--gray-50);
+  border-bottom:1.5px solid var(--gray-200);padding:0 14px;
+}
+.th{
+  font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.06em;
+  text-transform:uppercase;display:flex;align-items:center;gap:3px;
+  cursor:pointer;padding-right:8px;white-space:nowrap;user-select:none;
+}
+.th:hover{color:var(--gray-700)}
+.th-score{width:65px;flex-shrink:0}
+.th-nom{flex:2;min-width:0}
+.th-ville{width:100px;flex-shrink:0}
+.th-gerant{width:125px;flex-shrink:0}
+.th-tech{width:175px;flex-shrink:0}
+.th-statut{width:120px;flex-shrink:0}
+.th-action{width:105px;flex-shrink:0;justify-content:flex-end}
+.lead-row{
+  display:flex;align-items:center;height:50px;padding:0 14px;
+  border-bottom:1px solid var(--gray-100);cursor:pointer;transition:background .1s;
+}
+.lead-row:last-child{border-bottom:none}
+.lead-row:hover{background:#F0F5FF}
+.cell-score{width:65px;flex-shrink:0}
+.cell-nom{flex:2;min-width:0;display:flex;flex-direction:column;gap:1px;padding-right:10px;overflow:hidden}
+.cell-nom .nom{font-size:12.5px;font-weight:600;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell-nom .url{font-size:11px;color:var(--cobalt-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell-ville{width:100px;flex-shrink:0;font-size:12.5px;color:var(--gray-700)}
+.cell-gerant{width:125px;flex-shrink:0;font-size:12.5px;color:var(--gray-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell-tech{width:175px;flex-shrink:0;display:flex;gap:3px;overflow:hidden;align-items:center}
+.cell-statut{width:120px;flex-shrink:0}
+.cell-action{width:105px;flex-shrink:0;display:flex;justify-content:flex-end}
+
+/* Score badges */
+.score-badge{
+  height:22px;min-width:46px;border-radius:var(--radius-sm);padding:0 6px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:10.5px;font-weight:700;font-family:var(--mono);
+}
+.score-high{background:var(--green-100);color:var(--green-600)}
+.score-mid{background:var(--orange-100);color:var(--orange-600)}
+.score-low{background:var(--gray-100);color:var(--gray-500)}
+.tech-badge{
+  height:19px;padding:0 5px;border-radius:4px;
+  background:var(--gray-100);border:1px solid var(--gray-200);
+  font-size:10px;font-weight:500;color:var(--gray-600);white-space:nowrap;flex-shrink:0;
+}
+.tech-more{background:transparent;border:none;color:var(--gray-400);font-size:10px}
+.status-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  height:21px;padding:0 8px;border-radius:20px;font-size:10.5px;font-weight:500;
+}
+.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.status-pending{background:var(--gray-100);color:var(--gray-500)}
+.status-pending .status-dot{background:var(--gray-400)}
+.status-running{background:var(--cobalt-50);color:var(--cobalt-500)}
+.status-running .status-dot{background:var(--cobalt-500);animation:pulse-dot 1s infinite}
+.status-done{background:var(--green-100);color:var(--green-600)}
+.status-done .status-dot{background:var(--green-500)}
+.status-enrichi{background:var(--orange-100);color:var(--orange-600)}
+.status-enrichi .status-dot{background:var(--orange-500)}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-row{
+  height:26px;padding:0 9px;background:transparent;border:1.5px solid var(--gray-200);
+  border-radius:6px;font-family:var(--font);font-size:11px;font-weight:500;
+  color:var(--gray-700);cursor:pointer;display:flex;align-items:center;gap:4px;
+  transition:all .12s;white-space:nowrap;
+}
+.btn-row:hover{background:var(--cobalt-500);color:white;border-color:var(--cobalt-500)}
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:56px 24px;gap:10px;text-align:center;
+}
+.empty-icon{width:44px;height:44px;border-radius:12px;background:var(--cobalt-50);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.empty-title{font-size:14px;font-weight:600;color:var(--gray-900)}
+.empty-sub{font-size:12px;color:var(--gray-400);max-width:260px}
+
+/* ═══════════════════════════════════════
+   SIDE PANEL
+═══════════════════════════════════════ */
+.panel-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.25);z-index:40;
+  opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px);
+}
+.panel-overlay.open{opacity:1;pointer-events:auto}
+.side-panel{
+  position:fixed;top:0;right:0;width:var(--panel-w);height:100vh;
+  background:var(--white);border-left:1.5px solid var(--gray-200);
+  box-shadow:var(--shadow-lg);z-index:50;display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .28s cubic-bezier(0.22,1,0.36,1);
+}
+.side-panel.open{transform:translateX(0)}
+.panel-header{
+  height:54px;display:flex;align-items:center;gap:10px;
+  padding:0 18px;border-bottom:1px solid var(--gray-200);
+  flex-shrink:0;background:white;z-index:5;
+}
+.close-btn{
+  width:28px;height:28px;border-radius:var(--radius-md);border:1.5px solid var(--gray-200);
+  background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--gray-400);transition:all .12s;flex-shrink:0;
+}
+.close-btn:hover{background:var(--gray-100);color:var(--gray-700)}
+.panel-title{font-size:13px;font-weight:600;color:var(--gray-900);flex:1}
+.panel-body{flex:1;overflow-y:auto}
+.panel-identity{padding:16px 18px;border-bottom:1px solid var(--gray-100)}
+.panel-company-name{font-size:17px;font-weight:700;color:var(--gray-900);letter-spacing:-.3px;margin-bottom:5px}
+.panel-meta{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--gray-400);margin-bottom:3px}
+.panel-url{font-size:11.5px;color:var(--cobalt-500);cursor:pointer}
+.panel-url:hover{text-decoration:underline}
+.panel-bloc{padding:16px 18px;border-bottom:1px solid var(--gray-100)}
+.bloc-header{display:flex;align-items:center;gap:7px;margin-bottom:13px}
+.bloc-icon{width:26px;height:26px;border-radius:var(--radius-md);background:var(--cobalt-50);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bloc-title{font-size:13px;font-weight:700;color:var(--gray-900)}
+.score-display{display:flex;align-items:center;gap:14px}
+.big-score-badge{
+  width:64px;height:64px;border-radius:var(--radius-xl);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;
+}
+.big-score-value{font-size:24px;font-weight:800;font-family:var(--mono);line-height:1}
+.big-score-label{font-size:9px;font-weight:500;margin-top:2px;opacity:.7}
+.score-criteria{display:flex;flex-direction:column;gap:6px;flex:1}
+.criteria-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--gray-700)}
+.criteria-ok{color:var(--green-500)}
+.criteria-ko{color:var(--gray-300)}
+.rapport-titre{font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:7px;line-height:1.4}
+.rapport-corps{font-size:12px;color:var(--gray-600);line-height:1.7}
+.angle-container{
+  background:var(--gray-50);border:1.5px solid var(--gray-200);
+  border-radius:var(--radius-lg);padding:13px 14px;margin-bottom:11px;
+}
+.angle-label{font-size:9.5px;font-weight:700;color:var(--cobalt-500);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+.angle-text{font-size:12px;color:var(--gray-700);line-height:1.7;font-style:italic}
+.btn-copy{
+  width:100%;height:36px;background:var(--cobalt-500);color:white;border:none;
+  border-radius:var(--radius-md);font-family:var(--font);font-size:12.5px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .12s,transform .1s;
+}
+.btn-copy:hover{background:var(--cobalt-600)}
+.btn-copy:active{transform:scale(.98)}
+.btn-copy.copied{background:var(--green-600)}
+
+/* ═══════════════════════════════════════
+   PAGE: RAPPORTS
+═══════════════════════════════════════ */
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.report-card{
+  background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);
+  padding:16px;box-shadow:var(--shadow-sm);cursor:pointer;transition:box-shadow .15s,border-color .15s;
+}
+.report-card:hover{box-shadow:var(--shadow-md);border-color:var(--cobalt-100)}
+.report-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.report-card-title{font-size:13px;font-weight:700;color:var(--gray-900);line-height:1.3;flex:1;padding-right:8px}
+.report-card-body{font-size:12px;color:var(--gray-500);line-height:1.6;margin-bottom:12px}
+.report-card-footer{display:flex;align-items:center;justify-content:space-between}
+.report-card-meta{font-size:11px;color:var(--gray-400)}
+.report-tag{
+  font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;
+  background:var(--cobalt-50);color:var(--cobalt-500);
+}
+
+/* ═══════════════════════════════════════
+   PAGE: CAMPAGNES
+═══════════════════════════════════════ */
+.campaign-list{display:flex;flex-direction:column;gap:10px}
+.campaign-card{
+  background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);
+  padding:16px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:14px;
+}
+.campaign-icon{
+  width:40px;height:40px;border-radius:var(--radius-lg);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.campaign-info{flex:1;min-width:0}
+.campaign-name{font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:3px}
+.campaign-sub{font-size:12px;color:var(--gray-400)}
+.campaign-stats{display:flex;gap:16px;flex-shrink:0}
+.cstat{text-align:right}
+.cstat-val{font-size:14px;font-weight:700;color:var(--gray-900);font-family:var(--mono)}
+.cstat-lbl{font-size:10px;color:var(--gray-400)}
+.campaign-status{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;
+}
+/* Enrichir buttons */
+.btn-enrich{background:var(--purple-100);color:var(--purple-600);border:none}
+.btn-enrich:hover{background:#e0d4fb}
+.btn-enrich.done{background:var(--green-100);color:var(--green-600)}
+.btn-enrich.loading{background:var(--gray-100);color:var(--gray-400);pointer-events:none}
+.btn-enrich-panel{
+  display:flex;align-items:center;gap:6px;height:40px;padding:0 14px;
+  background:var(--purple-100);color:var(--purple-600);border:none;border-radius:var(--radius);
+  font-size:12.5px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0;
+}
+.btn-enrich-panel:hover{background:#e0d4fb}
+.btn-enrich-panel.done{background:var(--green-100);color:var(--green-600)}
+.btn-enrich-panel.loading{background:var(--gray-100);color:var(--gray-400);pointer-events:none}
+.panel-email-row{
+  display:flex;align-items:center;gap:5px;margin-top:6px;
+  font-size:12px;color:var(--gray-400);
+}
+.panel-email-row.has-email{color:var(--green-700);font-weight:600}
+.panel-email-row.pending{color:var(--orange-600)}
+.enrich-email-display{
+  display:flex;align-items:center;gap:6px;padding:8px 12px;
+  background:var(--green-50);border:1px solid var(--green-200);border-radius:var(--radius);
+  font-size:12px;color:var(--green-700);margin-top:10px;
+}
+.cs-active{background:var(--green-100);color:var(--green-600)}
+.cs-draft{background:var(--gray-100);color:var(--gray-500)}
+.cs-paused{background:var(--orange-100);color:var(--orange-600)}
+.progress-bar{
+  height:4px;border-radius:2px;background:var(--gray-100);margin-top:8px;overflow:hidden;
+}
+.progress-fill{height:100%;border-radius:2px;background:var(--cobalt-500);transition:width .3s}
+
+/* ═══════════════════════════════════════
+   PAGE: PARAMETRES
+═══════════════════════════════════════ */
+.settings-layout{display:grid;grid-template-columns:200px 1fr;gap:0;flex:1;min-height:0;overflow:hidden}
+.settings-nav{border-right:1px solid var(--gray-200);padding:14px 8px;background:var(--white);display:flex;flex-direction:column;gap:1px}
+.settings-nav-item{
+  display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;
+  border-radius:var(--radius-md);cursor:pointer;font-size:12.5px;font-weight:500;
+  color:var(--gray-500);transition:background .12s;user-select:none;
+}
+.settings-nav-item:hover{background:var(--gray-100)}
+.settings-nav-item.active{background:var(--cobalt-50);color:var(--cobalt-500);font-weight:600}
+.settings-nav-item svg{flex-shrink:0;color:inherit}
+.settings-content{overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:20px}
+.settings-section{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm)}
+.settings-section-title{font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:4px}
+.settings-section-sub{font-size:12px;color:var(--gray-400);margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:600;color:var(--gray-700)}
+.form-input{
+  height:36px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);
+  background:var(--white);font-family:var(--font);font-size:13px;
+  color:var(--gray-900);outline:none;padding:0 11px;
+  transition:border-color .15s,box-shadow .15s;width:100%;
+}
+.form-input:focus{border-color:var(--cobalt-500);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.form-input::placeholder{color:var(--gray-400)}
+.form-select{height:36px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:var(--white);font-family:var(--font);font-size:13px;color:var(--gray-700);outline:none;padding:0 11px;width:100%;cursor:pointer}
+.form-textarea{height:90px;padding:9px 11px;resize:vertical;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:var(--white);font-family:var(--font);font-size:12.5px;color:var(--gray-900);outline:none;width:100%;transition:border-color .15s}
+.form-textarea:focus{border-color:var(--cobalt-500);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.plan-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,var(--cobalt-500),var(--purple-500));
+  color:white;font-size:12px;font-weight:700;padding:5px 12px;
+  border-radius:20px;margin-bottom:12px;
+}
+.plan-features{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.plan-feature{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--gray-700)}
+.plan-feature svg{color:var(--green-500);flex-shrink:0}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100)}
+.toggle-row:last-child{border-bottom:none;padding-bottom:0}
+.toggle-info .toggle-label{font-size:13px;font-weight:600;color:var(--gray-900)}
+.toggle-info .toggle-desc{font-size:11.5px;color:var(--gray-400);margin-top:2px}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;background:var(--gray-300);border-radius:11px;
+  cursor:pointer;transition:background .2s;
+}
+.toggle-slider::before{
+  content:'';position:absolute;width:16px;height:16px;border-radius:50%;
+  background:white;left:3px;top:3px;transition:transform .2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.toggle input:checked + .toggle-slider{background:var(--cobalt-500)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(18px)}
+.api-key-row{display:flex;gap:8px}
+.api-key-input{flex:1;height:36px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);background:var(--white);font-family:var(--mono);font-size:12px;color:var(--gray-900);outline:none;padding:0 11px;letter-spacing:.05em}
+.api-key-input:focus{border-color:var(--cobalt-500)}
+.credit-bar{background:var(--gray-100);border-radius:var(--radius-lg);padding:14px;margin-top:12px}
+.credit-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.credit-label{font-size:12px;font-weight:600;color:var(--gray-700)}
+.credit-count{font-size:13px;font-weight:700;color:var(--gray-900);font-family:var(--mono)}
+.credit-progress{height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden}
+.credit-fill{height:100%;background:linear-gradient(90deg,var(--cobalt-500),var(--cobalt-400));border-radius:3px;width:60%}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--gray-900);color:white;font-size:12.5px;font-weight:500;
+  padding:9px 16px;border-radius:var(--radius-lg);z-index:999;
+  opacity:0;transition:opacity .2s,transform .2s;
+  display:flex;align-items:center;gap:7px;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══════════════════════════════════════
+   SPINNERS / SKELETONS
+═══════════════════════════════════════ */
+.spinner{
+  width:11px;height:11px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;
+  display:inline-block;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ═══════════════════════════════════════
+   MOBILE BOTTOM NAV
+═══════════════════════════════════════ */
+.bottom-nav{
+  display:none;height:var(--bottom-nav-h);background:var(--white);
+  border-top:1px solid var(--gray-200);padding:0 4px;
+  align-items:center;justify-content:space-around;flex-shrink:0;
+  z-index:90;
+}
+.bn-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 12px;border-radius:var(--radius-lg);cursor:pointer;
+  transition:background .12s;flex:1;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.bn-item:hover{background:var(--gray-100)}
+.bn-item.active{background:var(--cobalt-50)}
+.bn-item svg{color:var(--gray-400);transition:color .12s}
+.bn-item.active svg{color:var(--cobalt-500)}
+.bn-item span{font-size:10px;font-weight:500;color:var(--gray-400);transition:color .12s}
+.bn-item.active span{color:var(--cobalt-500);font-weight:600}
+
+/* ═══════════════════════════════════════
+   MOBILE SIDEBAR OVERLAY
+═══════════════════════════════════════ */
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:98;
+  opacity:0;transition:opacity .25s;pointer-events:none;
+}
+.sidebar-overlay.open{opacity:1;pointer-events:auto}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — TABLET
+═══════════════════════════════════════ */
+@media(max-width:1024px){
+  .topbar-search .tb-input{width:130px}
+  #input-ville{width:110px}
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — MOBILE
+═══════════════════════════════════════ */
+@media(max-width:768px){
+  :root{--sidebar-w:280px;--topbar-h:56px}
+
+  /* ── Sidebar drawer ── */
+  .sidebar{
+    position:fixed;top:0;left:0;height:100%;z-index:100;
+    transform:translateX(-100%);
+    box-shadow:var(--shadow-lg);border-right:none;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{display:block;pointer-events:none}
+  .sidebar-overlay.open{pointer-events:auto}
+
+  /* ── App shell ── */
+  .app{flex-direction:row;height:100svh;height:100vh}
+  .main-content{
+    width:100%;min-width:0;height:100vh;
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+
+  /* ── Topbar ── */
+  .mobile-menu-btn{display:flex}
+  .topbar-search{display:none!important}
+  .topbar-actions .export-btn{display:none}
+  .topbar{padding:0 12px;gap:8px}
+  .topbar-titles p{display:none}
+  .topbar-titles h1{font-size:15px}
+
+  /* ── Page + workspace scroll ── */
+  .page.active{
+    flex:1;display:flex;flex-direction:column;
+    min-height:0;overflow:hidden;
+  }
+  .workspace{
+    flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:12px 14px calc(var(--bottom-nav-h) + 20px);
+    display:flex;flex-direction:column;gap:12px;
+  }
+
+  /* ── Bottom nav: fixed ── */
+  .bottom-nav{
+    display:flex;
+    position:fixed;bottom:0;left:0;right:0;
+    height:var(--bottom-nav-h);z-index:90;
+    background:var(--white);border-top:1px solid var(--gray-200);
+    box-shadow:0 -2px 12px rgba(0,0,0,.07);
+    padding:0 4px;align-items:center;justify-content:space-around;
+    /* safe area for notch phones */
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .bn-item{padding:4px 8px;min-width:52px}
+
+  /* ── Stats ── */
+  .stats-row{grid-template-columns:1fr 1fr;gap:9px}
+  .stat-card{padding:12px 14px}
+  .stat-value{font-size:20px}
+  .stat-sub{font-size:10px}
+  .stat-icon{width:28px;height:28px;border-radius:7px}
+
+  /* ── Mobile search bar ── */
+  .page#page-dashboard .mobile-search-bar{display:flex}
+
+  /* ── Table: card-style rows, hide column header ── */
+  .table-header{display:none}
+  .lead-row{
+    height:auto;min-height:60px;
+    padding:10px 12px;flex-wrap:wrap;
+    gap:5px;align-items:center;
+  }
+  .cell-score{width:42px;flex-shrink:0;align-self:flex-start;margin-top:2px}
+  .cell-nom{
+    flex:1;min-width:0;padding-right:4px;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .cell-nom .nom{font-size:13px;white-space:normal;line-height:1.3}
+  .cell-nom .url{font-size:11px}
+  .cell-ville,.cell-gerant,.cell-tech{display:none}
+  .cell-statut{flex-shrink:0;order:3}
+  .cell-action{flex-shrink:0;order:4;margin-left:auto}
+  .btn-row{height:26px;padding:0 9px;font-size:11px}
+  .score-badge{min-width:38px;height:20px;font-size:10px}
+
+  /* ── Table toolbar ── */
+  .table-toolbar{flex-wrap:wrap;gap:7px}
+  .result-count{flex-basis:100%;order:-1}
+  .filter-wrap{flex:1;min-width:0}
+  .filter-wrap svg{pointer-events:none}
+  .filter-input{width:100%;box-sizing:border-box}
+  .filter-select{display:none}
+
+  /* ── Report grid ── */
+  .report-grid{grid-template-columns:1fr}
+
+  /* ── Campaigns ── */
+  .campaign-stats{display:none}
+  .campaign-card{flex-wrap:wrap;gap:10px;padding:14px}
+  .campaign-icon{flex-shrink:0}
+  .campaign-info{min-width:0;flex:1}
+
+  /* ── Settings: horizontal scrollable tab nav ── */
+  .settings-layout{
+    display:flex;flex-direction:column;
+    flex:1;min-height:0;overflow:hidden;
+  }
+  .settings-nav{
+    display:flex!important;
+    flex-direction:row;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;border-right:none;
+    border-bottom:1px solid var(--gray-200);
+    padding:7px 10px;gap:4px;flex-shrink:0;background:var(--white);
+  }
+  .settings-nav::-webkit-scrollbar{display:none}
+  .settings-nav-item{
+    white-space:nowrap;flex-shrink:0;
+    height:32px;font-size:11.5px;padding:0 10px;gap:5px;
+    border-radius:20px;
+  }
+  .settings-nav-item svg{display:none}
+  .settings-content{
+    flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:14px 14px calc(var(--bottom-nav-h) + 20px);
+    gap:14px;
+  }
+  .form-row{grid-template-columns:1fr}
+  .settings-section{padding:14px}
+
+  /* ── Side panel ── */
+  .side-panel{width:100vw;max-width:100vw}
+  .panel-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+  /* ── Profil IA chips & pills ── */
+  .tag-chip{height:30px;padding:0 11px;font-size:12px}
+  .wpill{height:24px;padding:0 8px}
+  .spc-grid{grid-template-columns:1fr 1fr}
+
+  /* ── Misc ── */
+  .mobile-search-bar{padding:8px 12px;gap:6px}
+  .tb-input{width:100%!important}
+  #input-ville{width:100%!important}
+  .btn-make{font-size:12px;padding:0 12px}
+  .score-preview-card{padding:12px}
+
+  /* ── Panel body scroll fix — bottom nav overlay ── */
+  .panel-body{padding-bottom:calc(var(--bottom-nav-h) + 24px)}
+
+  /* ── Campaign cards mobile ── */
+  .campaign-card{flex-wrap:nowrap;gap:10px;padding:14px 12px}
+  .campaign-info{flex:1;min-width:0}
+  .campaign-name{font-size:12.5px}
+  .campaign-sub{font-size:11px}
+}
+
+@media(max-width:480px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .stat-value{font-size:18px}
+  .topbar-titles h1{font-size:14px}
+  .cell-action{display:none}
+  .spc-grid{grid-template-columns:1fr}
+  .bn-item span{font-size:9px}
+}
+
+/* Workspace : enfants flex ne doivent pas se comprimer */
+.workspace > *{flex-shrink:0}
+
+/* ═══════════════════════════════════════
+   MODAL / BOTTOM SHEET — Nouvelle campagne
+═══════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:300;
+  opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(3px);
+}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+
+.camp-modal{
+  position:fixed;left:0;right:0;bottom:0;
+  background:var(--white);border-radius:16px 16px 0 0;
+  z-index:310;max-height:94vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .32s cubic-bezier(0.22,1,0.36,1);
+  box-shadow:0 -8px 40px rgba(0,0,0,.18);
+  pointer-events:none;
+}
+.camp-modal.open{transform:translateY(0);pointer-events:auto}
+@media(min-width:769px){
+  .camp-modal{
+    left:50%;right:auto;bottom:auto;top:50%;
+    transform:translate(-50%,-46%);opacity:0;
+    width:600px;max-height:88vh;border-radius:var(--radius-xl);
+    transition:transform .28s cubic-bezier(0.22,1,0.36,1),opacity .28s;
+    pointer-events:none;
+  }
+  .camp-modal.open{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+}
+.modal-handle{width:40px;height:4px;background:var(--gray-200);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+@media(min-width:769px){.modal-handle{display:none}}
+
+.modal-hdr{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 20px 14px;border-bottom:1px solid var(--gray-100);flex-shrink:0;
+}
+.modal-hdr h2{font-size:15px;font-weight:700;color:var(--gray-900);flex:1;letter-spacing:-.3px}
+.modal-close{
+  width:28px;height:28px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);
+  background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--gray-400);transition:all .12s;flex-shrink:0;
+}
+.modal-close:hover{background:var(--gray-100);color:var(--gray-700)}
+
+.modal-bdy{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:18px 20px;display:flex;flex-direction:column;gap:14px;
+}
+.modal-bdy > *{flex-shrink:0}
+
+.modal-ftr{
+  padding:14px 20px;border-top:1px solid var(--gray-100);
+  display:flex;gap:8px;flex-shrink:0;
+  padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));
+}
+
+/* Leads checklist inside modal */
+.leads-checklist{
+  border:1.5px solid var(--gray-200);border-radius:var(--radius-md);
+  overflow:hidden;max-height:200px;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.lead-check-item{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;
+  cursor:pointer;transition:background .1s;
+  border-bottom:1px solid var(--gray-100);
+  -webkit-tap-highlight-color:transparent;
+}
+.lead-check-item:last-child{border-bottom:none}
+.lead-check-item:hover,.lead-check-item:has(input:checked){background:var(--cobalt-50)}
+.lead-check-item input[type=checkbox]{
+  width:15px;height:15px;accent-color:var(--cobalt-500);flex-shrink:0;cursor:pointer;
+}
+.lead-check-score{
+  min-width:34px;height:19px;border-radius:4px;padding:0 5px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;font-family:var(--mono);flex-shrink:0;
+}
+.lead-check-nom{font-size:12.5px;font-weight:500;color:var(--gray-800);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Campaign status badges */
+.cs-active{background:var(--green-100);color:var(--green-600)}
+.cs-paused{background:var(--orange-100);color:var(--orange-600)}
+.cs-draft{background:var(--gray-100);color:var(--gray-500)}
+
+/* ── Mobile search bar (base, hors media query) ── */
+.mobile-search-bar{
+  display:none;padding:10px 14px;background:var(--white);
+  border-bottom:1px solid var(--gray-200);gap:7px;flex-shrink:0;
+  align-items:center;
+}
+@media(max-width:768px){
+  .page#page-dashboard .mobile-search-bar{display:flex}
+}
+
+/* Radar pulse */
+@keyframes radar-pulse{0%,100%{box-shadow:0 1px 4px rgba(37,99,235,.3)}50%{box-shadow:0 3px 16px rgba(37,99,235,.55)}}
+.btn-primary:not(.loading):not(:active){animation:radar-pulse 3s ease-in-out infinite}
+
+/* ═══════════════════════════════════════
+   PROFIL IA — tag chips
+═══════════════════════════════════════ */
+.tag-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.tag-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  height:28px;padding:0 10px;border-radius:20px;cursor:pointer;
+  border:1.5px solid var(--gray-200);background:var(--white);
+  font-size:12px;font-weight:500;color:var(--gray-600);
+  transition:all .12s;user-select:none;
+}
+.tag-chip:hover{border-color:var(--cobalt-400);color:var(--cobalt-500)}
+.tag-chip.selected{background:var(--cobalt-50);border-color:var(--cobalt-500);color:var(--cobalt-600);font-weight:600}
+.tag-chip svg{flex-shrink:0}
+
+/* Criteria weight selector */
+.criteria-weight-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--gray-100)}
+.criteria-weight-row:last-child{border-bottom:none;padding-bottom:0}
+.cwl{font-size:12.5px;font-weight:500;color:var(--gray-700);flex:1}
+.weight-pills{display:flex;gap:4px}
+.wpill{
+  height:22px;padding:0 8px;border-radius:11px;cursor:pointer;
+  font-size:10.5px;font-weight:600;border:1.5px solid var(--gray-200);
+  background:var(--white);color:var(--gray-400);transition:all .12s;
+}
+.wpill:hover{border-color:var(--cobalt-300)}
+.wpill.w-low.active{background:var(--gray-100);border-color:var(--gray-300);color:var(--gray-600)}
+.wpill.w-med.active{background:var(--orange-100);border-color:var(--orange-500);color:var(--orange-600)}
+.wpill.w-high.active{background:var(--green-100);border-color:var(--green-500);color:var(--green-600)}
+
+/* Profile configured badge */
+.profile-status{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;
+  margin-bottom:14px;
+}
+.ps-ok{background:var(--green-100);color:var(--green-600)}
+.ps-warn{background:var(--orange-100);color:var(--orange-600)}
+
+/* Radar profile badge in topbar */
+.profile-chip{
+  display:none;align-items:center;gap:5px;height:28px;padding:0 10px;
+  border-radius:20px;border:1.5px solid var(--green-500);background:var(--green-50);
+  font-size:11px;font-weight:600;color:var(--green-600);cursor:pointer;flex-shrink:0;
+}
+.profile-chip.visible{display:flex}
+.profile-chip:hover{background:var(--green-100)}
+
+/* Score preview card */
+.score-preview-card{
+  background:linear-gradient(135deg,var(--cobalt-50),#F0FDF4);
+  border:1.5px solid var(--cobalt-100);border-radius:var(--radius-lg);
+  padding:14px 16px;margin-top:4px;
+}
+.spc-title{font-size:12px;font-weight:700;color:var(--cobalt-600);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.spc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.spc-item{background:white;border-radius:var(--radius-md);padding:8px 10px;border:1px solid var(--gray-100)}
+.spc-lbl{font-size:10px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.spc-val{font-size:13px;font-weight:700;color:var(--gray-900)}
+
+/* Make sync button */
+.btn-make{
+  height:36px;padding:0 16px;background:linear-gradient(135deg,#FF6B35,#F7931E);
+  color:white;border:none;border-radius:var(--radius-md);font-family:var(--font);
+  font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;
+  align-items:center;gap:7px;transition:opacity .12s,transform .1s;
+  box-shadow:0 2px 8px rgba(255,107,53,.35);
+}
+.btn-make:hover{opacity:.9}
+.btn-make:active{transform:scale(.98)}
+
+.form-hint{font-size:11px;color:var(--gray-400);margin-top:3px}
+.section-divider{height:1px;background:var(--gray-100);margin:6px 0}
+@media(max-width:768px){
+  .profile-chip{display:none!important}
+  .spc-grid{grid-template-columns:1fr}
+}
+
+/* Tab mobile radar search */
+.mobile-search-bar{
+  display:none;padding:10px 14px;background:var(--white);
+  border-bottom:1px solid var(--gray-200);gap:7px;flex-shrink:0;
+}
+@media(max-width:768px){
+  .page#page-dashboard .mobile-search-bar{display:flex}
+}
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
+          <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2" opacity=".75"/>
+          <circle cx="12" cy="12" r="11" stroke-dasharray="2 3" opacity=".4"/>
+        </svg>
+      </div>
+      <span class="logo-text">LocalRadar</span>
+      <span class="logo-badge">Beta</span>
+    </div>
+    <nav class="nav-section">
+      <div class="nav-label">Espace de travail</div>
+      <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard',this)">
+        <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="ni-label">Dashboard</span>
+      </div>
+      <div class="nav-item" data-page="leads" onclick="navigate('leads',this)">
+        <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="ni-label">Leads</span>
+        <span class="nav-badge">8</span>
+      </div>
+      <div class="nav-item" data-page="rapports" onclick="navigate('rapports',this)">
+        <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span class="ni-label">Rapports</span>
+      </div>
+      <div class="nav-item" data-page="campagnes" onclick="navigate('campagnes',this)">
+        <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span class="ni-label">Campagnes</span>
+      </div>
+      <div class="nav-sep"></div>
+      <div class="nav-label">Compte</div>
+      <div class="nav-item" data-page="parametres" onclick="navigate('parametres',this)">
+        <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="ni-label">Paramètres</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar"><span>JD</span></div>
+      <div class="user-info">
+        <div class="user-name">Jean Dupont</div>
+        <div class="user-plan">Plan Pro · 240 crédits</div>
+      </div>
+      <button class="icon-btn" style="border:none;width:auto;height:auto;flex-shrink:0">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--gray-400)" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN CONTENT ══ -->
+  <div class="main-content">
+
+    <!-- ══ TOP BAR ══ -->
+    <header class="topbar" id="topbar">
+      <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-titles">
+        <h1 id="topbar-title">Recherche de leads</h1>
+        <p id="topbar-sub">Enrichissez et scorez vos prospects locaux par IA</p>
+      </div>
+      <div class="topbar-search" id="topbar-search-area">
+        <div class="input-wrap">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/></svg>
+          <input class="tb-input" id="input-activite" type="text" placeholder="Activité…" value="Plombier">
+        </div>
+        <div class="input-wrap">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <input class="tb-input" id="input-ville" type="text" placeholder="Ville…" value="Le Havre">
+        </div>
+        <div class="input-wrap" style="width:90px;flex-shrink:0">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <input class="tb-input" id="input-nb-leads" type="number" min="5" max="50" value="20" style="width:100%" title="Nombre de leads max (50 max)" onchange="this.value=Math.min(50,Math.max(5,parseInt(this.value)||5))" oninput="if(parseInt(this.value)>50)this.value=50">
+        </div>
+        <button class="btn-primary" id="btn-radar" onclick="lancerRadar()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2"/></svg>
+          Lancer le Radar
+        </button>
+      </div>
+      <div class="topbar-actions">
+        <div class="profile-chip" id="profile-chip" onclick="navigate('parametres', document.querySelector('[data-page=parametres]')); setTimeout(()=>setSettingsTab(document.querySelectorAll('.settings-nav-item')[1],'stab-ia'),50)" title="Profil IA configuré — cliquer pour modifier">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <span id="profile-chip-label">Profil IA actif</span>
+        </div>
+        <button class="btn-primary btn-sm" id="topbar-add-lead-btn" onclick="openAddLeadModal()" style="flex-shrink:0">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter un lead
+        </button>
+        <button class="btn-ghost export-btn" id="topbar-export-btn">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exporter
+        </button>
+        <button class="icon-btn" style="flex-shrink:0">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="notif-dot"></div>
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════════════
+         PAGE: DASHBOARD
+    ═══════════════════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <!-- Mobile search bar -->
+      <div class="mobile-search-bar" id="mobile-search-bar">
+        <div class="input-wrap" style="flex:1">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/></svg>
+          <input class="tb-input" style="width:100%" id="m-activite" type="text" placeholder="Activité (ex: Plombier)" value="Plombier">
+        </div>
+        <div class="input-wrap" style="flex:1">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <input class="tb-input" style="width:100%" id="m-ville" type="text" placeholder="Ville (ex: Le Havre)" value="Le Havre">
+        </div>
+        <div class="input-wrap" style="width:62px;flex-shrink:0">
+          <input class="tb-input" id="m-nb-leads" type="number" min="5" max="50" value="20" style="width:100%;text-align:center" placeholder="Nb" onchange="this.value=Math.min(50,Math.max(5,parseInt(this.value)||5))" oninput="if(parseInt(this.value)>50)this.value=50">
+        </div>
+        <button class="btn-primary btn-sm" onclick="lancerRadarMobile()">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2"/></svg>
+        </button>
+      </div>
+      <div class="workspace">
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--cobalt-50)">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <div class="stat-label">Leads totaux</div>
+            <div class="stat-value" id="stat-leads-total">—</div>
+            <div class="stat-sub">Plombier · Le Havre</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--green-50)">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--green-600)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            </div>
+            <div class="stat-label">Score moyen</div>
+            <div class="stat-value" id="stat-score-moyen">—</div>
+            <div class="stat-sub">Sur 100 · IA scoring</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--orange-100)">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--orange-600)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="stat-label">Opportunités fortes</div>
+            <div class="stat-value" id="stat-opportunites">—</div>
+            <div class="stat-sub">Score ≥ 80</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--purple-100)">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--purple-600)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="stat-label">Leads enrichis</div>
+            <div class="stat-value" id="stat-enrichis">—</div>
+            <div class="stat-sub">Email trouvé</div>
+          </div>
+        </div>
+
+        <!-- Table toolbar -->
+        <div class="table-toolbar">
+          <div class="result-count">
+            <strong id="result-count">8 leads</strong> — <strong id="result-query">"Plombier · Le Havre"</strong>
+          </div>
+          <div class="filter-wrap">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="filter-input" type="text" placeholder="Filtrer…" id="filter-input" oninput="filterLeads()">
+          </div>
+          <select class="filter-select" id="filter-statut" onchange="filterLeads()">
+            <option value="">Tous les statuts</option>
+            <option value="Terminé">Terminé</option>
+            <option value="En cours">En cours</option>
+            <option value="En attente">En attente</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="table-card">
+          <div class="table-header">
+            <div class="th th-score">SCORE</div>
+            <div class="th th-nom">ÉTABLISSEMENT</div>
+            <div class="th th-ville">VILLE</div>
+            <div class="th th-gerant">GÉRANT</div>
+            <div class="th th-tech">TECHNOLOGIES</div>
+            <div class="th th-statut">STATUT</div>
+            <div class="th th-action" style="justify-content:flex-end">ACTION</div>
+          </div>
+          <div class="table-body" id="table-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         PAGE: LEADS
+    ═══════════════════════════════ -->
+    <div class="page" id="page-leads">
+      <div class="workspace">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--cobalt-50)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <div class="stat-label">Leads totaux</div>
+            <div class="stat-value" id="leads-stat-total">—</div>
+            <div class="stat-sub">Toutes recherches</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--green-50)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--green-600)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div class="stat-label">Enrichis</div>
+            <div class="stat-value" id="leads-stat-enrichis">—</div>
+            <div class="stat-sub">Statut Terminé</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--orange-100)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--orange-600)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="stat-label">En attente</div>
+            <div class="stat-value" id="leads-stat-attente">—</div>
+            <div class="stat-sub">À enrichir</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--gray-100)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--gray-500)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div class="stat-label">Score moy. enrichis</div>
+            <div class="stat-value" id="leads-stat-score-enrichis">—</div>
+            <div class="stat-sub">Leads terminés</div>
+          </div>
+        </div>
+        <div class="table-toolbar">
+          <div class="result-count"><strong id="leads-base-count">—</strong> dans votre base</div>
+          <div class="filter-wrap">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="filter-input" type="text" placeholder="Rechercher…" id="leads-filter" oninput="filterLeadsPage()">
+          </div>
+          <select class="filter-select" id="leads-filter-statut" onchange="filterLeadsPage()">
+            <option value="">Tous</option>
+            <option value="Terminé">Terminé</option>
+            <option value="En cours">En cours</option>
+            <option value="En attente">En attente</option>
+          </select>
+          <button class="btn-primary btn-sm" onclick="showToast('✓ Enrichissement lancé pour les leads sélectionnés')">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Enrichir tout
+          </button>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="th th-score">SCORE</div>
+            <div class="th th-nom">ÉTABLISSEMENT</div>
+            <div class="th th-ville">VILLE</div>
+            <div class="th th-gerant">GÉRANT</div>
+            <div class="th th-tech">TECHNOLOGIES</div>
+            <div class="th th-statut">STATUT</div>
+            <div class="th th-action" style="justify-content:flex-end">ACTION</div>
+          </div>
+          <div class="table-body" id="leads-table-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         PAGE: RAPPORTS
+    ═══════════════════════════════ -->
+    <div class="page" id="page-rapports">
+      <div class="workspace">
+        <div class="section-header">
+          <div class="section-title">Rapports générés</div>
+          <div class="section-sub">Analyses IA pour vos leads enrichis</div>
+          <button class="btn-ghost" onclick="showToast('Export PDF en cours…')">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exporter PDF
+          </button>
+        </div>
+        <div class="report-grid" id="report-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         PAGE: CAMPAGNES
+    ═══════════════════════════════ -->
+    <div class="page" id="page-campagnes">
+      <div class="workspace">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--green-50)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--green-600)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div class="stat-label">Campagnes actives</div>
+            <div class="stat-value">2</div>
+            <div class="stat-sub">Sur 4 au total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--cobalt-50)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+            <div class="stat-label">Emails envoyés</div>
+            <div class="stat-value">47</div>
+            <div class="stat-sub">Ce mois</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--orange-100)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--orange-600)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="stat-label">Taux d'ouverture</div>
+            <div class="stat-value">38%</div>
+            <div class="stat-sub">Moy. secteur: 21%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--purple-100)"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--purple-600)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="stat-label">Réponses reçues</div>
+            <div class="stat-value">9</div>
+            <div class="stat-sub">Taux: 19%</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">Mes campagnes</div>
+          <div class="section-sub" style="flex:1"></div>
+          <button class="btn-primary btn-sm" onclick="openCampModal()">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nouvelle
+          </button>
+        </div>
+
+        <div class="campaign-list" id="campaign-list-container"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         PAGE: PARAMETRES
+    ═══════════════════════════════ -->
+    <div class="page" id="page-parametres">
+      <div class="settings-layout">
+        <div class="settings-nav">
+          <div class="settings-nav-item active" onclick="setSettingsTab(this,'stab-profil')">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Mon profil
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsTab(this,'stab-ia')" style="position:relative">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Profil IA &amp; Match
+            <span style="margin-left:auto;font-size:9px;font-weight:700;background:var(--cobalt-500);color:white;padding:1px 5px;border-radius:8px">IA</span>
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsTab(this,'stab-api')">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Clés API
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsTab(this,'stab-notifs')">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Notifications
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsTab(this,'stab-plan')">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Plan & crédits
+          </div>
+          <div class="settings-nav-item" onclick="setSettingsTab(this,'stab-equipe')">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Équipe
+          </div>
+        </div>
+
+        <div class="settings-content">
+          <!-- PROFIL -->
+          <div id="stab-profil">
+            <div class="settings-section">
+              <div class="settings-section-title">Informations personnelles</div>
+              <div class="settings-section-sub">Votre profil visible dans l'application</div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Prénom</label><input class="form-input" value="Jean" type="text"></div>
+                <div class="form-group"><label class="form-label">Nom</label><input class="form-input" value="Dupont" type="text"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="jean.dupont@agence.fr" type="email"></div>
+                <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" value="+33 6 12 34 56 78" type="tel"></div>
+              </div>
+              <div class="form-group" style="margin-bottom:14px">
+                <label class="form-label">Secteur d'activité de votre agence</label>
+                <select class="form-select">
+                  <option selected>Agence marketing digital</option>
+                  <option>Agence web & SEO</option>
+                  <option>Équipe commerciale B2B</option>
+                  <option>Freelance</option>
+                </select>
+              </div>
+              <button class="btn-primary btn-sm" onclick="showToast('✓ Profil sauvegardé')">Sauvegarder</button>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">Zone de prospection par défaut</div>
+              <div class="settings-section-sub">Ces valeurs pré-remplissent le Radar à chaque connexion</div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Activité favorite</label><input class="form-input" value="Plombier" type="text"></div>
+                <div class="form-group"><label class="form-label">Ville favorite</label><input class="form-input" value="Le Havre" type="text"></div>
+              </div>
+              <button class="btn-primary btn-sm" onclick="showToast('✓ Zone sauvegardée')">Sauvegarder</button>
+            </div>
+          </div>
+
+          <!-- PROFIL IA & MATCH -->
+          <div id="stab-ia" style="display:none">
+
+            <div class="settings-section">
+              <div class="settings-section-title">🎯 Votre offre & proposition de valeur</div>
+              <div class="settings-section-sub">Ces informations permettent à l'IA de scorer chaque prospect selon votre adéquation réelle</div>
+
+              <div id="ia-profile-status" class="profile-status ps-warn">
+                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Profil IA non configuré — scoring générique actif
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Votre secteur d'activité</label>
+                  <select class="form-select" id="ia-secteur">
+                    <option value="">Choisir…</option>
+                    <option value="agence-web">Agence web & création de sites</option>
+                    <option value="agence-seo">Agence SEO / référencement</option>
+                    <option value="agence-ads">Agence Google Ads / Meta Ads</option>
+                    <option value="agence-marketing">Agence marketing digital full-service</option>
+                    <option value="agence-social">Agence community management / social media</option>
+                    <option value="freelance-dev">Freelance développeur web</option>
+                    <option value="freelance-marketing">Freelance marketing / growth</option>
+                    <option value="logiciel-saas">Éditeur SaaS / logiciel</option>
+                    <option value="conseil-digital">Consultant digital / transformation</option>
+                    <option value="autre">Autre</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ticket moyen / panier client</label>
+                  <select class="form-select" id="ia-ticket">
+                    <option value="">Choisir…</option>
+                    <option value="0-500">Moins de 500 €</option>
+                    <option value="500-1500">500 € – 1 500 €</option>
+                    <option value="1500-5000">1 500 € – 5 000 €</option>
+                    <option value="5000-15000">5 000 € – 15 000 €</option>
+                    <option value="15000+">Plus de 15 000 €</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">Proposition de valeur <span style="font-weight:400;color:var(--gray-400)">(ce que vous apportez concrètement)</span></label>
+                <textarea class="form-textarea" id="ia-valeur" placeholder="Ex : J'aide les artisans locaux à générer des leads qualifiés grâce à un site performant, une fiche Google My Business optimisée et des campagnes Meta Ads ciblées — résultats visibles en 30 jours."></textarea>
+                <div class="form-hint">Cette phrase sera injectée dans chaque pitch généré par l'IA pour vos prospects.</div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:14px">
+                <label class="form-label">Services proposés <span style="font-weight:400;color:var(--gray-400)">(sélectionnez tous vos services)</span></label>
+                <div class="tag-group" id="ia-services-tags">
+                  <div class="tag-chip" data-val="site-web" onclick="toggleTag(this)">
+                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Création de site
+                  </div>
+                  <div class="tag-chip" data-val="refonte" onclick="toggleTag(this)">Refonte / Redesign</div>
+                  <div class="tag-chip" data-val="seo" onclick="toggleTag(this)">SEO / Référencement</div>
+                  <div class="tag-chip" data-val="google-ads" onclick="toggleTag(this)">Google Ads</div>
+                  <div class="tag-chip" data-val="meta-ads" onclick="toggleTag(this)">Meta Ads / Pixel</div>
+                  <div class="tag-chip" data-val="gmb" onclick="toggleTag(this)">Google My Business</div>
+                  <div class="tag-chip" data-val="social" onclick="toggleTag(this)">Community Management</div>
+                  <div class="tag-chip" data-val="email-marketing" onclick="toggleTag(this)">Email marketing</div>
+                  <div class="tag-chip" data-val="analytics" onclick="toggleTag(this)">Analytics / Tracking</div>
+                  <div class="tag-chip" data-val="maintenance" onclick="toggleTag(this)">Maintenance web</div>
+                  <div class="tag-chip" data-val="avis" onclick="toggleTag(this)">Gestion des avis</div>
+                  <div class="tag-chip" data-val="funnel" onclick="toggleTag(this)">Tunnel de vente</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-section-title">🏢 Client idéal (ICP)</div>
+              <div class="settings-section-sub">Définissez le profil exact du prospect qui matche le mieux avec votre offre</div>
+
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">Types d'entreprises cibles <span style="font-weight:400;color:var(--gray-400)">(multi-sélection)</span></label>
+                <div class="tag-group" id="ia-cibles-tags">
+                  <div class="tag-chip" data-val="artisans" onclick="toggleTag(this)">Artisans (plombier, électricien…)</div>
+                  <div class="tag-chip" data-val="restauration" onclick="toggleTag(this)">Restauration / Food</div>
+                  <div class="tag-chip" data-val="sante" onclick="toggleTag(this)">Santé / Bien-être</div>
+                  <div class="tag-chip" data-val="commerce" onclick="toggleTag(this)">Commerce local / Retail</div>
+                  <div class="tag-chip" data-val="immobilier" onclick="toggleTag(this)">Immobilier / Agences</div>
+                  <div class="tag-chip" data-val="beaute" onclick="toggleTag(this)">Beauté / Coiffure / Esthétique</div>
+                  <div class="tag-chip" data-val="auto" onclick="toggleTag(this)">Auto / Garage / Carrosserie</div>
+                  <div class="tag-chip" data-val="btob" onclick="toggleTag(this)">PME B2B</div>
+                  <div class="tag-chip" data-val="liberal" onclick="toggleTag(this)">Professions libérales</div>
+                  <div class="tag-chip" data-val="sport" onclick="toggleTag(this)">Sport / Coaching / Fitness</div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Taille d'entreprise cible</label>
+                  <select class="form-select" id="ia-taille">
+                    <option value="">Peu importe</option>
+                    <option value="solo">Indépendant / Auto-entrepreneur</option>
+                    <option value="tpe">TPE (1–9 salariés)</option>
+                    <option value="pme">PME (10–49 salariés)</option>
+                    <option value="etm">ETI/Moyen (50–249)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Zone géographique cible</label>
+                  <input class="form-input" id="ia-zone" type="text" placeholder="Ex : Normandie, Grand Paris, France entière">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Description du client idéal</label>
+                <textarea class="form-textarea" id="ia-icp" placeholder="Ex : Artisan local avec un CA > 80k€/an, une présence en ligne inexistante ou obsolète, actif depuis plus de 3 ans, sans responsable marketing interne." style="height:72px"></textarea>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-section-title">⚡ Critères de scoring & pondération</div>
+              <div class="settings-section-sub">Indiquez l'importance de chaque signal pour votre business — l'IA ajustera les scores en conséquence</div>
+
+              <div id="scoring-criteria">
+                <div class="criteria-weight-row">
+                  <span class="cwl">Absence de site web ou site obsolète</span>
+                  <div class="weight-pills">
+                    <button class="wpill w-low" onclick="setWeight(this,'site-absent','low')">Faible</button>
+                    <button class="wpill w-med active" onclick="setWeight(this,'site-absent','med')">Moyen</button>
+                    <button class="wpill w-high" onclick="setWeight(this,'site-absent','high')">Fort</button>
+                  </div>
+                </div>
+                <div class="criteria-weight-row">
+                  <span class="cwl">Pixel Meta absent ou non configuré</span>
+                  <div class="weight-pills">
+                    <button class="wpill w-low" onclick="setWeight(this,'pixel-absent','low')">Faible</button>
+                    <button class="wpill w-med" onclick="setWeight(this,'pixel-absent','med')">Moyen</button>
+                    <button class="wpill w-high active" onclick="setWeight(this,'pixel-absent','high')">Fort</button>
+                  </div>
+                </div>
+                <div class="criteria-weight-row">
+                  <span class="cwl">Google Analytics / GA4 absent</span>
+                  <div class="weight-pills">
+                    <button class="wpill w-low" onclick="setWeight(this,'ga-absent','low')">Faible</button>
+                    <button class="wpill w-med active" onclick="setWeight(this,'ga-absent','med')">Moyen</button>
+                    <button class="wpill w-high" onclick="setWeight(this,'ga-absent','high')">Fort</button>
+                  </div>
+                </div>
+                <div class="criteria-weight-row">
+                  <span class="cwl">Avis Google négatifs sans réponse</span>
+                  <div class="weight-pills">
+                    <button class="wpill w-low" onclick="setWeight(this,'avis-negatifs','low')">Faible</button>
+                    <button class="wpill w-med active" onclick="setWeight(this,'avis-negatifs','med')">Moyen</button>
+                    <button class="wpill w-high" onclick="setWeight(this,'avis-negatifs','high')">Fort</button>
+                  </div>
+                </div>
+                <div class="criteria-weight-row">
+                  <span class="cwl">Site non adapté mobile</span>
+                  <div class="weight-pills">
+                    <button class="wpill w-low" onclick="setWeight(this,'non-mobile','low')">Faible</button>
+                    <button class="wpill w-med" onclick="setWeight(this,'non-mobile','med')">Moyen</button>
+                    <button class="wpill w-high active" onclick="setWeight(this,'non-mobile','high')">Fort</button>
+                  </div>
+                </div>
+                <div class="criteria-weight-row">
+                  <span class="cwl">Certificat SSL absent (site non sécurisé)</span>
+                  <div class="weight-pills">
+                    <button class="wpill w-low active" onclick="setWeight(this,'no-ssl','low')">Faible</button>
+                    <button class="wpill w-med" onclick="setWeight(this,'no-ssl','med')">Moyen</button>
+                    <button class="wpill w-high" onclick="setWeight(this,'no-ssl','high')">Fort</button>
+                  </div>
+                </div>
+                <div class="criteria-weight-row">
+                  <span class="cwl">Faible concurrence locale</span>
+                  <div class="weight-pills">
+                    <button class="wpill w-low" onclick="setWeight(this,'faible-concurrence','low')">Faible</button>
+                    <button class="wpill w-med active" onclick="setWeight(this,'faible-concurrence','med')">Moyen</button>
+                    <button class="wpill w-high" onclick="setWeight(this,'faible-concurrence','high')">Fort</button>
+                  </div>
+                </div>
+                <div class="criteria-weight-row">
+                  <span class="cwl">Présence Google My Business non revendiquée</span>
+                  <div class="weight-pills">
+                    <button class="wpill w-low" onclick="setWeight(this,'gmb-absent','low')">Faible</button>
+                    <button class="wpill w-med active" onclick="setWeight(this,'gmb-absent','med')">Moyen</button>
+                    <button class="wpill w-high" onclick="setWeight(this,'gmb-absent','high')">Fort</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row" style="margin-top:14px">
+                <div class="form-group">
+                  <label class="form-label">Seuil "Opportunité forte" (score minimum)</label>
+                  <input class="form-input" id="ia-seuil" type="number" min="50" max="99" value="80" placeholder="80">
+                  <div class="form-hint">Les leads au-dessus de ce score sont marqués "opportunité forte"</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nombre de leads max par recherche</label>
+                  <select class="form-select" id="ia-nb-leads">
+                    <option value="10">10 leads</option>
+                    <option value="20" selected>20 leads</option>
+                    <option value="50">50 leads</option>
+                    <option value="100">100 leads</option>
+                    <option value="0">Illimité (Plan Pro+)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-section-title">✉️ Paramètres du pitch IA</div>
+              <div class="settings-section-sub">L'IA adapte chaque message selon ces préférences avant de l'envoyer à Make</div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Ton de communication</label>
+                  <select class="form-select" id="ia-ton">
+                    <option value="direct">Direct & Punchy (résultats, chiffres)</option>
+                    <option value="pro" selected>Professionnel & crédible</option>
+                    <option value="amical">Amical & accessible</option>
+                    <option value="expert">Expert / Consultant</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Canal de prospection principal</label>
+                  <select class="form-select" id="ia-canal">
+                    <option value="email" selected>Email froid</option>
+                    <option value="linkedin">LinkedIn (DM)</option>
+                    <option value="sms">SMS</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="appel">Appel téléphonique (script)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">CTA principal du pitch</label>
+                  <select class="form-select" id="ia-cta">
+                    <option value="appel">Appel découverte 20 min</option>
+                    <option value="demo" selected>Démo personnalisée</option>
+                    <option value="audit">Audit gratuit</option>
+                    <option value="rdv">Prise de RDV (Calendly)</option>
+                    <option value="devis">Demande de devis</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Votre prénom dans le pitch</label>
+                  <input class="form-input" id="ia-prenom" type="text" placeholder="Ex : Jean" value="Jean">
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:14px">
+                <label class="form-label">Signature / accroche finale</label>
+                <input class="form-input" id="ia-signature" type="text" placeholder="Ex : Jean — Fondateur de WebBoost Normandie | 06 12 34 56 78">
+              </div>
+
+              <!-- Preview card -->
+              <div class="score-preview-card">
+                <div class="spc-title">
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                  Aperçu du profil envoyé à Make
+                </div>
+                <div class="spc-grid" id="profile-preview-grid">
+                  <div class="spc-item"><div class="spc-lbl">Secteur</div><div class="spc-val" id="prev-secteur">—</div></div>
+                  <div class="spc-item"><div class="spc-lbl">Ticket moyen</div><div class="spc-val" id="prev-ticket">—</div></div>
+                  <div class="spc-item"><div class="spc-lbl">Services</div><div class="spc-val" id="prev-services">—</div></div>
+                  <div class="spc-item"><div class="spc-lbl">Canal</div><div class="spc-val" id="prev-canal">Email froid</div></div>
+                  <div class="spc-item"><div class="spc-lbl">Ton</div><div class="spc-val" id="prev-ton">Professionnel</div></div>
+                  <div class="spc-item"><div class="spc-lbl">CTA</div><div class="spc-val" id="prev-cta">Démo personnalisée</div></div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+                <button class="btn-make" onclick="saveIAProfile()">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                  Sauvegarder & Synchroniser avec Make
+                </button>
+                <button class="btn-ghost" onclick="previewProfile()">
+                  <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  Aperçu
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- API KEYS -->
+          <div id="stab-api" style="display:none">
+            <div class="settings-section">
+              <div class="settings-section-title">Clés API</div>
+              <div class="settings-section-sub">Connectez vos services IA et d'enrichissement</div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">OpenAI API Key</label>
+                <div class="api-key-row">
+                  <input class="api-key-input" type="password" value="sk-proj-••••••••••••••••••••••••••••••">
+                  <button class="btn-ghost" onclick="showToast('Clé copiée')">Copier</button>
+                  <button class="btn-primary btn-sm" onclick="showToast('✓ Connexion OpenAI vérifiée')">Vérifier</button>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">Perplexity API Key</label>
+                <div class="api-key-row">
+                  <input class="api-key-input" type="password" placeholder="pplx-••••••••••••••••••" value="">
+                  <button class="btn-ghost" onclick="showToast('Clé copiée')">Copier</button>
+                  <button class="btn-primary btn-sm" onclick="showToast('Clé non configurée')">Vérifier</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Google Places API Key</label>
+                <div class="api-key-row">
+                  <input class="api-key-input" type="password" value="AIza••••••••••••••••••••••••••••">
+                  <button class="btn-ghost" onclick="showToast('Clé copiée')">Copier</button>
+                  <button class="btn-primary btn-sm" onclick="showToast('✓ Connexion Google vérifiée')">Vérifier</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NOTIFS -->
+          <div id="stab-notifs" style="display:none">
+            <div class="settings-section">
+              <div class="settings-section-title">Préférences de notifications</div>
+              <div class="settings-section-sub">Gérez ce que LocalRadar vous envoie</div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-label">Enrichissement terminé</div><div class="toggle-desc">Notifié quand l'IA a fini d'analyser vos leads</div></div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-label">Rapport hebdomadaire</div><div class="toggle-desc">Récap des leads et scores chaque lundi matin</div></div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-label">Alertes crédit faible</div><div class="toggle-desc">Prévenu quand il reste moins de 20 crédits</div></div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-label">Emails marketing</div><div class="toggle-desc">Nouveautés, cas clients, guides LocalRadar</div></div>
+                <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- PLAN -->
+          <div id="stab-plan" style="display:none">
+            <div class="settings-section">
+              <div class="settings-section-title">Votre abonnement</div>
+              <div class="settings-section-sub">Gérez votre plan et vos crédits IA</div>
+              <div class="plan-badge">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Plan Pro — 49€/mois
+              </div>
+              <div class="plan-features">
+                <div class="plan-feature"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Leads illimités par recherche</div>
+                <div class="plan-feature"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>500 crédits IA par mois</div>
+                <div class="plan-feature"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Campagnes email illimitées</div>
+                <div class="plan-feature"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Export CSV & PDF</div>
+                <div class="plan-feature"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Support prioritaire</div>
+              </div>
+              <div class="credit-bar">
+                <div class="credit-header">
+                  <span class="credit-label">Crédits IA utilisés ce mois</span>
+                  <span class="credit-count">260 / 500</span>
+                </div>
+                <div class="credit-progress"><div class="credit-fill" style="width:52%"></div></div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:14px">
+                <button class="btn-primary btn-sm" onclick="showToast('Redirection vers la page de paiement…')">Passer à l'Entreprise</button>
+                <button class="btn-ghost" onclick="showToast('Gestion abonnement ouverte')">Gérer l'abonnement</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- EQUIPE -->
+          <div id="stab-equipe" style="display:none">
+            <div class="settings-section">
+              <div class="settings-section-title">Membres de l'équipe</div>
+              <div class="settings-section-sub">Invitez des collaborateurs sur votre espace LocalRadar</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-200)">
+                  <div class="avatar"><span>JD</span></div>
+                  <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-900)">Jean Dupont</div><div style="font-size:11px;color:var(--gray-400)">jean.dupont@agence.fr</div></div>
+                  <span style="font-size:11px;font-weight:600;background:var(--cobalt-50);color:var(--cobalt-500);padding:2px 8px;border-radius:20px">Admin</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-200)">
+                  <div class="avatar" style="background:linear-gradient(135deg,#F97316,#EF4444)"><span>ML</span></div>
+                  <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-900)">Marie Leblanc</div><div style="font-size:11px;color:var(--gray-400)">marie@agence.fr</div></div>
+                  <span style="font-size:11px;font-weight:600;background:var(--gray-100);color:var(--gray-500);padding:2px 8px;border-radius:20px">Éditeur</span>
+                  <button class="btn-ghost" style="height:28px;font-size:11px" onclick="showToast('Invitation annulée')">Retirer</button>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <input class="form-input" style="flex:1" type="email" placeholder="email@collaborateur.fr">
+                <button class="btn-primary btn-sm" onclick="showToast('✓ Invitation envoyée')">Inviter</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end app -->
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bn-item active" data-page="dashboard" onclick="navigate('dashboard',this,true)">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Radar</span>
+  </div>
+  <div class="bn-item" data-page="leads" onclick="navigate('leads',this,true)">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    <span>Leads</span>
+  </div>
+  <div class="bn-item" data-page="rapports" onclick="navigate('rapports',this,true)">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span>Rapports</span>
+  </div>
+  <div class="bn-item" data-page="campagnes" onclick="navigate('campagnes',this,true)">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <span>Campagnes</span>
+  </div>
+  <div class="bn-item" data-page="parametres" onclick="navigate('parametres',this,true)">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span>Réglages</span>
+  </div>
+</nav>
+
+<!-- SIDE PANEL -->
+<div class="panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
+<aside class="side-panel" id="side-panel">
+  <div class="panel-header">
+    <button class="close-btn" onclick="closePanel()">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <span class="panel-title">Fiche Lead</span>
+    <div id="panel-score-badge" class="score-badge"></div>
+  </div>
+  <div class="panel-body">
+    <div class="panel-identity">
+      <div class="panel-company-name" id="panel-nom"></div>
+      <div class="panel-meta">
+        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="panel-ville"></span>
+        <span style="color:var(--gray-200)">·</span>
+        <span id="panel-secteur" style="color:var(--gray-400)"></span>
+      </div>
+      <div class="panel-url" id="panel-url"></div>
+      <div class="panel-email-row" id="panel-email-row">
+        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span id="panel-email-value">—</span>
+      </div>
+    </div>
+    <div class="panel-bloc">
+      <div class="bloc-header">
+        <div class="bloc-icon"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+        <span class="bloc-title">Score de pertinence</span>
+      </div>
+      <div class="score-display">
+        <div class="big-score-badge" id="panel-big-badge">
+          <span class="big-score-value" id="panel-big-score"></span>
+          <span class="big-score-label">/100</span>
+        </div>
+        <div class="score-criteria" id="panel-criteria"></div>
+      </div>
+    </div>
+    <div class="panel-bloc">
+      <div class="bloc-header">
+        <div class="bloc-icon"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <span class="bloc-title">Analyse IA</span>
+      </div>
+      <div class="rapport-titre" id="panel-rapport-titre"></div>
+      <div class="rapport-corps" id="panel-rapport-corps"></div>
+    </div>
+    <div class="panel-bloc" style="border-bottom:none">
+      <div class="bloc-header">
+        <div class="bloc-icon"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <span class="bloc-title">Angle d'attaque</span>
+      </div>
+      <div class="angle-container">
+        <div class="angle-label">Script / Email personnalisé par IA</div>
+        <div class="angle-text" id="panel-angle"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn-enrich-panel" id="btn-enrich-panel" onclick="enrichirLeadPanel()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span id="btn-enrich-panel-label">Enrichir l'email</span>
+        </button>
+        <button class="btn-copy" id="btn-copy" onclick="copierPitch()" style="flex:1">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copier le pitch
+        </button>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MODAL AJOUTER UN LEAD ══ -->
+<div class="modal-overlay" id="add-lead-overlay" onclick="closeAddLeadModal()"></div>
+<div class="camp-modal" id="add-lead-modal">
+  <div class="modal-handle"></div>
+  <div class="modal-hdr">
+    <h2>Ajouter un lead</h2>
+    <button class="modal-close" onclick="closeAddLeadModal()">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-bdy">
+    <!-- Champs obligatoires -->
+    <div class="form-group">
+      <label class="form-label">Nom de l'établissement <span style="color:var(--cobalt-500)">*</span></label>
+      <input class="form-input" id="al-nom" type="text" placeholder="Ex : Plomberie Durand">
+    </div>
+    <div style="display:flex;gap:12px">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Secteur / activité <span style="color:var(--cobalt-500)">*</span></label>
+        <input class="form-input" id="al-secteur" type="text" placeholder="Ex : Plombier">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Ville <span style="color:var(--cobalt-500)">*</span></label>
+        <input class="form-input" id="al-ville" type="text" placeholder="Ex : Le Havre">
+      </div>
+    </div>
+    <!-- Champs optionnels -->
+    <div class="form-group">
+      <label class="form-label">Site web <span style="color:var(--gray-400);font-weight:400">(optionnel)</span></label>
+      <input class="form-input" id="al-site" type="url" placeholder="https://...">
+    </div>
+    <div style="display:flex;gap:12px">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Téléphone <span style="color:var(--gray-400);font-weight:400">(optionnel)</span></label>
+        <input class="form-input" id="al-tel" type="text" placeholder="06 00 00 00 00">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Email <span style="color:var(--gray-400);font-weight:400">(optionnel)</span></label>
+        <input class="form-input" id="al-email" type="email" placeholder="contact@...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Gérant <span style="color:var(--gray-400);font-weight:400">(optionnel)</span></label>
+      <input class="form-input" id="al-gerant" type="text" placeholder="Prénom Nom">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes <span style="color:var(--gray-400);font-weight:400">(optionnel)</span></label>
+      <textarea class="form-textarea" id="al-notes" rows="3" placeholder="Informations complémentaires…"></textarea>
+    </div>
+  </div>
+  <div class="modal-ftr">
+    <button class="btn-ghost" onclick="closeAddLeadModal()">Annuler</button>
+    <button class="btn-primary" onclick="submitAddLead()">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter le lead
+    </button>
+  </div>
+</div>
+
+<!-- ══ MODAL NOUVELLE CAMPAGNE ══ -->
+<div class="modal-overlay" id="camp-modal-overlay" onclick="closeCampModal()"></div>
+<div class="camp-modal" id="camp-modal">
+  <div class="modal-handle"></div>
+  <div class="modal-hdr">
+    <h2>Nouvelle campagne</h2>
+    <button class="modal-close" onclick="closeCampModal()">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="modal-bdy">
+
+    <div class="form-group">
+      <label class="form-label">Nom de la campagne <span style="color:var(--red-500)">*</span></label>
+      <input class="form-input" id="camp-nom" type="text" placeholder="Ex : Plombiers Le Havre — Juin 2026">
+    </div>
+
+    <div class="form-row" style="grid-template-columns:1fr 1fr">
+      <div class="form-group">
+        <label class="form-label">Canal</label>
+        <select class="form-select" id="camp-canal">
+          <option value="email">✉️ Email froid</option>
+          <option value="linkedin">💼 LinkedIn DM</option>
+          <option value="sms">📱 SMS</option>
+          <option value="whatsapp">💬 WhatsApp</option>
+          <option value="appel">📞 Appel (script)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mode d'envoi</label>
+        <select class="form-select" id="camp-envoi">
+          <option value="auto">🤖 Automatique</option>
+          <option value="manuel">✋ Manuel</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Type de pitch IA</label>
+      <select class="form-select" id="camp-pitch">
+        <option value="pixel">Absence Pixel Meta</option>
+        <option value="avis">Absence / avis négatifs Google</option>
+        <option value="mobile">Site non adapté mobile</option>
+        <option value="site">Pas de site ou site obsolète</option>
+        <option value="ssl">Site non sécurisé (SSL manquant)</option>
+        <option value="gmb">Fiche Google My Business absente</option>
+        <option value="custom">Pitch personnalisé</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Leads ciblés <span style="color:var(--gray-400);font-weight:400" id="camp-leads-count">(0 sélectionné)</span></label>
+      <div class="leads-checklist" id="camp-leads-list"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Message d'accroche personnalisé <span style="color:var(--gray-400);font-weight:400">(optionnel)</span></label>
+      <textarea class="form-textarea" id="camp-message" placeholder="Laissez vide pour laisser l'IA générer automatiquement le pitch à partir de votre profil client." style="height:80px"></textarea>
+    </div>
+
+  </div>
+  <div class="modal-ftr">
+    <button class="btn-ghost" style="flex:1" onclick="closeCampModal()">Annuler</button>
+    <button class="btn-primary" style="flex:2" onclick="submitCampagne()">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Créer la campagne
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+// Données chargées UNIQUEMENT depuis Supabase via init() — pas de données statiques
+const leadsData = [];
+
+let selectedLead=null, filteredLeads=[];
+
+// ════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════
+const scoreClass=s=>s>80?'score-high':s>=50?'score-mid':'score-low';
+const statusHTML=s=>{
+  if(s==='Terminé') return`<span class="status-badge status-done"><span class="status-dot"></span>Terminé</span>`;
+  if(s==='En cours') return`<span class="status-badge status-running"><span class="status-dot"></span>En cours…</span>`;
+  if(s==='Enrichi')  return`<span class="status-badge status-enrichi"><span class="status-dot"></span>Enrichi</span>`;
+  return`<span class="status-badge status-pending"><span class="status-dot"></span>En attente</span>`;
+};
+const techBadges=tech=>{
+  if(!tech||!tech.length) return'<span style="color:var(--gray-300);font-size:11px">—</span>';
+  let h=tech.slice(0,2).map(t=>`<span class="tech-badge">${t}</span>`).join('');
+  if(tech.length>2) h+=`<span class="tech-badge tech-more">+${tech.length-2}</span>`;
+  return h;
+};
+const rowHTML=lead=>{
+  const lid=`'${String(lead.id)}'`;
+  const urlDisplay=lead.url&&lead.url!=='—'?lead.url:'';
+  const urlHref=urlDisplay?(urlDisplay.startsWith('http')?urlDisplay:'https://'+urlDisplay):'';
+  return`
+  <div class="lead-row" onclick="openPanel(${lid})">
+    <div class="cell-score"><span class="score-badge ${scoreClass(lead.score)}">${lead.score}</span></div>
+    <div class="cell-nom">
+      <span class="nom">${lead.nom}</span>
+      ${urlHref
+        ?`<a class="url" href="${urlHref}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${urlDisplay}</a>`
+        :''}
+    </div>
+    <div class="cell-ville">${lead.ville}</div>
+    <div class="cell-gerant">${lead.gerant}</div>
+    <div class="cell-tech">${techBadges(lead.tech)}</div>
+    <div class="cell-statut">${statusHTML(lead.statut)}</div>
+    <div class="cell-action" style="gap:6px">
+      ${lead.statut!=='Terminé'?`<button class="btn-row btn-enrich" id="enrich-row-${lead.id}" onclick="event.stopPropagation();enrichirLead(${lid},this)" title="Enrichir avec l'email via IA">
+        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        ${lead.email&&lead.email!=='—'?'✓ Mail':'Enrichir'}
+      </button>`:''}
+      <button class="btn-row" onclick="event.stopPropagation();openPanel(${lid})">
+        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Rapport
+      </button>
+    </div>
+  </div>`;
+};
+const emptyHTML=`<div class="empty-state"><div class="empty-icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--cobalt-500)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="empty-title">Aucun lead trouvé</div><div class="empty-sub">Modifiez vos filtres ou lancez le Radar.</div></div>`;
+
+// ════════════════════════════════════════
+// RENDER TABLES
+// ════════════════════════════════════════
+function renderTable(leads,bodyId='table-body',countId='result-count'){
+  const b=document.getElementById(bodyId);
+  const c=document.getElementById(countId);
+  if(c) c.textContent=leads.length+' lead'+(leads.length>1?'s':'');
+  if(b) b.innerHTML=leads.length?leads.map(rowHTML).join(''):emptyHTML;
+  updateDashboardStats();
+}
+function renderReports(){
+  const enriched=leadsData.filter(l=>l.statut==='Terminé');
+  const grid=document.getElementById('report-grid');
+  if(!grid) return;
+  grid.innerHTML=enriched.map(l=>{
+    const lid=`'${String(l.id)}'`;
+    const corps=l.rapport_corps||l.angle||'';
+    return`
+    <div class="report-card" onclick="openPanel(${lid})">
+      <div class="report-card-header">
+        <div class="report-card-title">${l.rapport_titre||l.nom}</div>
+        <span class="score-badge ${scoreClass(l.score)}" style="flex-shrink:0">${l.score}</span>
+      </div>
+      <div class="report-card-body">${corps.substring(0,120)}…</div>
+      <div class="report-card-footer">
+        <span class="report-card-meta">${l.nom} · ${l.ville}</span>
+        <span class="report-tag">Voir le pitch →</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// FILTERS
+// ════════════════════════════════════════
+function applyFilter(q,s){
+  return leadsData.filter(l=>{
+    const mt=!q||l.nom.toLowerCase().includes(q)||l.ville.toLowerCase().includes(q)||(l.gerant&&l.gerant.toLowerCase().includes(q));
+    const ms=!s||l.statut===s;
+    return mt&&ms;
+  });
+}
+function filterLeads(){
+  const q=document.getElementById('filter-input').value.toLowerCase();
+  const s=document.getElementById('filter-statut').value;
+  filteredLeads=applyFilter(q,s);
+  renderTable(filteredLeads);
+}
+function filterLeadsPage(){
+  const q=document.getElementById('leads-filter').value.toLowerCase();
+  const s=document.getElementById('leads-filter-statut').value;
+  const res=applyFilter(q,s);
+  renderTable(res,'leads-table-body','leads-count');
+}
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+const PAGE_META={
+  dashboard:{title:'Recherche de leads',sub:'Enrichissez et scorez vos prospects locaux par IA',showSearch:true,showExport:true},
+  leads:{title:'Base de leads',sub:'Tous vos prospects enrichis par IA',showSearch:false,showExport:true},
+  rapports:{title:'Rapports IA',sub:'Analyses détaillées de vos opportunités',showSearch:false,showExport:true},
+  campagnes:{title:'Campagnes',sub:'Gérez vos séquences de prospection',showSearch:false,showExport:false},
+  parametres:{title:'Paramètres',sub:'Compte, API et préférences',showSearch:false,showExport:false}
+};
+const isMobile=()=>window.innerWidth<=768;
+
+function navigate(page,el,fromBottomNav=false){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.bn-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('[data-page="'+page+'"]').forEach(n=>n.classList.add('active'));
+
+  const meta=PAGE_META[page]||{};
+  document.getElementById('topbar-title').textContent=meta.title||page;
+  document.getElementById('topbar-sub').textContent=meta.sub||'';
+  // Never show topbar search on mobile — mobile-search-bar handles it
+  document.getElementById('topbar-search-area').style.display=(meta.showSearch&&!isMobile())?'flex':'none';
+  document.getElementById('topbar-export-btn').style.display=meta.showExport?'flex':'none';
+
+  if(page==='rapports') renderReports();
+  if(page==='leads') renderTable(leadsData,'leads-table-body','leads-count');
+  if(page==='campagnes') renderCampaigns();
+  closeCampModal();
+  closeMobileSidebar();
+}
+
+// Re-evaluate topbar search visibility on resize
+window.addEventListener('resize',()=>{
+  const activePage=document.querySelector('.page.active');
+  if(!activePage) return;
+  const page=activePage.id.replace('page-','');
+  const meta=PAGE_META[page]||{};
+  document.getElementById('topbar-search-area').style.display=(meta.showSearch&&!isMobile())?'flex':'none';
+});
+
+// ════════════════════════════════════════
+// PANEL
+// ════════════════════════════════════════
+function openPanel(id){
+  const sid=String(id);
+  const lead=leadsData.find(l=>String(l.id)===sid||String(l.supabase_id)===sid);
+  if(!lead) return;
+  selectedLead=lead;
+  const badge=document.getElementById('panel-score-badge');
+  badge.className='score-badge '+scoreClass(lead.score);
+  badge.textContent=lead.score+'/100';
+  document.getElementById('panel-nom').textContent=lead.nom;
+  document.getElementById('panel-ville').textContent=lead.ville;
+  document.getElementById('panel-secteur').textContent=lead.secteur;
+  const urlEl=document.getElementById('panel-url');
+  const rawUrl=lead.url&&lead.url!=='—'?lead.url:'';
+  if(rawUrl){
+    const href=rawUrl.startsWith('http')?rawUrl:'https://'+rawUrl;
+    urlEl.innerHTML=`<a href="${href}" target="_blank" rel="noopener" style="color:var(--cobalt-500);text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${rawUrl}</a>`;
+  } else {
+    urlEl.innerHTML='';
+  }
+  const bb=document.getElementById('panel-big-badge');
+  const bs=document.getElementById('panel-big-score');
+  const cls=scoreClass(lead.score);
+  if(cls==='score-high'){bb.style.background='var(--green-100)';bs.style.color='var(--green-600)'}
+  else if(cls==='score-mid'){bb.style.background='var(--orange-100)';bs.style.color='var(--orange-600)'}
+  else{bb.style.background='var(--gray-100)';bs.style.color='var(--gray-500)'}
+  bs.textContent=lead.score;
+  const sig = lead.signaux || {};
+  const criteriaList = [
+    { label: 'Présence en ligne',   ok: sig.site_absent    === false },
+    { label: 'Site à jour',         ok: sig.site_obsolete  === false },
+    { label: 'Pixel Meta actif',    ok: sig.pixel_absent   === false },
+    { label: 'Google Analytics',    ok: sig.ga_absent      === false },
+    { label: 'Site sécurisé (SSL)', ok: sig.ssl_absent     === false },
+    { label: 'Site responsive',     ok: sig.responsive     === true  },
+  ];
+  const svgOk  = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--green-600)" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+  const svgKo  = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--gray-400)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+  document.getElementById('panel-criteria').innerHTML = criteriaList.map(({label, ok}) => `
+    <div class="criteria-item">
+      ${ok ? svgOk : svgKo}
+      <span style="color:${ok ? 'var(--green-600)' : 'var(--gray-400)'}">${label}</span>
+    </div>`).join('');
+  const sd = lead.score_detail || {};
+  document.getElementById('panel-rapport-titre').textContent = sd.rapport_titre || lead.rapport_titre || '';
+  document.getElementById('panel-rapport-corps').textContent = sd.rapport_corps || lead.rapport_corps || 'Analyse en cours…';
+  document.getElementById('panel-angle').textContent = lead.angle || '';
+  document.getElementById('side-panel').classList.add('open');
+  document.getElementById('panel-overlay').classList.add('open');
+  const bc=document.getElementById('btn-copy');
+  bc.className='btn-copy';
+  bc.innerHTML=`<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copier le pitch`;
+  // Reset enrich button — masqué si lead Terminé
+  const epBtn=document.getElementById('btn-enrich-panel');
+  const epLbl=document.getElementById('btn-enrich-panel-label');
+  if(epBtn){ epBtn.style.display=lead.statut==='Terminé'?'none':''; epBtn.className='btn-enrich-panel'; }
+  if(epLbl){ epLbl.textContent='Enrichir l\'email'; }
+  // Afficher l'email dans la fiche identity
+  const emailRow=document.getElementById('panel-email-row');
+  const emailVal=document.getElementById('panel-email-value');
+  if(emailRow&&emailVal){
+    emailRow.className='panel-email-row';
+    if(lead.email&&lead.email!=='—'){
+      emailVal.textContent=lead.email;
+      emailRow.classList.add('has-email');
+    } else {
+      emailVal.textContent='—';
+    }
+  }
+  syncPanelEnrichState(lead);
+}
+function closePanel(){
+  document.getElementById('side-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+  selectedLead=null;
+}
+
+// ════════════════════════════════════════
+// COPY PITCH
+// ════════════════════════════════════════
+function copierPitch(){
+  if(!selectedLead) return;
+  if(navigator.clipboard) navigator.clipboard.writeText(selectedLead.angle).catch(()=>{});
+  const btn=document.getElementById('btn-copy');
+  btn.className='btn-copy copied';
+  btn.innerHTML=`<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Pitch copié !`;
+  showToast('Pitch copié dans le presse-papier !');
+  setTimeout(()=>{
+    btn.className='btn-copy';
+    btn.innerHTML=`<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copier le pitch`;
+  },2500);
+}
+
+// ════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ════════════════════════════════════════
+// LANCER RADAR
+// ════════════════════════════════════════
+function clampLeads(raw){return Math.min(50,Math.max(5,parseInt(raw)||20));}
+async function lancerRadar(){
+  const a=document.getElementById('input-activite').value.trim();
+  const v=document.getElementById('input-ville').value.trim();
+  if(!a||!v){showToast('Renseignez une activité et une ville');return}
+  const nb=clampLeads(document.getElementById('input-nb-leads').value);
+  document.getElementById('input-nb-leads').value=nb;
+  const btn=document.getElementById('btn-radar');
+  btn.classList.add('loading');
+  btn.innerHTML=`<span class="spinner"></span>Analyse en cours…`;
+
+  const payload={
+    activite: a,
+    ville:    v,
+    nb_leads: nb,
+    user_id:  DEMO_USER_ID,
+  };
+  console.log('[LocalRadar → Make] Payload Radar:', JSON.stringify(payload,null,2));
+
+  try{
+    await fetch(RADAR_WEBHOOK,{
+      method:'POST',
+      body:new URLSearchParams(payload)
+    });
+    showToast(`🚀 Radar lancé — Make analyse ${a} à ${v} (${nb} leads)`);
+    document.getElementById('result-query').textContent=`"${a} · ${v}"`;
+    // Recharger les leads depuis Supabase après un délai (Make insère les résultats)
+    setTimeout(async()=>{
+      const fresh=await fetchLeads();
+      if(fresh!==null){ leadsData.length=0; leadsData.push(...fresh); filteredLeads=[...leadsData]; }
+      renderTable(leadsData);
+      renderTable(leadsData,'leads-table-body','leads-count');
+      updateDashboardStats();
+      showToast(`✓ ${leadsData.length} leads chargés`);
+    },5000);
+  }catch(e){
+    console.error('[LocalRadar → Make] Radar error:',e);
+    showToast('⚠️ Erreur lors du lancement — vérifiez la connexion');
+  }finally{
+    btn.classList.remove('loading');
+    btn.innerHTML=`<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 2"/></svg>Lancer le Radar`;
+  }
+}
+async function lancerRadarMobile(){
+  const a=document.getElementById('m-activite').value.trim();
+  const v=document.getElementById('m-ville').value.trim();
+  if(!a||!v){showToast('Renseignez une activité et une ville');return}
+  const nb=clampLeads(document.getElementById('m-nb-leads').value);
+  document.getElementById('m-nb-leads').value=nb;
+
+  const payload={activite:a, ville:v, nb_leads:nb, user_id:DEMO_USER_ID};
+  console.log('[LocalRadar → Make] Payload Radar Mobile:', JSON.stringify(payload,null,2));
+
+  try{
+    await fetch(RADAR_WEBHOOK,{
+      method:'POST',
+      body:new URLSearchParams(payload)
+    });
+    showToast(`🚀 Radar lancé — ${a} · ${v} · ${nb} leads`);
+    setTimeout(async()=>{
+      const fresh=await fetchLeads();
+      if(fresh!==null){ leadsData.length=0; leadsData.push(...fresh); filteredLeads=[...leadsData]; }
+      renderTable(leadsData);
+      renderTable(leadsData,'leads-table-body','leads-count');
+      updateDashboardStats();
+    },5000);
+  }catch(e){
+    showToast('⚠️ Erreur lors du lancement — vérifiez la connexion');
+    console.error('[LocalRadar → Make] Radar Mobile error:',e);
+  }
+}
+
+// ════════════════════════════════════════
+// MOBILE SIDEBAR
+// ════════════════════════════════════════
+function toggleMobileSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebar-overlay');
+  s.classList.toggle('open');
+  o.classList.toggle('open');
+}
+function closeMobileSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+// ════════════════════════════════════════
+// SETTINGS TABS
+// ════════════════════════════════════════
+function setSettingsTab(el,tabId){
+  document.querySelectorAll('.settings-nav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  ['stab-profil','stab-ia','stab-api','stab-notifs','stab-plan','stab-equipe'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=id===tabId?'block':'none';
+  });
+}
+
+// ════════════════════════════════════════
+// PROFIL IA — Tag chips
+// ════════════════════════════════════════
+function toggleTag(chip){
+  chip.classList.toggle('selected');
+  updateProfilePreview();
+}
+
+// ════════════════════════════════════════
+// PROFIL IA — Scoring weights
+// ════════════════════════════════════════
+const scoringWeights={};
+function setWeight(btn,criterion,level){
+  const row=btn.closest('.criteria-weight-row');
+  row.querySelectorAll('.wpill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  scoringWeights[criterion]=level;
+}
+
+// ════════════════════════════════════════
+// PROFIL IA — Build profile object
+// ════════════════════════════════════════
+function buildProfile(){
+  const services=[...document.querySelectorAll('#ia-services-tags .tag-chip.selected')].map(c=>c.dataset.val);
+  const cibles=[...document.querySelectorAll('#ia-cibles-tags .tag-chip.selected')].map(c=>c.dataset.val);
+  return{
+    secteur:document.getElementById('ia-secteur').value,
+    ticket:document.getElementById('ia-ticket').value,
+    valeur:document.getElementById('ia-valeur').value,
+    services,
+    cibles,
+    taille:document.getElementById('ia-taille').value,
+    zone:document.getElementById('ia-zone').value,
+    icp:document.getElementById('ia-icp').value,
+    seuil:parseInt(document.getElementById('ia-seuil').value)||80,
+    nbLeads:document.getElementById('ia-nb-leads').value,
+    ton:document.getElementById('ia-ton').value,
+    canal:document.getElementById('ia-canal').value,
+    cta:document.getElementById('ia-cta').value,
+    prenom:document.getElementById('ia-prenom').value,
+    signature:document.getElementById('ia-signature').value,
+    weights:{...scoringWeights}
+  };
+}
+
+// ════════════════════════════════════════
+// PROFIL IA — Preview
+// ════════════════════════════════════════
+const secteurLabels={'agence-web':'Agence web','agence-seo':'Agence SEO','agence-ads':'Agence Ads','agence-marketing':'Agence marketing','agence-social':'Social media','freelance-dev':'Freelance dev','freelance-marketing':'Freelance mktg','logiciel-saas':'SaaS','conseil-digital':'Conseil digital','autre':'Autre'};
+const canalLabels={'email':'Email froid','linkedin':'LinkedIn DM','sms':'SMS','whatsapp':'WhatsApp','appel':'Appel (script)'};
+const tonLabels={'direct':'Direct & Punchy','pro':'Professionnel','amical':'Amical','expert':'Expert'};
+const ctaLabels={'appel':'Appel 20 min','demo':'Démo','audit':'Audit gratuit','rdv':'RDV Calendly','devis':'Devis'};
+
+function updateProfilePreview(){
+  const p=buildProfile();
+  document.getElementById('prev-secteur').textContent=secteurLabels[p.secteur]||'—';
+  document.getElementById('prev-ticket').textContent=p.ticket||'—';
+  document.getElementById('prev-services').textContent=p.services.length?p.services.length+' service'+(p.services.length>1?'s':''):'—';
+  document.getElementById('prev-canal').textContent=canalLabels[p.canal]||'Email froid';
+  document.getElementById('prev-ton').textContent=tonLabels[p.ton]||'Pro';
+  document.getElementById('prev-cta').textContent=ctaLabels[p.cta]||'Démo';
+}
+function previewProfile(){
+  updateProfilePreview();
+  showToast('Aperçu mis à jour');
+}
+
+// ════════════════════════════════════════
+// PROFIL IA — Save & sync to Make
+// ════════════════════════════════════════
+let clientProfile=null;
+function saveIAProfile(){
+  const p=buildProfile();
+  const isComplete=p.secteur&&p.valeur&&p.services.length>0&&p.cibles.length>0;
+  if(!isComplete){showToast('⚠️ Complétez au minimum : secteur, proposition de valeur, services et cibles');return;}
+
+  clientProfile=p;
+  localStorage.setItem('lr_client_profile',JSON.stringify(p));
+
+  // Update status badge
+  const status=document.getElementById('ia-profile-status');
+  status.className='profile-status ps-ok';
+  status.innerHTML=`<svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Profil IA configuré — scoring personnalisé actif`;
+
+  // Show chip in topbar
+  const chip=document.getElementById('profile-chip');
+  chip.classList.add('visible');
+  document.getElementById('profile-chip-label').textContent=secteurLabels[p.secteur]||'Profil IA actif';
+
+  updateProfilePreview();
+
+  // Simulate Make webhook payload
+  const payload={
+    event:'profile_updated',
+    timestamp:new Date().toISOString(),
+    profile:p
+  };
+  console.log('[LocalRadar → Make] Payload envoyé:', JSON.stringify(payload,null,2));
+
+  showToast('✓ Profil synchronisé avec Make — scoring personnalisé activé');
+}
+
+// ════════════════════════════════════════
+// PROFIL IA — Load saved profile
+// ════════════════════════════════════════
+function loadSavedProfile(){
+  try{
+    const saved=localStorage.getItem('lr_client_profile');
+    if(!saved) return;
+    const p=JSON.parse(saved);
+    clientProfile=p;
+    if(p.secteur) document.getElementById('ia-secteur').value=p.secteur;
+    if(p.ticket) document.getElementById('ia-ticket').value=p.ticket;
+    if(p.valeur) document.getElementById('ia-valeur').value=p.valeur;
+    if(p.taille) document.getElementById('ia-taille').value=p.taille;
+    if(p.zone) document.getElementById('ia-zone').value=p.zone;
+    if(p.icp) document.getElementById('ia-icp').value=p.icp;
+    if(p.seuil) document.getElementById('ia-seuil').value=p.seuil;
+    if(p.nbLeads) document.getElementById('ia-nb-leads').value=p.nbLeads;
+    if(p.ton) document.getElementById('ia-ton').value=p.ton;
+    if(p.canal) document.getElementById('ia-canal').value=p.canal;
+    if(p.cta) document.getElementById('ia-cta').value=p.cta;
+    if(p.prenom) document.getElementById('ia-prenom').value=p.prenom;
+    if(p.signature) document.getElementById('ia-signature').value=p.signature;
+    if(p.services&&p.services.length){
+      document.querySelectorAll('#ia-services-tags .tag-chip').forEach(c=>{
+        if(p.services.includes(c.dataset.val)) c.classList.add('selected');
+      });
+    }
+    if(p.cibles&&p.cibles.length){
+      document.querySelectorAll('#ia-cibles-tags .tag-chip').forEach(c=>{
+        if(p.cibles.includes(c.dataset.val)) c.classList.add('selected');
+      });
+    }
+    // Status
+    document.getElementById('ia-profile-status').className='profile-status ps-ok';
+    document.getElementById('ia-profile-status').innerHTML=`<svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Profil IA configuré — scoring personnalisé actif`;
+    const chip=document.getElementById('profile-chip');
+    chip.classList.add('visible');
+    document.getElementById('profile-chip-label').textContent=secteurLabels[p.secteur]||'Profil IA actif';
+    updateProfilePreview();
+  }catch(e){}
+}
+
+// ════════════════════════════════════════
+// SUPABASE CLIENT
+// ════════════════════════════════════════
+const SUPABASE_URL='https://qhfoiiwxlvhtlieseggs.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoZm9paXd4bHZodGxpZXNlZ2dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDg5MTUsImV4cCI6MjA5NjU4NDkxNX0.OfmyoMnxrlXDDIpES8U7NECNtZUv4q4-jWeQXEX4GC8';
+const DEMO_USER_ID='a0000000-0000-0000-0000-000000000001';
+let sbClient=null;
+function getSB(){
+  if(!sbClient) sbClient=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+  return sbClient;
+}
+
+// Mapping statut Supabase → libellé UI
+function normalizeStatut(s, email) {
+  if (email) return 'Terminé';
+  const map = {
+    nouveau:       'En attente',
+    contacté:      'Enrichi',
+    en_discussion: 'En cours',
+    client:        'Terminé',
+    perdu:         'En attente',
+    archivé:       'En attente',
+  };
+  return map[s] || 'En attente';
+}
+
+// Déduit les technologies depuis signaux + score_detail
+function detectTech(signaux, scoreDetail) {
+  const tech = [];
+  if (signaux.site_absent) return ['Sans site web'];
+  if (scoreDetail?.cms) tech.push(scoreDetail.cms);
+  if (signaux.site_obsolete) tech.push('Site obsolète');
+  if (signaux.pixel_absent) tech.push('Pas de Pixel');
+  if (signaux.ga_absent) tech.push('Pas de GA4');
+  if (signaux.ssl_absent) tech.push('Pas de SSL');
+  return tech;
+}
+
+// Convertit une ligne Supabase en objet leadsData
+function normalizeLeadFromDB(row) {
+  const signaux = typeof row.signaux === 'string'
+    ? JSON.parse(row.signaux)
+    : (row.signaux || {});
+  const scoreDetail = typeof row.score_detail === 'string'
+    ? JSON.parse(row.score_detail)
+    : (row.score_detail || {});
+  return {
+    _raw:          row,
+    id:            row.id,
+    supabase_id:   row.id,
+    nom:           row.nom,
+    ville:         row.ville   || '—',
+    secteur:       row.secteur || '—',
+    gerant:        row.gerant  || '—',
+    url:           row.site_url|| '—',
+    email:         row.email   || null,
+    score:         row.score   || 0,
+    score_detail:  scoreDetail,
+    signaux:       signaux,
+    tech:          detectTech(signaux, scoreDetail),
+    statut:        normalizeStatut(row.statut, row.email),
+    criteres:      scoreDetail,
+    rapport_titre: scoreDetail.rapport_titre || '',
+    rapport_corps: scoreDetail.rapport_corps || '',
+    angle:         row.pitch_ia || '',
+    source:        row.source  || 'radar',
+  };
+}
+
+// Upsert lead en base → retourne l'UUID Supabase réel
+async function saveLead(lead){
+  // Si le lead a déjà un UUID Supabase stocké, on le réutilise
+  if(lead.supabase_id) return lead.supabase_id;
+  const sb=getSB();
+  const {data,error}=await sb.from('leads').insert({
+    user_id: DEMO_USER_ID,
+    nom: lead.nom,
+    ville: lead.ville,
+    secteur: lead.secteur,
+    site_url: lead.url||'',
+    score: lead.score||null,
+    statut: 'nouveau',
+    source: 'radar'
+  }).select('id').single();
+  if(error){console.error('[Supabase] saveLead error:',error);return null;}
+  lead.supabase_id=data.id; // cache sur l'objet JS
+  return data.id;
+}
+
+// ════════════════════════════════════════
+// ENRICH — Make webhook + Supabase polling
+// ════════════════════════════════════════
+const ENRICH_WEBHOOK='https://hook.eu1.make.com/kfm68jfu4hl8z5aqkgvgxazltd7or8p8';
+const RADAR_WEBHOOK ='https://hook.eu1.make.com/1s7ax468ghbna2qhvbisn4t1guphghuq';
+// enrichState: { [leadJsId]: 'pending'|'done' }
+const enrichState={};
+// pollingTimers: { [supabaseId]: intervalId }
+const pollingTimers={};
+
+// ── État persistant du bouton dans la lead-row
+function updateRowEnrichBtn(leadId, state){
+  const btn=document.getElementById('enrich-row-'+leadId);
+  if(!btn) return;
+  if(state==='pending'){
+    btn.className='btn-row btn-enrich loading';
+    btn.innerHTML=`<span class="spinner" style="width:8px;height:8px;border-width:1.5px"></span>En cours…`;
+    btn.onclick=null;
+  } else if(state==='done'){
+    // Masquer complètement le bouton enrichir dans la row
+    btn.style.display='none';
+  }
+}
+
+// ── État persistant du bouton dans le panel
+function updatePanelEnrichBtn(state, email){
+  const btn=document.getElementById('btn-enrich-panel');
+  const lbl=document.getElementById('btn-enrich-panel-label');
+  const emailRow=document.getElementById('panel-email-row');
+  const emailVal=document.getElementById('panel-email-value');
+  if(!btn||!lbl) return;
+  if(state==='pending'){
+    btn.className='btn-enrich-panel loading';
+    lbl.textContent='⏳ En cours…';
+    if(emailRow&&emailVal){
+      emailRow.className='panel-email-row pending';
+      emailVal.textContent='Recherche en cours…';
+    }
+  } else if(state==='done'){
+    // Masquer le bouton enrichir
+    btn.style.display='none';
+    // Mettre à jour la ligne email dans la fiche
+    if(emailRow&&emailVal&&email){
+      emailRow.className='panel-email-row has-email';
+      emailVal.textContent=email;
+    }
+  }
+}
+
+// ── Polling Supabase jusqu'à ce que email soit rempli (max 10 min)
+function startPolling(leadJsId, supabaseId){
+  let attempts=0;
+  const MAX=120; // 120 × 5s = 10 min
+  pollingTimers[supabaseId]=setInterval(async()=>{
+    attempts++;
+    if(attempts>MAX){ clearInterval(pollingTimers[supabaseId]); return; }
+    const sb=getSB();
+    const {data}=await sb.from('leads').select('email').eq('id',supabaseId).single();
+    if(data?.email){
+      clearInterval(pollingTimers[supabaseId]);
+      enrichState[leadJsId]='done';
+      const lead=leadsData.find(l=>l.id===leadJsId);
+      if(lead) lead.email=data.email;
+      updateRowEnrichBtn(leadJsId,'done');
+      if(selectedLead&&selectedLead.id===leadJsId){
+        updatePanelEnrichBtn('done', data.email);
+      }
+      showToast(`📧 Email trouvé pour ${leadsData.find(l=>l.id===leadJsId)?.nom} : ${data.email}`);
+    }
+  },5000);
+}
+
+async function enrichirLead(id, rowBtn){
+  const sid=String(id);
+  const lead=leadsData.find(l=>String(l.id)===sid||String(l.supabase_id)===sid);
+  if(!lead) return;
+
+  // Déjà en cours ou terminé — ne rien faire
+  if(enrichState[sid]) return;
+
+  // L'id est déjà l'UUID Supabase (leads chargés depuis la DB)
+  const supabaseId = String(lead.id);
+
+  // État loading immédiat
+  updateRowEnrichBtn(sid,'pending');
+  updatePanelEnrichBtn('pending');
+
+  // Payload depuis _raw pour avoir user_id et site_url exacts
+  const raw = lead._raw || {};
+  const payload = {
+    lead_id:  supabaseId,
+    user_id:  raw.user_id  || DEMO_USER_ID,
+    nom:      lead.nom,
+    ville:    lead.ville,
+    secteur:  lead.secteur,
+    site_url: raw.site_url || lead.url || '',
+  };
+
+  try{
+    const res=await fetch(ENRICH_WEBHOOK,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+
+    // ③ Marquer pending + démarrer le polling
+    enrichState[sid]='pending';
+    startPolling(sid, supabaseId);
+    showToast(`⏳ Enrichissement en cours pour ${lead.nom}…`);
+
+  }catch(e){
+    // Reset en cas d'erreur
+    const btn=document.getElementById('enrich-row-'+sid);
+    if(btn){ btn.className='btn-row btn-enrich'; btn.innerHTML=`<svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Enrichir`; }
+    const pBtn=document.getElementById('btn-enrich-panel');
+    if(pBtn){ pBtn.className='btn-enrich-panel'; document.getElementById('btn-enrich-panel-label').textContent='Enrichir l\'email'; }
+    showToast('⚠️ Erreur webhook Make — vérifiez la connexion');
+    console.error('[LocalRadar → Make] Enrich error:',e);
+  }
+}
+
+function enrichirLeadPanel(){
+  if(!selectedLead) return;
+  const rowBtn=document.getElementById('enrich-row-'+selectedLead.id);
+  enrichirLead(selectedLead.id, rowBtn);
+}
+
+// Synchronise le panel quand on ouvre une fiche déjà en cours/terminée
+function syncPanelEnrichState(lead){
+  const state=enrichState[lead.id];
+  if(!state) return;
+  if(state==='pending') updatePanelEnrichBtn('pending');
+  if(state==='done')    updatePanelEnrichBtn('done', lead.email||'');
+}
+
+
+// ════════════════════════════════════════
+// CAMPAIGNS — DATA
+// ════════════════════════════════════════
+const canalIcons={
+  email:'<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  linkedin:'<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+  sms:'<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  whatsapp:'<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  appel:'<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12 19.79 19.79 0 0 1 1.65 3.18 2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.61A16 16 0 0 0 16 16.69l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
+};
+const canalColors={
+  email:{bg:'var(--cobalt-50)',stroke:'var(--cobalt-500)'},
+  linkedin:{bg:'var(--green-50)',stroke:'var(--green-600)'},
+  sms:{bg:'var(--purple-100)',stroke:'var(--purple-600)'},
+  whatsapp:{bg:'var(--green-50)',stroke:'var(--green-600)'},
+  appel:{bg:'var(--orange-100)',stroke:'var(--orange-600)'}
+};
+const pitchLabels={pixel:'Absence Pixel Meta',avis:'Absence avis Google',mobile:'Site non mobile',site:'Site obsolète',ssl:'SSL manquant',gmb:'GMB absent',custom:'Pitch personnalisé','':'—'};
+
+let campaignsData=[
+  {id:1,nom:'Plombiers Le Havre — Prospection Mai',canal:'email',pitch:'pixel',envoi:'auto',leadsIds:[1,2,3,4,5,6,7,8],sent:5,total:8,ouverture:38,reponses:2,statut:'active'},
+  {id:2,nom:'Restaurants Rouen — Réseaux sociaux',canal:'linkedin',pitch:'avis',envoi:'auto',leadsIds:[],sent:12,total:14,ouverture:42,reponses:7,statut:'active'},
+  {id:3,nom:'Électriciens Caen — Email froid',canal:'email',pitch:'site',envoi:'manuel',leadsIds:[],sent:0,total:6,ouverture:null,reponses:null,statut:'draft'},
+  {id:4,nom:'Coiffeurs Dieppe — WhatsApp',canal:'whatsapp',pitch:'avis',envoi:'manuel',leadsIds:[],sent:11,total:11,ouverture:27,reponses:3,statut:'archived'}
+];
+let nextCampId=5;
+
+// ════════════════════════════════════════
+// CAMPAIGNS — RENDER
+// ════════════════════════════════════════
+function campStatusHTML(c){
+  if(c.statut==='active') return`<span class="campaign-status cs-active">● Actif</span>`;
+  if(c.statut==='paused') return`<span class="campaign-status cs-paused">⏸ En pause</span>`;
+  if(c.statut==='draft')  return`<span class="campaign-status cs-draft">Brouillon</span>`;
+  return`<span class="campaign-status cs-draft">Archivé</span>`;
+}
+function campActionsHTML(c){
+  if(c.statut==='active') return`
+    <button class="btn-ghost" style="height:28px;font-size:11px" onclick="event.stopPropagation();toggleCampStatut(${c.id})">Pause</button>
+    <button class="btn-ghost" style="height:28px;font-size:11px" onclick="event.stopPropagation();showToast('Rapport exporté')">Rapport</button>`;
+  if(c.statut==='paused') return`
+    <button class="btn-primary btn-sm" onclick="event.stopPropagation();toggleCampStatut(${c.id})">Reprendre</button>`;
+  if(c.statut==='draft') return`
+    <button class="btn-primary btn-sm" onclick="event.stopPropagation();launchCampagne(${c.id})">Lancer</button>`;
+  return`<button class="btn-ghost" style="height:28px;font-size:11px" onclick="event.stopPropagation();relancerCampagne(${c.id})">Relancer</button>`;
+}
+function campCardHTML(c){
+  const pct=c.total>0?Math.round((c.sent/c.total)*100):0;
+  const col=canalColors[c.canal]||canalColors.email;
+  const icon=(canalIcons[c.canal]||canalIcons.email).replace('stroke="currentColor"',`stroke="${col.stroke}"`);
+  const pitchLabel=pitchLabels[c.pitch]||c.pitch||'IA auto';
+  const canalLabel={email:'Email froid',linkedin:'LinkedIn',sms:'SMS',whatsapp:'WhatsApp',appel:'Appel'}[c.canal]||c.canal;
+  const envLabel=c.envoi==='auto'?'automatique':'manuel';
+  const ouv=c.ouverture!=null?c.ouverture+'%':'—';
+  const rep=c.reponses!=null?c.reponses:'—';
+  const opacity=c.statut==='archived'?'opacity:.65':'';
+  const progressColor=c.statut==='archived'?'background:var(--gray-300)':c.statut==='active'?'':'background:var(--gray-400)';
+  return`
+  <div class="campaign-card" style="${opacity}" onclick="showCampDetails(${c.id})">
+    <div class="campaign-icon" style="background:${col.bg}">${icon}</div>
+    <div class="campaign-info">
+      <div class="campaign-name">${c.nom}</div>
+      <div class="campaign-sub">${c.total} leads · "${pitchLabel}" · ${canalLabel} · ${envLabel}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;${progressColor}"></div></div>
+    </div>
+    <div class="campaign-stats">
+      <div class="cstat"><div class="cstat-val">${c.sent}/${c.total}</div><div class="cstat-lbl">Envoyés</div></div>
+      <div class="cstat"><div class="cstat-val">${ouv}</div><div class="cstat-lbl">Ouverture</div></div>
+      <div class="cstat"><div class="cstat-val">${rep}</div><div class="cstat-lbl">Réponses</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
+      ${campStatusHTML(c)}
+      ${campActionsHTML(c)}
+    </div>
+  </div>`;
+}
+function renderCampaigns(){
+  const el=document.getElementById('campaign-list-container');
+  if(!el) return;
+  el.innerHTML=campaignsData.map(campCardHTML).join('');
+  // Update stats
+  const actives=campaignsData.filter(c=>c.statut==='active').length;
+  const allSent=campaignsData.reduce((s,c)=>s+c.sent,0);
+  document.querySelectorAll('#page-campagnes .stat-value')[0].textContent=actives;
+  document.querySelectorAll('#page-campagnes .stat-value')[1].textContent=allSent;
+}
+
+// ════════════════════════════════════════
+// CAMPAIGNS — ACTIONS
+// ════════════════════════════════════════
+function toggleCampStatut(id){
+  const c=campaignsData.find(x=>x.id===id);
+  if(!c) return;
+  if(c.statut==='active'){c.statut='paused';showToast('⏸ Campagne mise en pause');}
+  else if(c.statut==='paused'){c.statut='active';showToast('▶ Campagne reprise');}
+  renderCampaigns();
+}
+function launchCampagne(id){
+  const c=campaignsData.find(x=>x.id===id);
+  if(!c) return;
+  c.statut='active';
+  renderCampaigns();
+  showToast('🚀 Campagne lancée !');
+}
+function relancerCampagne(id){
+  const c=campaignsData.find(x=>x.id===id);
+  if(!c) return;
+  const copy={...c,id:nextCampId++,nom:c.nom+' (relance)',statut:'draft',sent:0,ouverture:null,reponses:null};
+  campaignsData.push(copy);
+  renderCampaigns();
+  showToast('✓ Campagne dupliquée en brouillon');
+}
+function showCampDetails(id){
+  const c=campaignsData.find(x=>x.id===id);
+  if(!c) return;
+  const pitchLabel=pitchLabels[c.pitch]||c.pitch||'IA auto';
+  showToast(`📊 ${c.nom} · ${c.sent}/${c.total} envoyés`);
+}
+
+// ════════════════════════════════════════
+// CAMPAIGNS — MODAL
+// ════════════════════════════════════════
+function openCampModal(){
+  // Populate leads list
+  const list=document.getElementById('camp-leads-list');
+  list.innerHTML=leadsData.map(l=>`
+    <label class="lead-check-item">
+      <input type="checkbox" value="${l.id}" onchange="updateLeadsCount()">
+      <span class="lead-check-score ${scoreClass(l.score)}">${l.score}</span>
+      <span class="lead-check-nom">${l.nom}</span>
+      <span style="font-size:10px;color:var(--gray-400);flex-shrink:0">${l.ville}</span>
+    </label>`).join('');
+  // Reset form
+  document.getElementById('camp-nom').value='';
+  document.getElementById('camp-message').value='';
+  document.getElementById('camp-leads-count').textContent='(0 sélectionné)';
+  // Open
+  document.getElementById('camp-modal-overlay').classList.add('open');
+  document.getElementById('camp-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('camp-nom').focus(),350);
+}
+function closeCampModal(){
+  document.getElementById('camp-modal-overlay').classList.remove('open');
+  document.getElementById('camp-modal').classList.remove('open');
+}
+function updateLeadsCount(){
+  const n=document.querySelectorAll('#camp-leads-list input:checked').length;
+  document.getElementById('camp-leads-count').textContent=`(${n} sélectionné${n>1?'s':''})`;
+}
+function submitCampagne(){
+  const nom=document.getElementById('camp-nom').value.trim();
+  if(!nom){document.getElementById('camp-nom').focus();showToast('⚠️ Donnez un nom à la campagne');return;}
+  const leadsIds=[...document.querySelectorAll('#camp-leads-list input:checked')].map(el=>+el.value);
+  const canal=document.getElementById('camp-canal').value;
+  const envoi=document.getElementById('camp-envoi').value;
+  const pitch=document.getElementById('camp-pitch').value;
+  const newCamp={
+    id:nextCampId++,nom,canal,pitch,envoi,
+    leadsIds,sent:0,total:leadsIds.length,
+    ouverture:null,reponses:null,statut:'draft'
+  };
+  campaignsData.unshift(newCamp);
+  renderCampaigns();
+  closeCampModal();
+  // Navigate to campagnes if not already there
+  navigate('campagnes',document.querySelector('[data-page=campagnes]'));
+  showToast(`✓ Campagne "${nom}" créée — prête à lancer`);
+}
+
+// ════════════════════════════════════════
+// AJOUTER UN LEAD — Modal
+// ════════════════════════════════════════
+function openAddLeadModal(){
+  // Reset tous les champs
+  ['al-nom','al-secteur','al-ville','al-site','al-tel','al-email','al-gerant','al-notes']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('add-lead-overlay').classList.add('open');
+  document.getElementById('add-lead-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('al-nom').focus(), 350);
+}
+
+function closeAddLeadModal(){
+  document.getElementById('add-lead-overlay').classList.remove('open');
+  document.getElementById('add-lead-modal').classList.remove('open');
+}
+
+async function submitAddLead(){
+  const nom     = document.getElementById('al-nom').value.trim();
+  const secteur = document.getElementById('al-secteur').value.trim();
+  const ville   = document.getElementById('al-ville').value.trim();
+
+  // Validation champs obligatoires
+  if(!nom)    { document.getElementById('al-nom').focus();     showToast('⚠️ Le nom est obligatoire'); return; }
+  if(!secteur){ document.getElementById('al-secteur').focus(); showToast('⚠️ Le secteur est obligatoire'); return; }
+  if(!ville)  { document.getElementById('al-ville').focus();   showToast('⚠️ La ville est obligatoire'); return; }
+
+  const site_url  = document.getElementById('al-site').value.trim()  || null;
+  const telephone = document.getElementById('al-tel').value.trim()   || null;
+  const email     = document.getElementById('al-email').value.trim() || null;
+  const gerant    = document.getElementById('al-gerant').value.trim()|| null;
+  const notes     = document.getElementById('al-notes').value.trim() || null;
+
+  // Désactiver le bouton pendant l'insert
+  const submitBtn = document.querySelector('#add-lead-modal .btn-primary');
+  if(submitBtn){ submitBtn.disabled=true; submitBtn.innerHTML='<span class="spinner"></span>Ajout…'; }
+
+  const sb = getSB();
+  const { data, error } = await sb
+    .from('leads')
+    .insert({
+      nom, secteur, ville,
+      site_url, telephone, email, notes,
+      statut: 'nouveau',
+      source: 'manuel',
+      score: 0,
+      user_id: DEMO_USER_ID
+    })
+    .select()
+    .single();
+
+  // Réactiver le bouton
+  if(submitBtn){ submitBtn.disabled=false; submitBtn.innerHTML='<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter le lead'; }
+
+  if(error){
+    console.error('[Supabase] submitAddLead error:', error);
+    showToast('⚠️ Erreur lors de l\'ajout — réessayez');
+    return;
+  }
+
+  // Normaliser et injecter dans leadsData
+  const newLead = normalizeLeadFromDB(data);
+  leadsData.unshift(newLead);
+  filteredLeads.unshift(newLead);
+
+  // Rafraîchir les tables
+  renderTable(leadsData);
+  renderTable(leadsData, 'leads-table-body', 'leads-count');
+  updateDashboardStats();
+
+  closeAddLeadModal();
+  showToast(`✓ Lead "${nom}" ajouté manuellement`);
+}
+
+// ════════════════════════════════════════
+// FETCH LEADS — Supabase (source unique de vérité)
+// ════════════════════════════════════════
+async function fetchLeads(){
+  const sb = getSB();
+  const { data, error } = await sb
+    .from('leads')
+    .select('*')
+    .order('score', { ascending: false });
+  if(error){
+    console.error('[Supabase] fetchLeads error:', error);
+    showToast('⚠️ Impossible de charger les leads — vérifiez la connexion');
+    return null; // null = erreur, différent de [] = succès vide
+  }
+  return (data || []).map(normalizeLeadFromDB);
+}
+
+// ════════════════════════════════════════
+// DASHBOARD STATS — mise à jour dynamique
+// ════════════════════════════════════════
+function updateDashboardStats(){
+  const total      = leadsData.length;
+  const enrichis   = leadsData.filter(l => l.statut === 'Terminé').length;
+  const attente    = leadsData.filter(l => l.statut === 'En attente').length;
+  const opportunites = leadsData.filter(l => (l.score||0) >= 80).length;
+
+  // Score moyen global
+  const scoreMoyen = total
+    ? Math.round(leadsData.reduce((s,l) => s + (l.score||0), 0) / total)
+    : null;
+
+  // Score moyen des leads enrichis (Terminé)
+  const enrichisLeads = leadsData.filter(l => l.statut === 'Terminé');
+  const scoreEnrichis = enrichisLeads.length
+    ? Math.round(enrichisLeads.reduce((s,l) => s + (l.score||0), 0) / enrichisLeads.length)
+    : null;
+
+  // ── Dashboard ──
+  const elTotal = document.getElementById('stat-leads-total');
+  const elScore = document.getElementById('stat-score-moyen');
+  const elOpp   = document.getElementById('stat-opportunites');
+  const elEnr   = document.getElementById('stat-enrichis');
+  if(elTotal) elTotal.textContent = total;
+  if(elScore) elScore.textContent = scoreMoyen !== null ? scoreMoyen : '—';
+  if(elOpp)   elOpp.textContent   = opportunites;
+  if(elEnr)   elEnr.textContent   = enrichis;
+
+  // ── Page Leads ──
+  const elLTotal   = document.getElementById('leads-stat-total');
+  const elLEnr     = document.getElementById('leads-stat-enrichis');
+  const elLAttente = document.getElementById('leads-stat-attente');
+  const elLScore   = document.getElementById('leads-stat-score-enrichis');
+  const elLBase    = document.getElementById('leads-base-count');
+  if(elLTotal)   elLTotal.textContent   = total;
+  if(elLEnr)     elLEnr.textContent     = enrichis;
+  if(elLAttente) elLAttente.textContent = attente;
+  if(elLScore)   elLScore.textContent   = scoreEnrichis !== null ? scoreEnrichis : '—';
+  if(elLBase)    elLBase.textContent    = total + ' lead' + (total > 1 ? 's' : '');
+}
+
+// ════════════════════════════════════════
+// INIT — chargement depuis Supabase
+// ════════════════════════════════════════
+async function init(){
+  document.getElementById('topbar-search-area').style.display=isMobile()?'none':'flex';
+  document.getElementById('topbar-export-btn').style.display='flex';
+
+  // Afficher état chargement dans les stats
+  ['stat-leads-total','stat-score-moyen','stat-opportunites','stat-enrichis']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='…'; });
+
+  // Toujours charger depuis Supabase — remplace leadsData quoi qu'il arrive
+  const dbLeads = await fetchLeads();
+  if(dbLeads !== null){
+    // Remplace TOUJOURS leadsData par les données Supabase (même si tableau vide)
+    leadsData.length = 0;
+    leadsData.push(...dbLeads);
+    // Synchroniser filteredLeads
+    filteredLeads.length = 0;
+    filteredLeads.push(...dbLeads);
+  }
+
+  renderTable(leadsData);
+  renderTable(leadsData, 'leads-table-body', 'leads-count');
+  updateDashboardStats();
+
+  // Live preview update on input changes
+  ['ia-secteur','ia-ticket','ia-ton','ia-canal','ia-cta'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('change',updateProfilePreview);
+  });
+
+  // Load saved profile from localStorage
+  loadSavedProfile();
+
+  // Démarrer la subscription Realtime
+  initRealtimeLeads();
+}
+
+init();
+
+// ════════════════════════════════════════
+// SUPABASE REALTIME — leads updates
+// ════════════════════════════════════════
+function initRealtimeLeads(){
+  const _supabase = getSB();
+
+  _supabase
+    .channel('leads-realtime')
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'leads' },
+      (payload) => {
+        const updated = payload.new;
+
+        // Remplacer le lead entier dans leadsData via normalizeLeadFromDB
+        const idx = leadsData.findIndex(l =>
+          String(l.id) === String(updated.id) ||
+          String(l.supabase_id) === String(updated.id)
+        );
+
+        if(idx === -1){
+          console.log('[Realtime] Lead inconnu reçu:', updated.id);
+          return;
+        }
+
+        const oldLead = leadsData[idx];
+        leadsData[idx] = normalizeLeadFromDB(updated);
+        // Synchroniser filteredLeads
+        filteredLeads = [...leadsData];
+
+        // Logique enrichissement (polling + boutons UI)
+        if(updated.email){
+          const newLead = leadsData[idx];
+          enrichState[newLead.id] = 'done';
+          if(oldLead.supabase_id && pollingTimers[oldLead.supabase_id]){
+            clearInterval(pollingTimers[oldLead.supabase_id]);
+          }
+          if(selectedLead && String(selectedLead.id) === String(newLead.id)){
+            updatePanelEnrichBtn('done', updated.email);
+          }
+          updateRowEnrichBtn(newLead.id, 'done');
+        }
+
+        // Re-render tout
+        renderTable(leadsData);
+        renderTable(leadsData, 'leads-table-body', 'leads-count');
+        updateDashboardStats();
+
+        showToast('✓ ' + updated.nom + ' enrichi par Make');
+        console.log('[Realtime] Lead remplacé:', updated.nom, updated);
+      }
+    )
+    .subscribe((status) => {
+      console.log('[Realtime] Subscription status:', status);
+    });
+}
+
+// initRealtimeLeads() est appelé dans init() ci-dessus
+</script>
+</body>
+</html>

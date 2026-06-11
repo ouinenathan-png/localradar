@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LocalRadar — Trouvez vos clients locaux avant vos concurrents</title>
-<meta name="description" content="LocalRadar détecte et enrichit automatiquement les entreprises locales qui correspondent à votre ICP. Email, téléphone, LinkedIn — prêt à prospecter en 2 minutes.">
+<meta name="description" content="LocalRadar détecte et enrichit automatiquement les entreprises locales qui correspondent à votre ICP. Email, téléphone, données décisionnelles — prêt à prospecter en 2 minutes.">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════
@@ -14,6 +14,7 @@
 :root{
   --cobalt:#2563EB; --cobalt-dark:#1D4ED8; --cobalt-deep:#1E3A8A;
   --cobalt-light:#DBEAFE; --cobalt-pale:#EFF6FF;
+  --cobalt-brand:#4F6BFF;
   --orange:#F97316; --orange-light:#FFF7ED;
   --ink:#0F172A; --slate:#334155; --muted:#64748B;
   --border:#E2E8F0; --surface:#F8FAFC; --white:#FFFFFF;
@@ -168,11 +169,20 @@ img{max-width:100%}
 .hero-cta-note{font-size:12px;color:#94A3B8;font-family:var(--font-body)}
 /* Progress bar */
 .hero-progress{margin-top:20px;max-width:340px}
-.hero-progress-label{font-size:12px;color:var(--muted);margin-bottom:7px;font-family:var(--font-body)}
-.progress-track{height:8px;background:var(--border);border-radius:100px;overflow:hidden}
-.progress-fill{
-  height:100%;background:var(--cobalt);border-radius:100px;width:0%;
+.hero-progress-label{font-size:12px;color:var(--cobalt-brand);margin-bottom:7px;font-family:var(--font-body);font-weight:600}
+.progress-track{height:6px;background:#EEF0FF;border-radius:999px;overflow:hidden}
+.progress-fill,.progress-bar-fill{
+  height:100%;
+  background:linear-gradient(90deg,#4F6BFF,#6B84FF);
+  border-radius:999px;width:0%;
   transition:width 1s cubic-bezier(.4,0,.2,1);
+}
+.spots-taken{color:var(--cobalt-brand);font-weight:700}
+.badge-spots{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#EEF0FF;border:1.5px solid #C7D0FF;
+  color:var(--cobalt-brand);border-radius:100px;padding:5px 12px;
+  font-family:var(--font-body);font-size:12px;font-weight:600;
 }
 
 /* ── Radar animation colonne droite ── */
@@ -583,8 +593,8 @@ textarea.modal-input{resize:vertical;min-height:80px}
       </ul>
       <!-- Actions (desktop) -->
       <div class="nav-actions">
-        <button class="btn btn-ghost" onclick="openModal()">Connexion</button>
-        <button class="btn btn-primary" onclick="openModal()">Rejoindre la bêta</button>
+        <button class="btn btn-ghost btn-connexion">Connexion</button>
+        <button class="btn btn-primary btn-join">Rejoindre la bêta</button>
       </div>
       <!-- Hamburger (mobile) -->
       <button class="nav-burger" id="nav-burger" aria-label="Menu">
@@ -604,8 +614,8 @@ textarea.modal-input{resize:vertical;min-height:80px}
       <li><a href="#pour-qui" onclick="toggleDrawer()">Intégrations</a></li>
     </ul>
     <div class="nav-drawer-actions">
-      <button class="btn btn-ghost" onclick="toggleDrawer();openModal()">Connexion</button>
-      <button class="btn btn-primary" onclick="toggleDrawer();openModal()">Rejoindre la bêta</button>
+      <button class="btn btn-ghost btn-connexion" onclick="toggleDrawer()">Connexion</button>
+      <button class="btn btn-primary btn-join" onclick="toggleDrawer()">Rejoindre la bêta</button>
     </div>
   </div>
 </div>
@@ -620,27 +630,26 @@ textarea.modal-input{resize:vertical;min-height:80px}
       <div>
         <div class="hero-badge">
           <span class="hero-badge-dot"></span>
-          Bêta privée — <span id="hero-places">10</span> places disponibles
+          Bêta privée — <span class="badge-spots"><span class="spots-count">12</span> places disponibles</span>
         </div>
         <h1 class="hero-headline">
-          Trouvez vos clients<br>
-          locaux avant que<br>
-          vos concurrents<br>
-          ne le fassent.
+          Trouvez les entreprises locales<br>
+          <span style="color:var(--cobalt-brand)">qui ont besoin de vous.</span><br>
+          <span style="font-size:0.9em">Avant vos concurrents.</span>
         </h1>
         <p class="hero-sub">
-          LocalRadar détecte et enrichit automatiquement les entreprises locales qui correspondent à votre ICP. Email, téléphone, LinkedIn — prêt à prospecter en 2 minutes.
+          LocalRadar détecte et enrichit automatiquement les entreprises locales qui correspondent à votre ICP. Email, téléphone, données décisionnelles — prêt à prospecter en 2 minutes.
         </p>
         <div class="hero-cta-wrap">
-          <button class="btn btn-primary lg" onclick="openModal()">
-            Rejoindre la bêta — il reste <strong style="color:#F97316">7 places</strong>
+          <button class="btn btn-primary lg" onclick="openWaitlistModal()">
+            Rejoindre la bêta — il reste <strong style="color:#F97316"><span class="spots-count">12</span> places</strong>
           </button>
           <span class="hero-cta-note">Gratuit pendant la bêta · Aucune carte bancaire requise</span>
         </div>
         <div class="hero-progress">
-          <div class="hero-progress-label" id="progress-label">████████░░ 8/10 places prises</div>
+          <div class="hero-progress-label"><span class="spots-taken">0</span> places prises sur <span class="spots-total">12</span></div>
           <div class="progress-track">
-            <div class="progress-fill" id="hero-progress-fill"></div>
+            <div class="progress-bar-fill" id="hero-progress-fill"></div>
           </div>
         </div>
       </div>
@@ -759,7 +768,7 @@ textarea.modal-input{resize:vertical;min-height:80px}
                 <div class="mock-card-meta">Boulangerie · Le Havre · 326 avis ⭐ 4.8</div>
                 <div class="mock-badges">
                   <span class="mock-badge mb-cobalt">✉ Email</span>
-                  <span class="mock-badge mb-green">✓ LinkedIn</span>
+                  <span class="mock-badge mb-green">✓ Vérifié</span>
                   <span class="mock-badge mb-orange">📞 Tél</span>
                 </div>
                 <div class="mock-score-bar"><div class="mock-score-fill"></div></div>
@@ -835,7 +844,7 @@ textarea.modal-input{resize:vertical;min-height:80px}
           </svg>
         </div>
         <div class="pq-card-title">Freelances &amp; consultants</div>
-        <p class="pq-card-desc">Construisez votre pipeline sans LinkedIn Premium ni base de données coûteuse. LocalRadar fait la prospection pour vous.</p>
+        <p class="pq-card-desc">Construisez votre pipeline sans outils complexes ni base de données coûteuse. LocalRadar fait la prospection pour vous.</p>
       </div>
       <!-- Card 3 -->
       <div class="pq-card reveal" style="transition-delay:.2s">
@@ -861,12 +870,12 @@ textarea.modal-input{resize:vertical;min-height:80px}
     <h2 class="beta-title">10 agences. Accès gratuit.<br>Feedback bienvenu.</h2>
     <p class="beta-sub">On cherche 10 agences ou freelances prêts à tester LocalRadar en avant-première et à nous donner leur retour. En échange : accès gratuit à vie au plan Growth.</p>
     <div class="beta-progress">
-      <div class="beta-progress-label" id="beta-progress-label">████████░░ 8 places prises sur 10</div>
+      <div class="beta-progress-label" id="beta-progress-label"><span class="spots-taken">0</span> places prises sur <span class="spots-total">12</span></div>
       <div class="beta-progress-track">
-        <div class="beta-progress-fill" id="beta-progress-fill"></div>
+        <div class="progress-bar-fill" id="beta-progress-fill"></div>
       </div>
     </div>
-    <button class="btn btn-orange" onclick="openModal()" style="position:relative">
+    <button class="btn btn-orange btn-join" style="position:relative">
       Je veux ma place →
     </button>
     <div class="beta-cta-note">Réponse sous 24h · On sélectionne sur dossier</div>
@@ -913,39 +922,63 @@ textarea.modal-input{resize:vertical;min-height:80px}
 </footer>
 
 <!-- ══════════════════════════════════
-     MODAL BÊTA
+     MODAL WAITLIST
 ══════════════════════════════════ -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:560px">
     <!-- Form state -->
     <div id="modal-form-state">
       <div class="modal-header">
         <div>
-          <div class="modal-title">Rejoindre la bêta 🎯</div>
-          <div class="modal-sub">Il reste <strong id="modal-places">7</strong> places — on sélectionne sous 24h.</div>
+          <div class="modal-title">Rejoindre la liste d'attente 🎯</div>
+          <div class="modal-sub">Il reste <strong class="spots-count" style="color:#F97316">12</strong> places — on sélectionne sur dossier sous 24h.</div>
         </div>
-        <button class="modal-close" onclick="closeModal()">✕</button>
+        <button class="modal-close" onclick="closeWaitlistModal()">✕</button>
       </div>
-      <form class="modal-form" onsubmit="submitModal(event)">
+      <form class="modal-form" id="waitlist-form" onsubmit="submitWaitlist(event)">
         <div class="modal-grid">
           <div class="modal-field">
             <label>Prénom *</label>
-            <input class="modal-input" type="text" placeholder="Jean" required>
+            <input class="modal-input" id="wl-prenom" type="text" placeholder="Jean" required>
           </div>
           <div class="modal-field">
+            <label>Nom *</label>
+            <input class="modal-input" id="wl-nom" type="text" placeholder="Dupont" required>
+          </div>
+        </div>
+        <div class="modal-grid">
+          <div class="modal-field">
             <label>Email *</label>
-            <input class="modal-input" type="email" placeholder="jean@agence.fr" required>
+            <input class="modal-input" id="wl-email" type="email" placeholder="jean@agence.fr" required>
+          </div>
+          <div class="modal-field">
+            <label>Téléphone</label>
+            <input class="modal-input" id="wl-telephone" type="tel" placeholder="+33 6 12 34 56 78">
+          </div>
+        </div>
+        <div class="modal-grid">
+          <div class="modal-field">
+            <label>Nom de l'agence / entreprise *</label>
+            <input class="modal-input" id="wl-agence" type="text" placeholder="Digital Studio" required>
+          </div>
+          <div class="modal-field">
+            <label>Type d'agence</label>
+            <select class="modal-input" id="wl-type">
+              <option value="">Sélectionner...</option>
+              <option value="agence-web">Agence web</option>
+              <option value="agence-seo">Agence SEO</option>
+              <option value="freelance">Freelance</option>
+              <option value="growth">Growth / Marketing</option>
+              <option value="autre">Autre</option>
+            </select>
           </div>
         </div>
         <div class="modal-field">
-          <label>Nom de votre agence / entreprise *</label>
-          <input class="modal-input" type="text" placeholder="Digital Studio" required>
+          <label>Pourquoi LocalRadar ? <span style="color:#94A3B8;font-weight:400">(max 300 caractères)</span></label>
+          <textarea class="modal-input" id="wl-motivation" placeholder="Je cherche à automatiser ma prospection locale..." rows="3" maxlength="300" oninput="updateMotivationCount(this)"></textarea>
+          <div style="text-align:right;font-size:11px;color:#94A3B8;margin-top:4px;font-family:var(--font-body)"><span id="wl-char-count">0</span>/300</div>
         </div>
-        <div class="modal-field">
-          <label>Pourquoi LocalRadar ?</label>
-          <textarea class="modal-input" placeholder="Je cherche à automatiser ma prospection locale..." rows="3"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary lg" style="justify-content:center;margin-top:4px">
+        <button type="submit" class="btn btn-primary lg" id="wl-submit-btn" style="justify-content:center;margin-top:4px">
           Envoyer ma candidature →
         </button>
         <div style="text-align:center;font-size:11.5px;color:#94A3B8;font-family:var(--font-body)">
@@ -954,23 +987,32 @@ textarea.modal-input{resize:vertical;min-height:80px}
       </form>
     </div>
     <!-- Confirmation state -->
-    <div class="modal-confirm" id="modal-confirm">
+    <div class="modal-confirm" id="modal-confirm" style="display:none">
       <div class="modal-confirm-icon">🎯</div>
       <div class="modal-confirm-title">Super, c'est noté !</div>
       <p class="modal-confirm-sub">On revient vers vous sous 24h pour vous confirmer votre accès.<br><strong>Bienvenue dans la bêta LocalRadar.</strong></p>
-      <button class="btn btn-ghost" onclick="closeModal()" style="margin-top:20px">Fermer</button>
+      <button class="btn btn-ghost" onclick="closeWaitlistModal()" style="margin-top:20px">Fermer</button>
     </div>
   </div>
 </div>
+
+<!-- Toast -->
+<div id="lr-toast" style="
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#0F172A;color:#fff;padding:12px 20px;border-radius:10px;
+  font-family:'Inter',sans-serif;font-size:13.5px;font-weight:500;
+  opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:9999;
+  white-space:nowrap;
+"></div>
 
 <!-- ══════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════ -->
 <script>
-/* ─ Constantes ─ */
-const PLACES_TOTAL = 10;
-const PLACES_TAKEN = 8;
-const PLACES_LEFT  = PLACES_TOTAL - PLACES_TAKEN;
+/* ─ Supabase ─ */
+const SB_URL  = 'https://qhfoiiwxlvhtlieseggs.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoZm9paXd4bHZodGxpZXNlZ2dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDg5MTUsImV4cCI6MjA5NjU4NDkxNX0.OfmyoMnxrlXDDIpES8U7NECNtZUv4q4-jWeQXEX4GC8';
+const BETA_LIMIT = 12;
 
 /* ─ Données étapes ─ */
 const STEPS = [
@@ -982,7 +1024,7 @@ const STEPS = [
   {
     num: '02',
     title: 'Chaque lead enrichi automatiquement',
-    desc: 'Email décisionnel, numéro direct, profil LinkedIn, chiffre d\'affaires estimé. Tout est récupéré sans action de votre part.',
+    desc: 'Email décisionnel, numéro direct, données décisionnelles, chiffre d\'affaires estimé. Tout est récupéré sans action de votre part.',
   },
   {
     num: '03',
@@ -1000,7 +1042,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollytelling();
   initReveal();
   initProgressOnScroll();
-  updatePlaces();
+  checkBetaAvailability();
+
+  /* Wiring boutons */
+  document.querySelectorAll('.btn-connexion').forEach(btn => {
+    btn.addEventListener('click', () => { window.location.href = 'https://localradar-five.vercel.app'; });
+  });
+  document.querySelectorAll('.btn-join').forEach(btn => {
+    btn.addEventListener('click', openWaitlistModal);
+  });
 });
 
 /* ── 1. NAV active + hamburger ── */
@@ -1095,72 +1145,155 @@ function initReveal() {
 
 /* ── 4. Barre de progression animée au scroll ── */
 function initProgressOnScroll() {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting && !progressAnimated) {
-        progressAnimated = true;
-        setTimeout(() => {
-          const pct = (PLACES_TAKEN / PLACES_TOTAL * 100).toFixed(0);
-          const heroFill  = document.getElementById('hero-progress-fill');
-          const betaFill  = document.getElementById('beta-progress-fill');
-          if (heroFill) heroFill.style.width = pct + '%';
-          if (betaFill) betaFill.style.width = pct + '%';
-        }, 200);
-      }
-    });
-  }, { threshold: 0.3 });
-
+  // Sera appelé après checkBetaAvailability — simple observer pour déclencher l'animation
   const heroEl = document.getElementById('hero');
-  if (heroEl) obs.observe(heroEl);
-
-  // Beta section progress separate observer
+  if (heroEl) {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !progressAnimated) {
+          progressAnimated = true;
+          animateProgressBars();
+        }
+      });
+    }, { threshold: 0.3 });
+    obs.observe(heroEl);
+  }
   const betaEl = document.getElementById('beta-cta');
   if (betaEl) {
     const betaObs = new IntersectionObserver(entries => {
       entries.forEach(e => {
-        if (e.isIntersecting) {
-          const pct = (PLACES_TAKEN / PLACES_TOTAL * 100).toFixed(0);
-          const betaFill = document.getElementById('beta-progress-fill');
-          if (betaFill) setTimeout(() => betaFill.style.width = pct + '%', 200);
-        }
+        if (e.isIntersecting) animateProgressBars();
       });
     }, { threshold: 0.3 });
     betaObs.observe(betaEl);
   }
 }
 
-/* ── 5. Mise à jour du compteur de places ── */
-function updatePlaces() {
-  document.getElementById('hero-places').textContent = PLACES_LEFT;
-  document.getElementById('modal-places').textContent = PLACES_LEFT;
-  document.getElementById('progress-label').textContent = `${'█'.repeat(PLACES_TAKEN)}${'░'.repeat(PLACES_LEFT)} ${PLACES_TAKEN}/${PLACES_TOTAL} places prises`;
-  document.getElementById('beta-progress-label').textContent = `${'█'.repeat(PLACES_TAKEN)}${'░'.repeat(PLACES_LEFT)} ${PLACES_TAKEN} places prises sur ${PLACES_TOTAL}`;
+function animateProgressBars() {
+  const fills = document.querySelectorAll('.progress-bar-fill');
+  fills.forEach(fill => {
+    if (fill._pct != null) {
+      setTimeout(() => { fill.style.width = fill._pct + '%'; }, 200);
+    }
+  });
 }
 
-/* ── 6. Modal ── */
-function openModal() {
+/* ── 5. Compteur dynamique Supabase ── */
+async function checkBetaAvailability() {
+  try {
+    const res = await fetch(
+      `${SB_URL}/rest/v1/profiles?select=id`,
+      {
+        headers: {
+          'apikey': SB_ANON,
+          'Authorization': `Bearer ${SB_ANON}`,
+          'Prefer': 'count=exact',
+          'Range': '0-0',
+        },
+      }
+    );
+    const contentRange = res.headers.get('Content-Range') || '';
+    const match = contentRange.match(/\/(\d+)$/);
+    const taken = match ? parseInt(match[1]) : 0;
+    const left  = Math.max(0, BETA_LIMIT - taken);
+    const pct   = Math.min(100, Math.round(taken / BETA_LIMIT * 100));
+
+    // Mettre à jour tous les compteurs
+    document.querySelectorAll('.spots-count').forEach(el => { el.textContent = left; });
+    document.querySelectorAll('.spots-taken').forEach(el => { el.textContent = taken; });
+    document.querySelectorAll('.spots-total').forEach(el => { el.textContent = BETA_LIMIT; });
+
+    // Stocker le % sur chaque barre et lancer l'animation si déjà visible
+    document.querySelectorAll('.progress-bar-fill').forEach(fill => {
+      fill._pct = pct;
+    });
+    animateProgressBars();
+  } catch(err) {
+    console.warn('checkBetaAvailability error:', err);
+  }
+}
+
+/* ── 6. Modal Waitlist ── */
+function openWaitlistModal() {
   const overlay = document.getElementById('modal-overlay');
   document.getElementById('modal-form-state').style.display = 'block';
   document.getElementById('modal-confirm').style.display = 'none';
+  document.getElementById('waitlist-form').reset();
+  document.getElementById('wl-char-count').textContent = '0';
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-function closeModal() {
+function closeWaitlistModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   document.body.style.overflow = '';
 }
 function handleOverlayClick(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
+  if (e.target === document.getElementById('modal-overlay')) closeWaitlistModal();
 }
-function submitModal(e) {
+function updateMotivationCount(el) {
+  document.getElementById('wl-char-count').textContent = el.value.length;
+}
+
+async function submitWaitlist(e) {
   e.preventDefault();
-  document.getElementById('modal-form-state').style.display = 'none';
-  document.getElementById('modal-confirm').style.display = 'block';
+  const btn = document.getElementById('wl-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours...';
+
+  const payload = {
+    prenom:      document.getElementById('wl-prenom').value.trim() || null,
+    nom:         document.getElementById('wl-nom').value.trim() || null,
+    email:       document.getElementById('wl-email').value.trim() || null,
+    telephone:   document.getElementById('wl-telephone').value.trim() || null,
+    agence_nom:  document.getElementById('wl-agence').value.trim() || null,
+    type_agence: document.getElementById('wl-type').value || null,
+    motivation:  document.getElementById('wl-motivation').value.trim() || null,
+  };
+
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/waitlist`, {
+      method: 'POST',
+      headers: {
+        'apikey': SB_ANON,
+        'Authorization': `Bearer ${SB_ANON}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+
+    document.getElementById('modal-form-state').style.display = 'none';
+    document.getElementById('modal-confirm').style.display = 'block';
+    showToast('✓ Candidature envoyée !');
+    checkBetaAvailability();
+  } catch(err) {
+    showToast('❌ Erreur : ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Envoyer ma candidature →';
+  }
+}
+
+/* ── Toast ── */
+function showToast(msg, duration = 3500) {
+  const el = document.getElementById('lr-toast');
+  el.textContent = msg;
+  el.style.opacity = '1';
+  el.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(20px)';
+  }, duration);
 }
 
 /* ── ESC pour fermer la modal ── */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') closeWaitlistModal();
 });
 
 /* ── Smooth scroll nav links ── */

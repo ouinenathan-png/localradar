@@ -3417,10 +3417,12 @@ async function lancerRadar(){
   console.log('[LocalRadar] Payload Radar:', JSON.stringify(payload,null,2));
 
   try{
-    await fetch(window._radarWebhook||RADAR_WEBHOOK,{
+    const radarRes=await fetch(window._radarWebhook||RADAR_WEBHOOK,{
       method:'POST',
-      body:new URLSearchParams(payload)
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
     });
+    console.log('[LocalRadar] Radar response status:', radarRes.status);
     showToast(`🚀 Radar lancé — LocalRadar analyse ${a} à ${v} (${nb} leads)`);
     document.getElementById('result-query').textContent=`"${a} · ${v}"`;
     // Recharger les leads depuis Supabase après un délai (Make insère les résultats)
@@ -3453,7 +3455,8 @@ async function lancerRadarMobile(){
   try{
     await fetch(window._radarWebhook||RADAR_WEBHOOK,{
       method:'POST',
-      body:new URLSearchParams(payload)
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
     });
     showToast(`🚀 Radar lancé — ${a} · ${v} · ${nb} leads`);
     setTimeout(async()=>{

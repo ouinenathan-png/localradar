@@ -443,6 +443,8 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 .status-done .status-dot{background:var(--green-500)}
 .status-enrichi{background:var(--orange-100);color:var(--orange-600)}
 .status-enrichi .status-dot{background:var(--orange-500)}
+.status-incomplet{background:#FEF3C7;color:#92400E}
+.status-incomplet .status-dot{background:#D97706;animation:pulse-dot 1.4s infinite}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
 .btn-row{
   height:26px;padding:0 9px;background:transparent;border:1.5px solid var(--gray-200);
@@ -3056,9 +3058,10 @@ let selectedLead=null, filteredLeads=[];
 // ════════════════════════════════════════
 const scoreClass=s=>s>80?'score-high':s>=50?'score-mid':'score-low';
 const statusHTML=s=>{
-  if(s==='Terminé') return`<span class="status-badge status-done"><span class="status-dot"></span>Terminé</span>`;
-  if(s==='En cours') return`<span class="status-badge status-running"><span class="status-dot"></span>En cours…</span>`;
-  if(s==='Enrichi')  return`<span class="status-badge status-enrichi"><span class="status-dot"></span>Enrichi</span>`;
+  if(s==='Terminé')   return`<span class="status-badge status-done"><span class="status-dot"></span>Terminé</span>`;
+  if(s==='En cours')  return`<span class="status-badge status-running"><span class="status-dot"></span>En cours…</span>`;
+  if(s==='Enrichi')   return`<span class="status-badge status-enrichi"><span class="status-dot"></span>Enrichi</span>`;
+  if(s==='Incomplet') return`<span class="status-badge status-incomplet"><span class="status-dot"></span>Incomplet</span>`;
   return`<span class="status-badge status-pending"><span class="status-dot"></span>En attente</span>`;
 };
 const techBadges=tech=>{
@@ -4256,13 +4259,16 @@ function normalizeStatut(s, email) {
   if (email) return 'Terminé';
   const map = {
     nouveau:       'En attente',
-    contacté:      'Enrichi',
+    contacté:      'Incomplet',  // enrichi mais sans email
     en_discussion: 'En cours',
     client:        'Terminé',
     perdu:         'En attente',
     archivé:       'En attente',
   };
-  return map[s] || 'En attente';
+  // Si le statut DB indique que l'enrichissement a été fait mais pas d'email → Incomplet
+  const normalized = map[s] || 'En attente';
+  if (normalized === 'Enrichi') return 'Incomplet';
+  return normalized;
 }
 
 // Déduit les technologies depuis signaux + score_detail

@@ -4421,6 +4421,29 @@ async function enrichirLead(id, rowBtn){
 
   // Payload depuis _raw pour avoir user_id et site_url exacts
   const raw = lead._raw || {};
+
+  // Récupère le profil IA complet depuis Supabase
+  let iaProfile={};
+  let clientPlan='free';
+  let clientAgence='';
+  try{
+    const sb=getSB();
+    const {data:profile}=await sb
+      .from('profiles')
+      .select('ia_profile,plan,agence_nom')
+      .eq('id',currentUser.id)
+      .single();
+    if(profile){
+      iaProfile=typeof profile.ia_profile==='string'
+        ?JSON.parse(profile.ia_profile||'{}')
+        :(profile.ia_profile||{});
+      clientPlan=profile.plan||'free';
+      clientAgence=profile.agence_nom||'';
+    }
+  }catch(e){
+    console.warn('[LocalRadar] Could not fetch ia_profile for enrich payload:',e);
+  }
+
   const payload = {
     lead_id:  supabaseId,
     user_id:  raw.user_id || currentUser?.id,
@@ -4428,6 +4451,17 @@ async function enrichirLead(id, rowBtn){
     ville:    lead.ville,
     secteur:  lead.secteur,
     site_url: raw.site_url || lead.url || '',
+    // Profil IA du client
+    client_secteur:  iaProfile.secteur   || '',
+    client_services: JSON.stringify(iaProfile.services || []),
+    client_cibles:   JSON.stringify(iaProfile.cibles   || []),
+    client_valeur:   iaProfile.valeur    || '',
+    client_ticket:   iaProfile.ticket_moyen || iaProfile.ticket || '',
+    client_ton:      iaProfile.ton       || 'professionnel',
+    client_cta:      iaProfile.cta       || 'Appel de 20 min',
+    client_prenom:   iaProfile.signature || iaProfile.prenom || '',
+    client_agence:   clientAgence,
+    client_plan:     clientPlan,
   };
 
   try{

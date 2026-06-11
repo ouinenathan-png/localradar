@@ -746,6 +746,224 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
 .sidebar-overlay.open{opacity:1;pointer-events:auto}
 
 /* ═══════════════════════════════════════
+   ADMIN DASHBOARD
+═══════════════════════════════════════ */
+.nav-item-admin{display:none}
+.nav-item-admin.show{display:flex}
+.nav-admin-badge{
+  margin-left:auto;font-size:9px;font-weight:700;
+  background:#EF4444;color:#fff;padding:1px 6px;border-radius:8px;
+  letter-spacing:.02em;
+}
+#page-admin{background:#F8F9FF;min-height:calc(100vh - var(--topbar-h))}
+.admin-mode-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#FEE2E2;border:1.5px solid #FECACA;
+  color:#DC2626;font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:100px;margin-left:10px;
+  letter-spacing:.04em;text-transform:uppercase;flex-shrink:0;
+}
+.admin-tabs{
+  display:flex;gap:0;border-bottom:2px solid var(--gray-200);
+  background:#fff;padding:0 24px;position:sticky;top:0;z-index:10;
+}
+.admin-tab{
+  padding:14px 18px;font-size:13px;font-weight:500;color:var(--gray-400);
+  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:color .15s,border-color .15s;white-space:nowrap;
+}
+.admin-tab:hover{color:var(--gray-700)}
+.admin-tab.active{color:var(--cobalt-600);border-bottom-color:var(--cobalt-500);font-weight:600}
+.admin-tab-pane{display:none;padding:24px}
+.admin-tab-pane.active{display:block}
+/* Stat cards */
+.admin-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.admin-stat-card{
+  background:#fff;border:1px solid var(--gray-200);border-radius:12px;
+  padding:20px;display:flex;flex-direction:column;gap:6px;
+}
+.admin-stat-label{font-size:12px;color:var(--gray-400);font-weight:500}
+.admin-stat-value{font-size:28px;font-weight:800;color:var(--gray-900);line-height:1}
+.admin-stat-delta{font-size:11.5px;color:#16A34A;font-weight:500}
+.admin-stat-delta.neg{color:#DC2626}
+/* Tables */
+.admin-table-wrap{background:#fff;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden}
+.admin-table-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--gray-100);gap:12px;flex-wrap:wrap;
+}
+.admin-table-title{font-size:14px;font-weight:700;color:var(--gray-900)}
+.admin-count-badge{
+  background:var(--cobalt-50);color:var(--cobalt-600);
+  font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;
+}
+.admin-search-row{display:flex;align-items:center;gap:8px;flex:1;max-width:420px}
+.admin-search-input{
+  flex:1;height:32px;border:1px solid var(--gray-200);border-radius:8px;
+  padding:0 10px;font-size:12.5px;font-family:var(--font-sans);outline:none;
+  background:var(--gray-50);
+}
+.admin-search-input:focus{border-color:var(--cobalt-400);background:#fff}
+.admin-filter-select{
+  height:32px;border:1px solid var(--gray-200);border-radius:8px;
+  padding:0 8px;font-size:12px;font-family:var(--font-sans);
+  background:var(--gray-50);cursor:pointer;outline:none;
+}
+table.admin-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.admin-tbl th{
+  text-align:left;padding:9px 12px;font-size:11px;font-weight:600;
+  color:var(--gray-400);border-bottom:1px solid var(--gray-100);
+  background:var(--gray-50);white-space:nowrap;
+}
+table.admin-tbl td{
+  padding:10px 12px;border-bottom:1px solid var(--gray-100);
+  color:var(--gray-700);vertical-align:middle;
+}
+table.admin-tbl tr:last-child td{border-bottom:none}
+table.admin-tbl tr:hover td{background:#FAFBFF}
+.admin-avatar{
+  width:30px;height:30px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+.av-free{background:#F1F5F9;color:#64748B}
+.av-starter{background:#DBEAFE;color:#1D4ED8}
+.av-growth{background:#EDE9FE;color:#6D28D9}
+.av-scale{background:#FEF3C7;color:#B45309}
+.av-admin{background:#FEE2E2;color:#DC2626}
+.plan-badge-tbl{
+  display:inline-block;padding:2px 8px;border-radius:100px;
+  font-size:10.5px;font-weight:600;white-space:nowrap;
+}
+.pb-free{background:#F1F5F9;color:#64748B}
+.pb-starter{background:#DBEAFE;color:#1D4ED8}
+.pb-growth{background:#EDE9FE;color:#6D28D9}
+.pb-scale{background:#FEF3C7;color:#B45309}
+.pb-admin{background:#FEE2E2;color:#DC2626}
+.role-badge{
+  display:inline-block;padding:2px 8px;border-radius:100px;
+  font-size:10.5px;font-weight:600;
+}
+.rb-client{background:#F1F5F9;color:#64748B}
+.rb-admin{background:#FEE2E2;color:#DC2626}
+.btn-manage{
+  height:26px;padding:0 10px;border-radius:6px;font-size:11.5px;font-weight:600;
+  background:var(--cobalt-50);color:var(--cobalt-600);border:1.5px solid var(--cobalt-100);
+  cursor:pointer;white-space:nowrap;transition:background .12s;
+}
+.btn-manage:hover{background:var(--cobalt-100)}
+/* Period selector */
+.admin-period-row{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.period-btn{
+  height:30px;padding:0 12px;border-radius:8px;font-size:12px;font-weight:500;
+  border:1px solid var(--gray-200);background:#fff;cursor:pointer;color:var(--gray-500);
+  transition:all .12s;
+}
+.period-btn.active{background:var(--cobalt-500);color:#fff;border-color:var(--cobalt-500)}
+/* Tokens chart */
+.admin-chart-wrap{
+  background:#fff;border:1px solid var(--gray-200);border-radius:12px;
+  padding:20px;margin-bottom:20px;
+}
+.admin-chart-title{font-size:13px;font-weight:600;color:var(--gray-900);margin-bottom:14px}
+.admin-bars{display:flex;align-items:flex-end;gap:3px;height:80px;overflow:hidden}
+.admin-bar-day{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;
+  cursor:default;
+}
+.admin-bar-seg{border-radius:2px 2px 0 0;min-height:2px;transition:height .3s}
+.bar-audit{background:var(--cobalt-400)}
+.bar-email{background:#22C55E}
+/* Manage modal */
+.manage-modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:200;align-items:center;justify-content:center;padding:16px;
+}
+.manage-modal-overlay.open{display:flex}
+.manage-modal-box{
+  background:#fff;border-radius:16px;width:100%;max-width:620px;
+  max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+.manage-modal-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  padding:20px 24px 16px;border-bottom:1px solid var(--gray-100);
+  position:sticky;top:0;background:#fff;z-index:1;
+}
+.manage-modal-title{font-size:16px;font-weight:700;color:var(--gray-900)}
+.manage-modal-sub{font-size:12px;color:var(--gray-400);margin-top:2px}
+.manage-modal-close{
+  background:none;border:none;cursor:pointer;padding:4px;
+  color:var(--gray-400);font-size:18px;line-height:1;
+}
+.manage-section{padding:20px 24px;border-bottom:1px solid var(--gray-100)}
+.manage-section:last-child{border-bottom:none}
+.manage-section-title{
+  font-size:11px;font-weight:700;color:var(--gray-400);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;
+}
+.manage-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.manage-info-row{display:flex;flex-direction:column;gap:2px}
+.manage-info-label{font-size:11px;color:var(--gray-400)}
+.manage-info-value{font-size:13px;color:var(--gray-800);font-weight:500}
+.manage-field{margin-bottom:12px}
+.manage-label{font-size:12px;font-weight:500;color:var(--gray-600);margin-bottom:4px}
+.manage-select,.manage-input-num{
+  width:100%;height:36px;border:1px solid var(--gray-200);border-radius:8px;
+  padding:0 10px;font-size:13px;font-family:var(--font-sans);outline:none;
+  background:#fff;
+}
+.manage-select:focus,.manage-input-num:focus{border-color:var(--cobalt-400)}
+.manage-credits-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.manage-btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.manage-btn{
+  height:32px;padding:0 14px;border-radius:8px;font-size:12.5px;font-weight:600;
+  cursor:pointer;border:none;transition:all .12s;white-space:nowrap;
+}
+.mbn-primary{background:var(--cobalt-500);color:#fff}
+.mbn-primary:hover{background:var(--cobalt-600)}
+.mbn-ghost{background:var(--gray-100);color:var(--gray-700);border:1px solid var(--gray-200)}
+.mbn-ghost:hover{background:var(--gray-200)}
+.mbn-warn{background:#FEF3C7;color:#B45309;border:1px solid #FDE68A}
+.mbn-warn:hover{background:#FDE68A}
+.mbn-danger{background:#FEE2E2;color:#DC2626;border:1px solid #FECACA}
+.mbn-danger:hover{background:#FECACA}
+.mbn-red{background:#DC2626;color:#fff}
+.mbn-red:hover{background:#B91C1C}
+/* Confirm modal */
+.confirm-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:300;align-items:center;justify-content:center;padding:16px;
+}
+.confirm-overlay.open{display:flex}
+.confirm-box{
+  background:#fff;border-radius:14px;padding:28px;max-width:420px;width:100%;
+  text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+.confirm-icon{font-size:32px;margin-bottom:10px}
+.confirm-title{font-size:16px;font-weight:700;color:var(--gray-900);margin-bottom:6px}
+.confirm-sub{font-size:13px;color:var(--gray-500);margin-bottom:20px;line-height:1.55}
+.confirm-input{
+  width:100%;height:36px;border:1.5px solid var(--gray-300);border-radius:8px;
+  padding:0 10px;font-size:13px;font-family:var(--font-sans);outline:none;
+  margin-bottom:14px;text-align:center;
+}
+.confirm-input:focus{border-color:var(--cobalt-400)}
+.confirm-btn-row{display:flex;gap:8px}
+.confirm-btn-row button{flex:1;height:38px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none}
+.cbr-cancel{background:var(--gray-100);color:var(--gray-700)}
+.cbr-confirm{background:#DC2626;color:#fff}
+/* Motivation expand */
+.motiv-cell{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--cobalt-500)}
+/* Event type badges */
+.et-audit{background:#DBEAFE;color:#1D4ED8;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:600}
+.et-email{background:#D1FAE5;color:#065F46;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:600}
+.et-radar{background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:600}
+.log-status-ok{color:#16A34A;font-weight:600}
+.log-status-err{color:#DC2626;font-weight:600}
+.dir-in{background:#D1FAE5;color:#065F46;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:600}
+.dir-out{background:#DBEAFE;color:#1D4ED8;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:600}
+
+/* ═══════════════════════════════════════
    RESPONSIVE — TABLET
 ═══════════════════════════════════════ */
 @media(max-width:1024px){
@@ -1521,6 +1739,11 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
       </div>
       <div class="nav-sep"></div>
       <div class="nav-label">Compte</div>
+      <div class="nav-item nav-item-admin" id="nav-admin-item" data-page="admin" onclick="navigate('admin',this)">
+        <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span class="ni-label">Dashboard Admin</span>
+        <span class="nav-admin-badge">Admin</span>
+      </div>
       <div class="nav-item" data-page="parametres" onclick="navigate('parametres',this)">
         <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span class="ni-label">Paramètres</span>
@@ -2290,8 +2513,279 @@ html,body{height:100%;overflow:hidden;background:var(--gray-50);font-family:var(
       </div>
     </div>
 
+    <!-- ══════════════════════════════════
+         PAGE : ADMIN
+    ══════════════════════════════════ -->
+    <div class="page" id="page-admin">
+      <!-- Onglets nav -->
+      <div class="admin-tabs">
+        <div class="admin-tab active" data-atab="overview" onclick="switchAdminTab('overview',this)">Vue d'ensemble</div>
+        <div class="admin-tab" data-atab="users" onclick="switchAdminTab('users',this)">Utilisateurs</div>
+        <div class="admin-tab" data-atab="tokens" onclick="switchAdminTab('tokens',this)">Tokens &amp; Coûts</div>
+        <div class="admin-tab" data-atab="logs" onclick="switchAdminTab('logs',this)">Logs</div>
+      </div>
+
+      <!-- ── Onglet Vue d'ensemble ── -->
+      <div class="admin-tab-pane active" id="atab-overview">
+        <div class="admin-stat-grid" id="admin-stat-grid">
+          <!-- Rempli dynamiquement -->
+          <div class="admin-stat-card"><div class="admin-stat-label">Chargement…</div></div>
+        </div>
+      </div>
+
+      <!-- ── Onglet Utilisateurs ── -->
+      <div class="admin-tab-pane" id="atab-users">
+        <!-- Tableau utilisateurs -->
+        <div class="admin-table-wrap" style="margin-bottom:28px">
+          <div class="admin-table-header">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="admin-table-title">Utilisateurs</div>
+              <span class="admin-count-badge" id="admin-users-count">—</span>
+            </div>
+            <div class="admin-search-row">
+              <input class="admin-search-input" id="admin-user-search" placeholder="Rechercher email, nom, agence…" oninput="filterAdminUsers()">
+              <select class="admin-filter-select" id="admin-user-plan-filter" onchange="filterAdminUsers()">
+                <option value="">Tous les plans</option>
+                <option value="free">Free</option>
+                <option value="starter">Starter</option>
+                <option value="growth">Growth</option>
+                <option value="scale">Scale</option>
+              </select>
+              <select class="admin-filter-select" id="admin-user-role-filter" onchange="filterAdminUsers()">
+                <option value="">Tous les rôles</option>
+                <option value="admin">Admin</option>
+                <option value="client">Client</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="admin-tbl">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Email</th>
+                  <th>Identité / Agence</th>
+                  <th>Plan</th>
+                  <th>Rôle</th>
+                  <th>Leads</th>
+                  <th>Crédits</th>
+                  <th>Inscription</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody">
+                <tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:28px">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Liste d'attente -->
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="admin-table-title">Liste d'attente</div>
+              <span class="admin-count-badge" id="admin-waitlist-count">—</span>
+            </div>
+            <button class="btn-manage" onclick="exportWaitlistCSV()">⬇ Exporter CSV</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="admin-tbl">
+              <thead>
+                <tr>
+                  <th>Prénom / Nom</th>
+                  <th>Email</th>
+                  <th>Téléphone</th>
+                  <th>Agence / Type</th>
+                  <th>Motivation</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-waitlist-tbody">
+                <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:28px">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Onglet Tokens & Coûts ── -->
+      <div class="admin-tab-pane" id="atab-tokens">
+        <div class="admin-period-row">
+          <span style="font-size:12px;font-weight:600;color:var(--gray-500)">Période :</span>
+          <button class="period-btn" data-days="1" onclick="setTokenPeriod(1,this)">Aujourd'hui</button>
+          <button class="period-btn active" data-days="7" onclick="setTokenPeriod(7,this)">7 jours</button>
+          <button class="period-btn" data-days="30" onclick="setTokenPeriod(30,this)">30 jours</button>
+          <button class="period-btn" data-days="0" onclick="setTokenPeriod(0,this)">Tout</button>
+        </div>
+        <div class="admin-stat-grid" id="tokens-stat-grid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="admin-stat-card"><div class="admin-stat-label">Chargement…</div></div>
+        </div>
+        <div class="admin-chart-wrap">
+          <div class="admin-chart-title">Tokens consommés — 30 derniers jours</div>
+          <div class="admin-bars" id="tokens-chart-bars"></div>
+          <div style="display:flex;gap:16px;margin-top:10px;font-size:11px">
+            <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:var(--cobalt-400)"></div>Audit</div>
+            <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:#22C55E"></div>Email</div>
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div class="admin-table-title">Détail des usages</div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="admin-tbl">
+              <thead>
+                <tr>
+                  <th>Date/heure</th>
+                  <th>Utilisateur</th>
+                  <th>Type</th>
+                  <th>Modèle</th>
+                  <th>Tokens in</th>
+                  <th>Tokens out</th>
+                  <th>Total</th>
+                  <th>Coût ($)</th>
+                </tr>
+              </thead>
+              <tbody id="tokens-detail-tbody">
+                <tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:28px">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Onglet Logs ── -->
+      <div class="admin-tab-pane" id="atab-logs">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <select class="admin-filter-select" id="log-filter-status" onchange="filterLogs()">
+            <option value="">Tous statuts</option>
+            <option value="success">Succès</option>
+            <option value="error">Erreur</option>
+          </select>
+          <select class="admin-filter-select" id="log-filter-dir" onchange="filterLogs()">
+            <option value="">Toutes directions</option>
+            <option value="inbound">Inbound</option>
+            <option value="outbound">Outbound</option>
+          </select>
+          <select class="admin-filter-select" id="log-filter-type" onchange="filterLogs()">
+            <option value="">Tous types</option>
+          </select>
+          <button class="btn-manage" onclick="loadAdminLogs()">↻ Rafraîchir</button>
+          <span class="admin-count-badge" id="admin-logs-count">—</span>
+        </div>
+        <div class="admin-table-wrap">
+          <div style="overflow-x:auto">
+            <table class="admin-tbl">
+              <thead>
+                <tr>
+                  <th>Date/heure</th>
+                  <th>Utilisateur</th>
+                  <th>Direction</th>
+                  <th>Type</th>
+                  <th>Statut</th>
+                  <th>Payload</th>
+                </tr>
+              </thead>
+              <tbody id="admin-logs-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:28px">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-admin -->
+
   </div><!-- end main-content -->
 </div><!-- end app -->
+
+<!-- ══════════════════════════════════
+     MODAL GÉRER UTILISATEUR
+══════════════════════════════════ -->
+<div class="manage-modal-overlay" id="manage-modal-overlay" onclick="if(event.target===this)closeManageModal()">
+  <div class="manage-modal-box">
+    <div class="manage-modal-header">
+      <div>
+        <div class="manage-modal-title" id="manage-modal-title">Gérer le compte</div>
+        <div class="manage-modal-sub" id="manage-modal-sub">—</div>
+      </div>
+      <button class="manage-modal-close" onclick="closeManageModal()">✕</button>
+    </div>
+    <!-- Section 1 : Infos -->
+    <div class="manage-section">
+      <div class="manage-section-title">Informations du compte</div>
+      <div class="manage-info-grid" id="manage-info-grid"></div>
+    </div>
+    <!-- Section 2 : Plan & crédits -->
+    <div class="manage-section">
+      <div class="manage-section-title">Plan &amp; Crédits</div>
+      <div class="manage-field">
+        <div class="manage-label">Plan actuel</div>
+        <select class="manage-select" id="manage-plan-select" onchange="onManagePlanChange()">
+          <option value="free">Free</option>
+          <option value="starter">Starter</option>
+          <option value="growth">Growth</option>
+          <option value="scale">Scale</option>
+        </select>
+      </div>
+      <div class="manage-credits-row">
+        <div class="manage-field" style="margin-bottom:0">
+          <div class="manage-label">Crédits radar</div>
+          <input class="manage-input-num" type="number" id="manage-credits-radar" min="0">
+        </div>
+        <div class="manage-field" style="margin-bottom:0">
+          <div class="manage-label">Crédits enrichissement</div>
+          <input class="manage-input-num" type="number" id="manage-credits-enrich" min="0">
+        </div>
+      </div>
+      <div class="manage-btn-row" style="margin-top:12px">
+        <button class="manage-btn mbn-primary" onclick="applyManagePlan()">Appliquer le plan</button>
+        <button class="manage-btn mbn-ghost" onclick="reloadManageCredits()">Recharger crédits</button>
+        <button class="manage-btn mbn-ghost" onclick="applyCustomCredits()">Crédits personnalisés</button>
+      </div>
+    </div>
+    <!-- Section 3 : Actions -->
+    <div class="manage-section">
+      <div class="manage-section-title">Actions sur le compte</div>
+      <div class="manage-btn-row">
+        <button class="manage-btn mbn-warn" id="manage-role-btn" onclick="toggleManageRole()">Passer admin</button>
+        <button class="manage-btn mbn-ghost" onclick="resetManageOnboarding()">Réinitialiser onboarding</button>
+        <button class="manage-btn mbn-ghost" onclick="viewManageLeads()">Voir les leads →</button>
+        <button class="manage-btn mbn-ghost" onclick="emailManageUser()">Envoyer un email</button>
+      </div>
+      <div class="manage-btn-row" style="margin-top:10px">
+        <button class="manage-btn mbn-danger" onclick="suspendManageUser()">Suspendre le compte</button>
+        <button class="manage-btn mbn-red" onclick="deleteManageUser()">Supprimer définitivement</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation modal -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title">Confirmation</div>
+    <div class="confirm-sub" id="confirm-sub">Êtes-vous sûr ?</div>
+    <input class="confirm-input" id="confirm-input" type="text" placeholder="" style="display:none">
+    <div class="confirm-btn-row">
+      <button class="cbr-cancel" onclick="closeConfirm()">Annuler</button>
+      <button class="cbr-confirm" id="confirm-ok-btn" onclick="execConfirm()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log payload modal -->
+<div class="manage-modal-overlay" id="payload-modal-overlay" onclick="if(event.target===this)closePayloadModal()">
+  <div class="manage-modal-box" style="max-width:540px">
+    <div class="manage-modal-header">
+      <div class="manage-modal-title">Payload</div>
+      <button class="manage-modal-close" onclick="closePayloadModal()">✕</button>
+    </div>
+    <pre id="payload-pre" style="padding:20px;font-size:12px;overflow:auto;max-height:60vh;white-space:pre-wrap;word-break:break-all;background:#F8FAFC;border-radius:0 0 16px 16px"></pre>
+  </div>
+</div>
 
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav" id="bottom-nav">
@@ -2689,11 +3183,18 @@ const PAGE_META={
   leads:{title:'Base de leads',sub:'Tous vos prospects enrichis par IA',showSearch:false,showExport:true},
   rapports:{title:'Rapports IA',sub:'Analyses détaillées de vos opportunités',showSearch:false,showExport:true},
   campagnes:{title:'Campagnes',sub:'Gérez vos séquences de prospection',showSearch:false,showExport:false},
-  parametres:{title:'Paramètres',sub:'Compte, API et préférences',showSearch:false,showExport:false}
+  parametres:{title:'Paramètres',sub:'Compte, API et préférences',showSearch:false,showExport:false},
+  admin:{title:'Dashboard Admin',sub:'Gestion des utilisateurs, tokens et logs',showSearch:false,showExport:false},
 };
 const isMobile=()=>window.innerWidth<=768;
 
 function navigate(page,el,fromBottomNav=false){
+  // Guard admin
+  if(page==='admin'&&!window._planIsAdmin){
+    navigate('dashboard',document.querySelector('[data-page=dashboard]'));
+    showToast('❌ Accès réservé aux administrateurs');
+    return;
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.bn-item').forEach(n=>n.classList.remove('active'));
@@ -2710,6 +3211,7 @@ function navigate(page,el,fromBottomNav=false){
   if(page==='rapports') renderReports();
   if(page==='leads') renderTable(leadsData,'leads-table-body','leads-count');
   if(page==='campagnes') renderCampaigns();
+  if(page==='admin') loadAdminDashboard();
   closeCampModal();
   closeMobileSidebar();
 }
@@ -3618,8 +4120,9 @@ function checkPlanPermissions(profile){
   const creditsEnrich=profile.credits_enrichissement??PLANS[plan]?.credits_enrichissement??0;
   const canEnrich=isAdmin||(plan==='growth'||plan==='scale');
 
-  // Admin banner
+  // Admin banner + nav link
   document.getElementById('admin-banner').classList.toggle('show',isAdmin);
+  document.getElementById('nav-admin-item').classList.toggle('show',isAdmin);
 
   // Badge plan sidebar
   const badge=document.getElementById('sidebar-plan-badge');
@@ -4393,6 +4896,511 @@ function initRealtimeProfile(){
     })
     .subscribe();
 }
+
+// initRealtimeLeads() / initRealtimeProfile() appelés dans init()
+
+// ════════════════════════════════════════
+// ADMIN DASHBOARD
+// ════════════════════════════════════════
+let _adminUsers=[];
+let _adminWaitlist=[];
+let _adminLogs=[];
+let _adminTokenLogs=[];
+let _managingUser=null;
+let _confirmCallback=null;
+let _confirmRequireInput=null;
+let _tokenPeriodDays=7;
+
+const PLAN_CREDITS={
+  free:    {radar:50,    enrichissement:0},
+  starter: {radar:2000,  enrichissement:0},
+  growth:  {radar:5000,  enrichissement:500},
+  scale:   {radar:15000, enrichissement:2000},
+};
+
+function switchAdminTab(tab,el){
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('atab-'+tab).classList.add('active');
+  if(tab==='users') loadAdminUsers();
+  if(tab==='tokens') loadAdminTokens();
+  if(tab==='logs') loadAdminLogs();
+}
+
+async function loadAdminDashboard(){
+  await loadAdminOverview();
+  await loadAdminUsers();
+}
+
+/* ── Vue d'ensemble ── */
+async function loadAdminOverview(){
+  const sb=getSB();
+  const [
+    {count:totalUsers},
+    {count:totalLeads},
+    {count:totalEnrichis},
+    {count:waitlistCount},
+  ] = await Promise.all([
+    sb.from('profiles').select('*',{count:'exact',head:true}),
+    sb.from('leads').select('*',{count:'exact',head:true}),
+    sb.from('leads').select('*',{count:'exact',head:true}).eq('statut','client'),
+    sb.from('waitlist').select('*',{count:'exact',head:true}),
+  ]);
+
+  // Active today: profiles updated in last 24h (rough proxy via last_sign_in in auth — use onboarding_complete as proxy)
+  const since=new Date(Date.now()-86400000).toISOString();
+  const {count:activeToday}=await sb.from('profiles').select('*',{count:'exact',head:true}).gte('updated_at',since);
+
+  const enrichPct=totalLeads>0?((totalEnrichis/totalLeads)*100).toFixed(1):0;
+
+  const cards=[
+    {label:'Total utilisateurs',value:totalUsers??'—',delta:''},
+    {label:'Actifs aujourd\'hui',value:activeToday??'—',delta:''},
+    {label:'Leads scrappés',value:totalLeads??'—',delta:''},
+    {label:'Leads enrichis',value:totalEnrichis??'—',delta:''},
+    {label:'Liste d\'attente',value:waitlistCount??'—',delta:''},
+    {label:'Taux d\'enrichissement',value:(enrichPct+'%'),delta:'enrichis / total'},
+  ];
+  const grid=document.getElementById('admin-stat-grid');
+  grid.innerHTML=cards.map(c=>`
+    <div class="admin-stat-card">
+      <div class="admin-stat-label">${c.label}</div>
+      <div class="admin-stat-value">${c.value}</div>
+      ${c.delta?`<div class="admin-stat-delta">${c.delta}</div>`:''}
+    </div>
+  `).join('');
+}
+
+/* ── Utilisateurs ── */
+async function loadAdminUsers(){
+  const sb=getSB();
+  const {data}=await sb.from('profiles')
+    .select('id,email,prenom,nom,agence_nom,plan,role,credits_radar,credits_enrichissement,created_at,onboarding_complete,ia_profile')
+    .order('created_at',{ascending:false});
+  _adminUsers=data||[];
+  document.getElementById('admin-users-count').textContent=_adminUsers.length+' utilisateurs';
+  renderAdminUsers(_adminUsers);
+  await loadAdminWaitlist();
+}
+
+function filterAdminUsers(){
+  const q=document.getElementById('admin-user-search').value.toLowerCase();
+  const plan=document.getElementById('admin-user-plan-filter').value;
+  const role=document.getElementById('admin-user-role-filter').value;
+  const filtered=_adminUsers.filter(u=>{
+    const txt=((u.email||'')+(u.prenom||'')+(u.nom||'')+(u.agence_nom||'')).toLowerCase();
+    return (!q||txt.includes(q))&&(!plan||u.plan===plan)&&(!role||u.role===role);
+  });
+  renderAdminUsers(filtered);
+}
+
+function renderAdminUsers(users){
+  const tbody=document.getElementById('admin-users-tbody');
+  if(!users.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:28px">Aucun utilisateur trouvé</td></tr>';return;}
+  tbody.innerHTML=users.map(u=>{
+    const plan=u.plan||'free';
+    const role=u.role||'client';
+    const initials=((u.prenom||'?')[0]+(u.nom||'?')[0]).toUpperCase();
+    const avClass=role==='admin'?'av-admin':`av-${plan}`;
+    const planClass=role==='admin'?'pb-admin':`pb-${plan}`;
+    const planLabel=role==='admin'?'Admin':plan;
+    const hasIA=!!(u.ia_profile&&Object.keys(typeof u.ia_profile==='string'?JSON.parse(u.ia_profile):u.ia_profile).length);
+    const date=u.created_at?new Date(u.created_at).toLocaleDateString('fr-FR'):'—';
+    return `<tr>
+      <td><div class="admin-avatar ${avClass}">${initials}</div></td>
+      <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.email||'—'}</td>
+      <td>
+        <div style="font-weight:600;font-size:12px">${u.prenom||''} ${u.nom||''}</div>
+        <div style="font-size:11px;color:var(--gray-400)">${u.agence_nom||'—'}</div>
+      </td>
+      <td><span class="plan-badge-tbl ${planClass}">${planLabel}</span></td>
+      <td><span class="role-badge ${role==='admin'?'rb-admin':'rb-client'}">${role}</span></td>
+      <td style="font-size:12px">—</td>
+      <td style="font-size:11px;color:var(--gray-500)">${u.credits_radar??'—'} · ${u.credits_enrichissement??'—'}</td>
+      <td style="font-size:11px;color:var(--gray-400)">${date}</td>
+      <td><button class="btn-manage" onclick="openManageModal('${u.id}')">Gérer →</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Waitlist ── */
+async function loadAdminWaitlist(){
+  const sb=getSB();
+  const {data}=await sb.from('waitlist').select('*').order('created_at',{ascending:false});
+  _adminWaitlist=data||[];
+  document.getElementById('admin-waitlist-count').textContent=_adminWaitlist.length+' candidatures';
+  renderAdminWaitlist(_adminWaitlist);
+}
+
+function renderAdminWaitlist(list){
+  const tbody=document.getElementById('admin-waitlist-tbody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:28px">Aucune candidature</td></tr>';return;}
+  tbody.innerHTML=list.map(w=>{
+    const date=w.created_at?new Date(w.created_at).toLocaleDateString('fr-FR'):'—';
+    const motiv=(w.motivation||'').substring(0,80)+(w.motivation?.length>80?'…':'');
+    return `<tr>
+      <td style="font-weight:600;font-size:12px">${w.prenom||''} ${w.nom||''}</td>
+      <td style="font-size:12px">${w.email||'—'}</td>
+      <td style="font-size:12px">${w.telephone||'—'}</td>
+      <td>
+        <div style="font-size:12px">${w.agence_nom||'—'}</div>
+        <div style="font-size:11px;color:var(--gray-400)">${w.type_agence||'—'}</div>
+      </td>
+      <td class="motiv-cell" onclick="expandMotiv(this,'${(w.motivation||'').replace(/'/g,"\\'")}')">${motiv||'—'}</td>
+      <td style="font-size:11px;color:var(--gray-400)">${date}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn-manage" onclick="inviteWaitlist('${w.email}','${w.prenom||''}')">Inviter</button>
+          <button class="btn-manage" style="background:#FEE2E2;color:#DC2626;border-color:#FECACA" onclick="deleteWaitlistEntry('${w.id}')">Supprimer</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function expandMotiv(cell,full){cell.textContent=full;cell.style.whiteSpace='normal';cell.style.maxWidth='none';}
+
+function inviteWaitlist(email,prenom){
+  window.open(`mailto:${email}?subject=Votre%20acc%C3%A8s%20LocalRadar%20est%20pr%C3%AAt%20%F0%9F%8E%AF&body=Bonjour%20${encodeURIComponent(prenom)}%2C%0A%0AVotre%20candidature%20a%20%C3%A9t%C3%A9%20accept%C3%A9e%20!%20Voici%20votre%20lien%20d%27acc%C3%A8s%20%3A%0Ahttps%3A%2F%2Flocalradar-five.vercel.app%0A%0ABienvenue%20dans%20la%20b%C3%AAta%20LocalRadar.%0A%0AL%27%C3%A9quipe%20LocalRadar`);
+}
+
+async function deleteWaitlistEntry(id){
+  openConfirm('⚠️','Supprimer cette candidature ?','Cette action est irréversible.',false,async()=>{
+    const sb=getSB();
+    await sb.from('waitlist').delete().eq('id',id);
+    showToast('✓ Candidature supprimée');
+    loadAdminWaitlist();
+  });
+}
+
+function exportWaitlistCSV(){
+  const header=['prenom','nom','email','telephone','agence_nom','type_agence','motivation','created_at'];
+  const rows=_adminWaitlist.map(w=>header.map(k=>`"${(w[k]||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv=[header.join(','),...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='waitlist.csv';
+  a.click();
+}
+
+/* ── Modal Gérer ── */
+function openManageModal(userId){
+  const u=_adminUsers.find(x=>x.id===userId);
+  if(!u) return;
+  _managingUser={...u};
+  document.getElementById('manage-modal-title').textContent='Gérer — '+(u.email||'');
+  document.getElementById('manage-modal-sub').textContent=(u.prenom||'')+(u.nom?' '+u.nom:'')+(u.agence_nom?' · '+u.agence_nom:'');
+
+  const ia=typeof u.ia_profile==='string'?JSON.parse(u.ia_profile||'{}'):(u.ia_profile||{});
+  const hasIA=Object.keys(ia).length>0;
+  document.getElementById('manage-info-grid').innerHTML=`
+    <div class="manage-info-row"><div class="manage-info-label">Email</div><div class="manage-info-value">${u.email||'—'}</div></div>
+    <div class="manage-info-row"><div class="manage-info-label">Prénom / Nom</div><div class="manage-info-value">${u.prenom||'—'} ${u.nom||''}</div></div>
+    <div class="manage-info-row"><div class="manage-info-label">Agence</div><div class="manage-info-value">${u.agence_nom||'—'}</div></div>
+    <div class="manage-info-row"><div class="manage-info-label">Inscription</div><div class="manage-info-value">${u.created_at?new Date(u.created_at).toLocaleString('fr-FR'):'—'}</div></div>
+    <div class="manage-info-row"><div class="manage-info-label">Onboarding</div><div class="manage-info-value">${u.onboarding_complete?'✓ Complété':'✗ Non complété'}</div></div>
+    <div class="manage-info-row"><div class="manage-info-label">Profil IA</div><div class="manage-info-value">${hasIA?'✓ Configuré':'✗ Non configuré'}</div></div>
+  `;
+  document.getElementById('manage-plan-select').value=u.plan||'free';
+  document.getElementById('manage-credits-radar').value=u.credits_radar??0;
+  document.getElementById('manage-credits-enrich').value=u.credits_enrichissement??0;
+  const roleBtn=document.getElementById('manage-role-btn');
+  const isAdm=(u.role==='admin');
+  roleBtn.textContent=isAdm?'Retirer admin':'Passer admin';
+  roleBtn.className='manage-btn '+(isAdm?'mbn-danger':'mbn-warn');
+  document.getElementById('manage-modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeManageModal(){
+  document.getElementById('manage-modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function onManagePlanChange(){
+  const plan=document.getElementById('manage-plan-select').value;
+  const c=PLAN_CREDITS[plan]||{radar:0,enrichissement:0};
+  document.getElementById('manage-credits-radar').value=c.radar;
+  document.getElementById('manage-credits-enrich').value=c.enrichissement;
+}
+
+function reloadManageCredits(){
+  const plan=_managingUser?.plan||'free';
+  document.getElementById('manage-plan-select').value=plan;
+  onManagePlanChange();
+  showToast('Crédits réinitialisés au plan actuel');
+}
+
+async function applyManagePlan(){
+  const sb=getSB();
+  const plan=document.getElementById('manage-plan-select').value;
+  const c=PLAN_CREDITS[plan];
+  const {error}=await sb.from('profiles').update({
+    plan,credits_radar:c.radar,credits_enrichissement:c.enrichissement
+  }).eq('id',_managingUser.id);
+  if(error){showToast('❌ '+error.message);return;}
+  Object.assign(_managingUser,{plan,credits_radar:c.radar,credits_enrichissement:c.enrichissement});
+  const idx=_adminUsers.findIndex(u=>u.id===_managingUser.id);
+  if(idx>=0) Object.assign(_adminUsers[idx],_managingUser);
+  showToast('✓ Plan appliqué : '+plan);
+}
+
+async function applyCustomCredits(){
+  const sb=getSB();
+  const radar=parseInt(document.getElementById('manage-credits-radar').value)||0;
+  const enrich=parseInt(document.getElementById('manage-credits-enrich').value)||0;
+  const {error}=await sb.from('profiles').update({credits_radar:radar,credits_enrichissement:enrich}).eq('id',_managingUser.id);
+  if(error){showToast('❌ '+error.message);return;}
+  showToast('✓ Crédits personnalisés appliqués');
+}
+
+function toggleManageRole(){
+  const isAdm=(_managingUser.role==='admin');
+  const newRole=isAdm?'client':'admin';
+  const msg=isAdm?'Retirer les droits admin à cet utilisateur ?':'Passer cet utilisateur en admin ?';
+  const sub=isAdm?'L\'utilisateur perdra l\'accès au dashboard admin.':'Cet utilisateur aura accès à toutes les données.';
+  openConfirm('⚠️',msg,sub,false,async()=>{
+    const sb=getSB();
+    const {error}=await sb.from('profiles').update({role:newRole}).eq('id',_managingUser.id);
+    if(error){showToast('❌ '+error.message);return;}
+    _managingUser.role=newRole;
+    const idx=_adminUsers.findIndex(u=>u.id===_managingUser.id);
+    if(idx>=0) _adminUsers[idx].role=newRole;
+    const roleBtn=document.getElementById('manage-role-btn');
+    roleBtn.textContent=newRole==='admin'?'Retirer admin':'Passer admin';
+    roleBtn.className='manage-btn '+(newRole==='admin'?'mbn-danger':'mbn-warn');
+    showToast(`✓ Rôle mis à jour : ${newRole}`);
+  });
+}
+
+async function resetManageOnboarding(){
+  openConfirm('🔄','Réinitialiser l\'onboarding ?','L\'utilisateur verra l\'onboarding au prochain login.',false,async()=>{
+    const sb=getSB();
+    const {error}=await sb.from('profiles').update({onboarding_complete:false}).eq('id',_managingUser.id);
+    if(error){showToast('❌ '+error.message);return;}
+    showToast('✓ Onboarding réinitialisé');
+  });
+}
+
+function viewManageLeads(){
+  closeManageModal();
+  navigate('leads',document.querySelector('[data-page=leads]'));
+  showToast('Affichage des leads de '+(_managingUser.email||'cet utilisateur'));
+}
+
+function emailManageUser(){
+  window.open(`mailto:${_managingUser.email}`);
+}
+
+function suspendManageUser(){
+  openConfirm('⚠️','Suspendre ce compte ?','Les crédits seront remis à zéro et le plan passé en Free.',false,async()=>{
+    const sb=getSB();
+    const {error}=await sb.from('profiles').update({credits_radar:0,credits_enrichissement:0,plan:'free'}).eq('id',_managingUser.id);
+    if(error){showToast('❌ '+error.message);return;}
+    Object.assign(_managingUser,{credits_radar:0,credits_enrichissement:0,plan:'free'});
+    document.getElementById('manage-plan-select').value='free';
+    document.getElementById('manage-credits-radar').value=0;
+    document.getElementById('manage-credits-enrich').value=0;
+    showToast('⛔ Compte suspendu — crédits remis à zéro');
+  });
+}
+
+function deleteManageUser(){
+  openConfirm('🗑️','Supprimer définitivement ce compte ?','Cette action est irréversible. Tapez DELETE pour confirmer.',true,async()=>{
+    const sb=getSB();
+    const {error}=await sb.from('profiles').delete().eq('id',_managingUser.id);
+    if(error){showToast('❌ '+error.message);return;}
+    _adminUsers=_adminUsers.filter(u=>u.id!==_managingUser.id);
+    renderAdminUsers(_adminUsers);
+    closeManageModal();
+    showToast('✓ Compte supprimé définitivement');
+    loadAdminOverview();
+  });
+}
+
+/* ── Confirm modal ── */
+function openConfirm(icon,title,sub,requireDelete,callback){
+  _confirmCallback=callback;
+  _confirmRequireInput=requireDelete?'DELETE':null;
+  document.getElementById('confirm-icon').textContent=icon;
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-sub').textContent=sub;
+  const inp=document.getElementById('confirm-input');
+  inp.style.display=requireDelete?'block':'none';
+  inp.value='';
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+function closeConfirm(){
+  document.getElementById('confirm-overlay').classList.remove('open');
+  _confirmCallback=null;
+  _confirmRequireInput=null;
+}
+
+function execConfirm(){
+  if(_confirmRequireInput){
+    const val=document.getElementById('confirm-input').value.trim();
+    if(val!==_confirmRequireInput){showToast('❌ Saisie incorrecte');return;}
+  }
+  closeConfirm();
+  if(_confirmCallback) _confirmCallback();
+}
+
+/* ── Tokens & Coûts ── */
+function setTokenPeriod(days,el){
+  _tokenPeriodDays=days;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.toggle('active',b.dataset.days==days));
+  loadAdminTokens();
+}
+
+async function loadAdminTokens(){
+  const sb=getSB();
+  let query=sb.from('ai_usage_logs').select('*,profiles(email)').order('created_at',{ascending:false});
+  if(_tokenPeriodDays>0){
+    const since=new Date(Date.now()-_tokenPeriodDays*86400000).toISOString();
+    query=query.gte('created_at',since);
+  }
+  const {data}=await query;
+  _adminTokenLogs=data||[];
+  renderTokenStats(_adminTokenLogs);
+  renderTokenChart();
+  renderTokenDetail(_adminTokenLogs);
+}
+
+function renderTokenStats(logs){
+  const total_cost=logs.reduce((s,l)=>s+(parseFloat(l.cost_usd)||0),0);
+  const total_tokens=logs.reduce((s,l)=>s+(l.total_tokens||0),0);
+  const enrich_logs=logs.filter(l=>l.event_type&&l.event_type.startsWith('enrichissement'));
+  const avg_cost=enrich_logs.length?total_cost/enrich_logs.length:0;
+  const users=new Set(logs.map(l=>l.user_id).filter(Boolean));
+  const avg_user=users.size?total_cost/users.size:0;
+  const cards=[
+    {label:'Coût total',value:'$'+total_cost.toFixed(4)},
+    {label:'Tokens totaux',value:total_tokens.toLocaleString('fr-FR')},
+    {label:'Coût moyen / enrichissement',value:'$'+avg_cost.toFixed(6)},
+    {label:'Coût moyen / utilisateur actif',value:'$'+avg_user.toFixed(4)},
+  ];
+  document.getElementById('tokens-stat-grid').innerHTML=cards.map(c=>`
+    <div class="admin-stat-card">
+      <div class="admin-stat-label">${c.label}</div>
+      <div class="admin-stat-value" style="font-size:22px">${c.value}</div>
+    </div>
+  `).join('');
+}
+
+async function renderTokenChart(){
+  const sb=getSB();
+  const since=new Date(Date.now()-30*86400000).toISOString();
+  const {data}=await sb.from('ai_usage_logs').select('created_at,total_tokens,event_type').gte('created_at',since);
+  if(!data?.length){document.getElementById('tokens-chart-bars').innerHTML='<div style="color:var(--gray-400);font-size:12px">Aucune donnée</div>';return;}
+  // Group by day
+  const byDay={};
+  data.forEach(r=>{
+    const d=r.created_at.substring(0,10);
+    if(!byDay[d]) byDay[d]={audit:0,email:0};
+    if(r.event_type==='enrichissement_audit') byDay[d].audit+=r.total_tokens||0;
+    if(r.event_type==='enrichissement_email') byDay[d].email+=r.total_tokens||0;
+  });
+  const days=Object.keys(byDay).sort();
+  const maxVal=Math.max(1,...days.map(d=>byDay[d].audit+byDay[d].email));
+  const barsHTML=days.map(d=>{
+    const auditH=Math.round((byDay[d].audit/maxVal)*76);
+    const emailH=Math.round((byDay[d].email/maxVal)*76);
+    const label=d.substring(5); // MM-DD
+    return `<div class="admin-bar-day" title="${label}: ${byDay[d].audit+byDay[d].email} tokens">
+      <div class="admin-bar-seg bar-audit" style="height:${auditH}px;width:100%"></div>
+      <div class="admin-bar-seg bar-email" style="height:${emailH}px;width:100%"></div>
+    </div>`;
+  }).join('');
+  document.getElementById('tokens-chart-bars').innerHTML=barsHTML;
+}
+
+function renderTokenDetail(logs){
+  const tbody=document.getElementById('tokens-detail-tbody');
+  if(!logs.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:20px">Aucune donnée</td></tr>';return;}
+  tbody.innerHTML=logs.slice(0,200).map(l=>{
+    const date=new Date(l.created_at).toLocaleString('fr-FR');
+    const email=l.profiles?.email||'—';
+    const typeClass={enrichissement_audit:'et-audit',enrichissement_email:'et-email',radar:'et-radar'}[l.event_type]||'';
+    const typeLabel={enrichissement_audit:'Audit',enrichissement_email:'Email',radar:'Radar'}[l.event_type]||l.event_type||'—';
+    return `<tr>
+      <td style="font-size:11px;white-space:nowrap">${date}</td>
+      <td style="font-size:11px">${email}</td>
+      <td><span class="${typeClass}">${typeLabel}</span></td>
+      <td style="font-size:11px">${l.model||'—'}</td>
+      <td style="font-size:11px">${(l.input_tokens||0).toLocaleString()}</td>
+      <td style="font-size:11px">${(l.output_tokens||0).toLocaleString()}</td>
+      <td style="font-size:11px;font-weight:600">${(l.total_tokens||0).toLocaleString()}</td>
+      <td style="font-size:11px;color:#16A34A">$${(parseFloat(l.cost_usd)||0).toFixed(6)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Logs ── */
+async function loadAdminLogs(){
+  const sb=getSB();
+  // Check if webhook_logs table exists — catch gracefully
+  try{
+    const {data,error}=await sb.from('webhook_logs')
+      .select('*,profiles(email)')
+      .order('created_at',{ascending:false})
+      .limit(200);
+    if(error) throw error;
+    _adminLogs=data||[];
+    // Populate event type filter
+    const types=[...new Set(_adminLogs.map(l=>l.event_type).filter(Boolean))];
+    const sel=document.getElementById('log-filter-type');
+    sel.innerHTML='<option value="">Tous types</option>'+types.map(t=>`<option value="${t}">${t}</option>`).join('');
+    document.getElementById('admin-logs-count').textContent=_adminLogs.length+' logs';
+    renderAdminLogs(_adminLogs);
+  }catch(e){
+    document.getElementById('admin-logs-tbody').innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:20px">Table webhook_logs non disponible</td></tr>`;
+  }
+}
+
+function filterLogs(){
+  const status=document.getElementById('log-filter-status').value;
+  const dir=document.getElementById('log-filter-dir').value;
+  const type=document.getElementById('log-filter-type').value;
+  const filtered=_adminLogs.filter(l=>
+    (!status||(status==='success'?l.status==='success':l.status!=='success'))&&
+    (!dir||l.direction===dir)&&
+    (!type||l.event_type===type)
+  );
+  document.getElementById('admin-logs-count').textContent=filtered.length+' logs';
+  renderAdminLogs(filtered);
+}
+
+function renderAdminLogs(logs){
+  const tbody=document.getElementById('admin-logs-tbody');
+  if(!logs.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:20px">Aucun log trouvé</td></tr>';return;}
+  tbody.innerHTML=logs.map(l=>{
+    const date=new Date(l.created_at).toLocaleString('fr-FR');
+    const email=l.profiles?.email||'—';
+    const ok=l.status==='success';
+    const dir=l.direction||'outbound';
+    return `<tr>
+      <td style="font-size:11px;white-space:nowrap">${date}</td>
+      <td style="font-size:11px">${email}</td>
+      <td><span class="${dir==='inbound'?'dir-in':'dir-out'}">${dir}</span></td>
+      <td style="font-size:11px">${l.event_type||'—'}</td>
+      <td class="${ok?'log-status-ok':'log-status-err'}">${ok?'✓ Succès':'✗ Erreur'}</td>
+      <td><button class="btn-manage" onclick="showPayload(${JSON.stringify(JSON.stringify(l.payload||{}))})">Voir</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function showPayload(raw){
+  try{
+    const obj=typeof raw==='string'?JSON.parse(raw):raw;
+    document.getElementById('payload-pre').textContent=JSON.stringify(obj,null,2);
+  }catch{
+    document.getElementById('payload-pre').textContent=raw;
+  }
+  document.getElementById('payload-modal-overlay').classList.add('open');
+}
+function closePayloadModal(){document.getElementById('payload-modal-overlay').classList.remove('open')}
 
 // initRealtimeLeads() / initRealtimeProfile() appelés dans init()
 </script>

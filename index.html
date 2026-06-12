@@ -1729,7 +1729,7 @@ table.admin-tbl tr:hover td{background:#FAFBFF}
       <div class="nav-item" data-page="leads" onclick="navigate('leads',this)">
         <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span class="ni-label">Leads</span>
-        <span class="nav-badge">8</span>
+        <span class="nav-badge" id="sidebar-leads-badge">0</span>
       </div>
       <div class="nav-item" data-page="rapports" onclick="navigate('rapports',this)">
         <svg class="ni-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -3131,6 +3131,9 @@ function renderTable(leads,bodyId='table-body',countId='result-count'){
   const c=document.getElementById(countId);
   if(c) c.textContent=leads.length+' lead'+(leads.length>1?'s':'');
   if(b) b.innerHTML=leads.length?leads.map(rowHTML).join(''):emptyHTML;
+  // Mise à jour badge sidebar en temps réel
+  const badge=document.getElementById('sidebar-leads-badge');
+  if(badge) badge.textContent=leadsData.length;
   updateDashboardStats();
 }
 function renderReports(){
@@ -4865,6 +4868,25 @@ function initRealtimeLeads(){
 
   _supabase
     .channel('leads-realtime')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'leads' },
+      (payload) => {
+        const newRow = payload.new;
+        // Vérifier que le lead appartient à l'utilisateur courant (ou admin voit tout)
+        if(!window._planIsAdmin && newRow.user_id !== currentUser?.id) return;
+        // Éviter les doublons
+        const exists = leadsData.some(l => String(l.id) === String(newRow.id));
+        if(!exists){
+          const lead = normalizeLeadFromDB(newRow);
+          leadsData.unshift(lead);
+          filteredLeads = [...leadsData];
+          renderTable(leadsData);
+          renderTable(leadsData,'leads-table-body','leads-count');
+          // Badge sidebar mis à jour via renderTable
+        }
+      }
+    )
     .on(
       'postgres_changes',
       { event: 'UPDATE', schema: 'public', table: 'leads' },
